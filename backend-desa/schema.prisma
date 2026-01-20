@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  username      String   @unique
+  phoneNumber   String   @unique
+  nik           String   @unique
+  password      String
+  role          String   @default("WARGA")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tempatLahir      String?
+  tanggalLahir     DateTime?
+  jenisKelamin     String?
+  agama            String?
+  pekerjaan        String?
+  statusPerkawinan String?
+  pendidikan       String?
+  alamatLengkap    String?
+  
+  surat         Surat[]
+}
+
+model Surat {
+  id              String   @id @default(uuid())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jenisSurat      String
+  noTiket         String   @unique
+  data            Json
+  status          String   @default("Belum Dikerjakan")
+  catatanAdmin    String?
+  waktuSelesai    DateTime?
+  
+  // ✅ FIELD BARU untuk upload surat selesai
+  fileSuratSelesai String?   // Path file PDF yang diupload admin
+  uploadedAt       DateTime? // Waktu upload file
+  uploadedBy       String?   // Username admin yang upload
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, status])
+  @@index([noTiket])
+}
