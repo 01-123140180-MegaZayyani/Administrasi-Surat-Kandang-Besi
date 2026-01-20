@@ -19,24 +19,40 @@ export default function FormBelumNikah() {
     fotoKk: null
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const data = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (formData[key]) data.append(key, formData[key]);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // VALIDASI NIK (Minimal 16 angka)
+  if (formData.nik.length !== 16 || isNaN(formData.nik)) {
+    return alert("Gagal! NIK harus berjumlah 16 digit angka.");
+  }
+
+  const dataKeAdmin = {
+    jenis: "Surat Domisili", // Sesuaikan jenisnya
+    pemohon: formData.nama,
+    nik: formData.nik,
+    alamat: formData.alamat,
+    // data tambahan lainnya...
+  };
+
+  try {
+    const response = await fetch('http://localhost:5000/api/pengajuan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataKeAdmin)
     });
 
-    try {
-      await api.post('/surat', data);
-      alert("✅ Permohonan Surat Keterangan Belum Menikah Berhasil!");
-      navigate('/beranda');
-    } catch (error) {
-      alert("❌ Gagal mengajukan surat");
-    } finally {
-      setIsSubmitting(false);
+    if (response.ok) {
+      alert("Sukses! Pengajuan Anda telah dikirim ke Admin.");
+      navigate("/status-pengajuan"); // Arahkan ke halaman status
+    } else {
+      alert("Gagal mengirim pengajuan.");
     }
-  };
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Server sedang mati. Pastikan backend jalan!");
+  }
+};
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen pb-12 text-left animate-fadeIn">

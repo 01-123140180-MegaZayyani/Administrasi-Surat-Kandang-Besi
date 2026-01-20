@@ -125,3 +125,21 @@ const AdminTemplate = () => {
 };
 
 export default AdminTemplate;
+
+// Tambahkan fungsi ini di dalam komponen Form/AdminTemplate
+const validateForm = () => {
+  if (formData.nik.length !== 16 || isNaN(formData.nik)) {
+    alert("NIK harus berjumlah 16 digit angka!");
+    return false;
+  }
+  return true;
+};
+
+// Gunakan di handleSubmit (Baris 287)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return; // Hentikan proses jika NIK salah
+
+  const dataKeAdmin = { ...formData, status: "Menunggu Verifikasi" };
+  // ... rest of fetch code
+};

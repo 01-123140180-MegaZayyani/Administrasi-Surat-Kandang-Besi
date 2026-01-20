@@ -80,7 +80,7 @@ export default function FormKelahiran() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Pukul Kelahiran <span className="text-red-500">*</span></label>
+                <label className="text-sm font-semibold text-[#1E3A8A]">Waktu Kelahiran <span className="text-red-500">*</span></label>
                 <input type="time" className="p-3 rounded-xl border border-slate-200 outline-none" required 
                   onChange={(e) => setFormData({...formData, pukul: e.target.value})} />
               </div>

@@ -1,149 +1,127 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
 export default function BuatSurat() {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
 
-  // 1. PROTEKSI HALAMAN (Auth Guard)
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn !== "true") {
-      navigate("/login");
-    }
-  }, [navigate]);
+  // Daftar Jenis Surat - ID harus sama dengan case di FormulirSurat.jsx
+  const jenisSurat = [
+    { id: "domisili", nama: "Surat Keterangan Domisili", desc: "Keterangan tempat tinggal penduduk di desa" },
+    { id: "sktm", nama: "Surat Keterangan Tidak Mampu (SKTM)", desc: "Untuk syarat bantuan pemerintah atau beasiswa" },
+    { id: "sku", nama: "Surat Keterangan Usaha (SKU)", desc: "Syarat pengajuan modal atau izin usaha" },
+    { id: "kelahiran", nama: "Surat Keterangan Kelahiran", desc: "Dasar pengurusan akta kelahiran" },
+    { id: "kematian", nama: "Surat Keterangan Kematian", desc: "Bukti administratif pelaporan kematian" },
+  ];
 
-  // 2. DATA MEKANISME
+  // Mekanisme Pengajuan
   const mekanisme = [
-    { 
-      id: 1, 
-      judul: "Cari Surat", 
-      desc: "Temukan surat melalui kolom pencarian.", 
-      svg: (<svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#1E3A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>) 
+    {
+      no: 1,
+      judul: "Menentukan Surat",
+      desc: "Memilih surat online yang ingin diajukan.",
+      icon: (
+        <svg className="w-10 h-10 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
     },
-    { 
-      id: 2, 
-      judul: "Isi Data", 
-      desc: "Lengkapi data diri pada formulir online.", 
-      svg: (<svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#1E3A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>) 
+    {
+      no: 2,
+      judul: "Mengisi Formulir",
+      desc: "Mengisi data diri dan lampiran persyaratan.",
+      icon: (
+        <svg className="w-10 h-10 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      ),
     },
-    { 
-      id: 3, 
-      judul: "Verifikasi", 
-      desc: "Tunggu validasi data oleh petugas desa.", 
-      svg: (<svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#1E3A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04z" /></svg>) 
+    {
+      no: 3,
+      judul: "Menunggu Verifikasi",
+      desc: "Operator desa akan memeriksa dokumen Anda.",
+      icon: (
+        <svg className="w-10 h-10 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+        </svg>
+      ),
     },
-    { 
-      id: 4, 
-      judul: "Selesai", 
-      desc: "Surat dapat diambil di Kantor Desa.", 
-      svg: (<svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-[#1E3A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) 
+    {
+      no: 4,
+      judul: "Proses Selesai",
+      desc: "Surat dapat diambil di kantor desa.",
+      icon: (
+        <svg className="w-10 h-10 text-[#1E3A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
     },
   ];
-
-  // 3. DATA DAFTAR SURAT (DENGAN SLUG)
-  // Slug ini harus sama dengan case di FormulirSurat.jsx
-  const daftarSurat = [
-    { id: 1, slug: "imunisasi-catin", nama: "Surat Pengantar Imunasi Catin", deskripsi: "Surat pengantar untuk keperluan administrasi umum" },
-    { id: 2, slug: "domisili", nama: "Surat Keterangan Domisili", deskripsi: "Keterangan tempat tinggal penduduk di desa" },
-    { id: 3, slug: "kehilangan", nama: "Surat Keterangan Kehilangan", deskripsi: "Surat keterangan untuk dokumen yang hilang" },
-    { id: 4, slug: "sktm", nama: "Surat Keterangan Tidak Mampu (SKTM)", deskripsi: "Untuk syarat bantuan pemerintah atau beasiswa" },
-    { id: 5, slug: "sku", nama: "Surat Keterangan Usaha (SKU)", deskripsi: "Syarat pengajuan modal atau izin usaha" },
-    { id: 6, slug: "nikah", nama: "Surat Pengantar Nikah (NA)", deskripsi: "Persyaratan administrasi ke KUA" },
-    { id: 7, slug: "kelahiran", nama: "Surat Keterangan Kelahiran", deskripsi: "Dasar pengurusan akta kelahiran" },
-    { id: 8, slug: "kematian", nama: "Surat Keterangan Kematian", deskripsi: "Bukti administratif pelaporan kematian" },
-    { id: 9, slug: "izin-keramaian", nama: "Surat Izin Keramaian", deskripsi: "Untuk mengadakan acara atau kegiatan" },
-    { id: 10, slug: "skck", nama: "Surat Keterangan Catatan Kepolisian (SKCK)", deskripsi: "Untuk melamar pekerjaan atau keperluan hukum" },
-    { id: 11, slug: "ijazah", nama: "Surat Keterangan Tidak Memiliki Ijazah", deskripsi: "Untuk keperluan pekerjaan"},
-    { id: 12, slug: "belum-pernah-menikah", nama: "Surat Keterangan Belum Pernah Menikah", deskripsi: "Untuk keperluan pekerjaan"}
-  ];
-
-  const filteredSurat = daftarSurat.filter((item) =>
-    item.nama.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // 4. HANDLER NAVIGASI DINAMIS
-  const handlePilihSurat = (slug) => {
-    // Navigasi ke route formulir-surat sambil membawa data state 'jenis'
-    navigate("/formulir-surat", { state: { jenis: slug } });
-  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#334155]">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
       <Navbar />
-      <main className="max-w-5xl mx-auto px-6 py-10">
+
+      <main className="max-w-7xl mx-auto px-6 py-16">
         
-        {/* HEADER MEKANISME */}
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-bold text-[#1E3A8A] uppercase tracking-tight">Mekanisme Layanan Surat</h1>
-          <div className="h-1 w-12 bg-[#F97316] mx-auto mt-2 rounded-full"></div>
-        </div>
-
-        {/* GRID MEKANISME */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-          {mekanisme.map((item) => (
-            <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-center relative">
-              <span className="absolute -top-2 -right-2 bg-[#1E3A8A] text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px]">{item.id}</span>
-              <div className="flex justify-center mb-3">{item.svg}</div>
-              <h3 className="text-[13px] font-bold text-[#1E3A8A] mb-1 uppercase tracking-wide">{item.judul}</h3>
-              <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* SECTION SEARCH & LIST */}
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white p-6 md:p-10 rounded-[24px] shadow-sm border border-slate-200">
-            <h2 className="text-sm font-bold text-[#1E3A8A] uppercase mb-6 tracking-widest text-center italic opacity-70">Cari & Pilih Jenis Surat</h2>
-
-            <div className="relative mb-8">
-              <input
-                type="text"
-                placeholder="Cari surat di sini..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-5 py-3.5 rounded-xl bg-slate-50 border border-slate-300 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] outline-none text-sm font-medium transition-all"
-              />
-              <span className="absolute right-5 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
-            </div>
-
-            <div className="space-y-3">
-              {filteredSurat.length > 0 ? (
-                filteredSurat.map((surat) => (
-                  <button
-                    key={surat.id}
-                    onClick={() => handlePilihSurat(surat.slug)} 
-                    className="w-full bg-[#1E3A8A] hover:bg-[#162447] p-4 rounded-xl flex items-center justify-between text-white transition-all group active:scale-[0.99] shadow-md border-b-2 border-black/20"
-                  >
-                    <div className="flex items-center gap-4 text-left">
-                      <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white/70" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1 7h-4V5l4 4z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-[14px] font-bold tracking-wide">{surat.nama}</h4>
-                        <p className="text-[10px] text-blue-200 font-normal opacity-70 mt-0.5">{surat.deskripsi}</p>
-                      </div>
-                    </div>
-                    <div className="opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                  <p className="text-slate-400 font-medium text-xs italic tracking-wide">Surat "{searchTerm}" tidak ditemukan.</p>
+        {/* MEKANISME PENGAJUAN */}
+        <section className="mb-24">
+          <h2 className="text-[#1E3A8A] text-center text-2xl font-black uppercase tracking-[0.2em] mb-12">
+            Mekanisme Pengajuan Surat Online
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {mekanisme.map((step) => (
+              <div key={step.no} className="relative bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm text-center flex flex-col items-center group hover:shadow-xl transition-all duration-300">
+                <div className="absolute top-4 right-4 w-7 h-7 bg-[#1E3A8A] text-white rounded-full flex items-center justify-center text-[10px] font-black">
+                  {step.no}
                 </div>
-              )}
-            </div>
+                <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                  {step.icon}
+                </div>
+                <h4 className="text-[#1E3A8A] font-black text-sm uppercase tracking-wider mb-3">
+                  {step.judul}
+                </h4>
+                <p className="text-slate-500 text-[11px] leading-relaxed font-semibold">
+                  {step.desc}
+                </p>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
+
+        {/* LAYANAN SURAT (TERKONEKSI KE FORM) */}
+        <section className="max-w-5xl mx-auto">
+          <h2 className="text-[#1E3A8A] text-center text-2xl font-black uppercase tracking-[0.2em] mb-10">
+            Layanan Surat Online
+          </h2>
+
+          <div className="space-y-4">
+            {jenisSurat.map((surat) => (
+              <button
+                key={surat.id}
+                // DISINI PERBAIKANNYA: Mengarahkan ke halaman formulir dengan state type
+                onClick={() => navigate(`/formulir-surat?type=${surat.id}`, { state: { type: surat.id } })}
+                className="w-full bg-[#1E3A8A] hover:bg-blue-900 text-white p-6 rounded-[25px] flex items-center justify-between group transition-all shadow-lg shadow-blue-900/10 active:scale-[0.99]"
+              >
+                <div className="text-left px-2">
+                  <h4 className="font-black text-sm uppercase tracking-wide mb-1">{surat.nama}</h4>
+                  <p className="text-blue-200 text-[10px] font-medium opacity-80">{surat.desc}</p>
+                </div>
+                
+                <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-white group-hover:text-[#1E3A8A] transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
       </main>
+
       <Footer />
     </div>
   );

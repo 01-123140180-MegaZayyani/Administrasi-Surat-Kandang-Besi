@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
@@ -18,9 +18,11 @@ import FormSKCK from "./Form/FormSKCK";
 import FormTMI from "./Form/FormTMI";
 
 export default function FormulirSurat() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const jenisSurat = location.state?.jenis;
+  const [searchParams] = useSearchParams();
+  
+  // Ambil data 'type' dari URL (contoh: /formulir-surat?type=domisili)
+  const jenisSurat = searchParams.get("type");
 
   const renderForm = () => {
     switch (jenisSurat) {
@@ -37,12 +39,12 @@ export default function FormulirSurat() {
       case 'skck': return <FormSKCK />;
       case 'ijazah': return <FormTMI />;
 
-
       default:
         return (
           <div className="max-w-4xl mx-auto bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center">
             <h2 className="text-xl font-bold text-slate-800 mb-2">Pilih Jenis Surat Dahulu</h2>
-            <Link to="/buat-surat" className="bg-[#1E3A8A] text-white px-8 py-3 rounded-xl font-bold inline-block mt-4">
+            <p className="text-slate-500 mb-6 text-sm">Sistem tidak menemukan jenis surat yang Anda maksud.</p>
+            <Link to="/buat-surat" className="bg-[#1E3A8A] text-white px-8 py-3 rounded-xl font-bold inline-block">
               Kembali ke Buat Surat
             </Link>
           </div>
@@ -54,9 +56,14 @@ export default function FormulirSurat() {
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
       <main className="max-w-5xl mx-auto px-6 py-12">
-        <button onClick={() => navigate('/buat-surat')} className="flex items-center gap-2 text-slate-500 mb-8 font-medium">
+        <button 
+          onClick={() => navigate('/buat-surat')} 
+          className="flex items-center gap-2 text-slate-500 hover:text-[#1E3A8A] transition-colors mb-8 font-bold text-sm uppercase tracking-wider"
+        >
           ← Kembali Pilih Surat
         </button>
+        
+        {/* Render form berdasarkan parameter type */}
         {renderForm()}
       </main>
       <Footer />
