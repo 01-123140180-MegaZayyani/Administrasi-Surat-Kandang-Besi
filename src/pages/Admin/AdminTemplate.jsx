@@ -1,92 +1,153 @@
-import React from "react";
-import { Save, Info, Printer } from "lucide-react";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Printer, ArrowLeft } from "lucide-react";
 
 export default function AdminTemplate() {
+  const location = useLocation();
+  const dataWarga = location.state?.warga || {};
+
+  // State untuk Form Input Manual
+  const [formData, setFormData] = useState({
+    nomorSurat: "470 / ___ / 60.2005 / ___ / 2026",
+    nama: dataWarga.nama || "",
+    nik: dataWarga.nik || "",
+    ttl: dataWarga.ttl || "Kandang Besi, __-__-____",
+    kelamin: dataWarga.kelamin || "Laki-Laki",
+    pekerjaan: dataWarga.pekerjaan || "Petani/Pekebun",
+    agama: "Islam",
+    alamat: dataWarga.alamat || "Pekon Kandang Besi Kec. Kotaagung Barat",
+    tglSurat: "13 Januari 2026", // Tanggal surat manual
+    jenisSurat: "domisili", 
+    isiTambahan: "JUAL BELI HASIL BUMI", // Untuk SKU
+    penandatangan: "MUKHTAR" 
+  });
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="p-10 bg-[#F8FAFC] min-h-screen">
-      <div className="mb-10 flex justify-between items-end">
-        <div>
-          <h2 className="text-[#1E3A8A] text-3xl font-black uppercase tracking-tighter text-left">Editor Template</h2>
-          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1 text-left">Pekon Kandang Besi</p>
-        </div>
-        <div className="flex gap-4">
-          <button className="bg-white border-2 border-slate-200 text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 transition-all hover:bg-slate-50">
-            <Printer size={16} /> Cetak Sample
+    <div className="flex h-screen bg-slate-100 overflow-hidden font-sans print:bg-white">
+      
+      {/* KIRI: PANEL INPUT (KETIK MANUAL) - Sembunyi saat print */}
+      <div className="w-1/3 bg-white border-r border-slate-200 overflow-y-auto p-8 shadow-xl z-10 print:hidden">
+        <div className="flex items-center gap-4 mb-8 text-left">
+          <button className="p-2 hover:bg-slate-100 rounded-full transition-all text-[#1E3A8A]">
+            <ArrowLeft size={20} />
           </button>
-          <button className="bg-[#1E3A8A] text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-blue-200 transition-all hover:bg-blue-900">
-            <Save size={16} /> Simpan Template
-          </button>
+          <h2 className="text-[#1E3A8A] font-black uppercase text-sm tracking-widest text-left">Input Data Surat</h2>
         </div>
+
+        <div className="space-y-5 text-left">
+          {/* Pilih Jenis Template */}
+          <div>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Pilih Template</label>
+            <select 
+              value={formData.jenisSurat}
+              onChange={(e) => setFormData({...formData, jenisSurat: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-bold outline-none"
+            >
+              <option value="domisili">Surat Keterangan Domisili</option>
+              <option value="sku">Surat Keterangan Usaha (SKU)</option>
+            </select>
+          </div>
+
+          <hr className="border-slate-100" />
+
+          {/* Form Ketik Manual */}
+          {[
+            { label: "Nomor Surat", key: "nomorSurat" },
+            { label: "Tanggal Surat (Manual)", key: "tglSurat" },
+            { label: "Nama Lengkap", key: "nama" },
+            { label: "NIK", key: "nik" },
+            { label: "Tempat, Tanggal Lahir", key: "ttl" },
+            { label: "Pekerjaan", key: "pekerjaan" },
+            { label: "Agama", key: "agama" },
+          ].map((item) => (
+            <div key={item.key}>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">{item.label}</label>
+              <input 
+                type="text" 
+                value={formData[item.key]}
+                onChange={(e) => setFormData({...formData, [item.key]: e.target.value})}
+                className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-bold outline-none focus:border-blue-500"
+              />
+            </div>
+          ))}
+
+          {formData.jenisSurat === "sku" && (
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nama/Jenis Usaha (Untuk SKU)</label>
+              <input 
+                type="text" 
+                value={formData.isiTambahan}
+                onChange={(e) => setFormData({...formData, isiTambahan: e.target.value})}
+                className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-bold outline-none"
+              />
+            </div>
+          )}
+        </div>
+
+        <button 
+          onClick={handlePrint}
+          className="w-full mt-10 bg-[#1E3A8A] text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg"
+        >
+          <Printer size={16} /> Cetak Surat Sekarang
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Sisi Kiri: Kontrol */}
-        <div className="space-y-6 text-left">
-          <div className="bg-white p-8 rounded-[35px] border border-slate-100 shadow-sm">
-            <h3 className="text-[#1E3A8A] font-black text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Info size={14} /> Pengaturan Font
-            </h3>
-            <p className="text-sm font-bold text-slate-500 mb-4">Font Aktif: <span className="text-[#1E3A8A]">Times New Roman (Serif)</span></p>
-           <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100">
-  <p className="text-[10px] font-black text-[#1E3A8A] uppercase tracking-widest leading-relaxed">
-    Sistem otomatisasi dokumen ini telah dikonfigurasi sesuai standar tata naskah dinas Pemerintah Pekon Kandang Besi. 
-    Seluruh data pemohon akan diintegrasikan secara presisi ke dalam format surat yang tersedia.
-  </p>
-</div>
-          </div>
-        </div>
-
-        {/* Sisi Kanan: Preview Surat (Kertas A4 Style) */}
-        <div className="bg-white p-[2cm] rounded-sm border border-slate-300 shadow-2xl min-h-[29.7cm] w-full text-black mx-auto" 
-             style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+      {/* KANAN: PREVIEW SURAT */}
+      <div className="flex-1 overflow-y-auto p-12 flex justify-center bg-slate-100 print:p-0 print:bg-white">
+        <div className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[20mm] text-black relative print:shadow-none" style={{ fontFamily: 'Times New Roman' }}>
           
           {/* KOP SURAT */}
-          <div className="text-center border-b-[3px] border-black pb-2 mb-8">
-            <h3 className="font-bold text-[16pt] uppercase leading-tight">Pemerintah Pekon Kandang Besi</h3>
-            <h3 className="font-bold text-[16pt] uppercase leading-tight">Kecamatan Kotaagung Barat</h3>
-            <h3 className="font-bold text-[16pt] uppercase leading-tight">Kabupaten Tanggamus</h3>
-            <p className="text-[10pt] italic mt-1">Alamat : Jl.Ir.H.Juanda KM 07 Pekon Kandang Besi Kec.Kotaagung Barat Kab.Tanggamus Kode Pos 35651</p>
+          <div className="text-center border-b-4 border-black pb-2 mb-8">
+            <h1 className="text-xl font-bold leading-tight uppercase">Pemerintah Kabupaten Tanggamus</h1>
+            <h1 className="text-xl font-bold leading-tight uppercase">Kecamatan Kotaagung Barat</h1>
+            <h1 className="text-2xl font-bold leading-tight uppercase">Pekon Kandang Besi</h1>
+            <p className="text-[11px] italic">Alamat : Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kode Pos 35651</p>
           </div>
 
           {/* JUDUL SURAT */}
           <div className="text-center mb-10">
-            <h4 className="font-bold text-[14pt] underline uppercase tracking-tight">Surat Keterangan Domisili</h4>
-            <p className="text-[12pt]">Nomor : 470 / 019 / 60.2005 / XII / 2025</p>
+            <h2 className="text-base font-bold underline uppercase tracking-widest">
+              {formData.jenisSurat === "domisili" ? "Surat Keterangan Domisili" : "Surat Keterangan Usaha"}
+            </h2>
+            <p className="text-[12pt]">Nomor : {formData.nomorSurat}</p>
           </div>
 
           {/* ISI SURAT */}
-          <div className="text-[12pt] space-y-6 leading-relaxed text-justify">
+          <div className="text-[12pt] leading-relaxed text-justify space-y-6">
             <p>Yang bertanda tangan dibawah ini Kepala Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus, dengan ini menerangkan bahwa :</p>
             
-            <div className="pl-12 space-y-2">
-              <table className="w-full">
-                <tbody>
-                  <tr><td className="w-40">Nama</td><td className="w-4">:</td><td className="font-bold uppercase">Rusdi</td></tr>
-                  <tr><td>Tempat, Tgl Lahir</td><td>:</td><td>Sanggi, 06-05-1978</td></tr>
-                  <tr><td>No. NIK</td><td>:</td><td>1806251010820003</td></tr>
-                  <tr><td>Jenis Kelamin</td><td>:</td><td>Laki-Laki</td></tr>
-                  <tr><td>Pekerjaan</td><td>:</td><td>Petani/Pekebun</td></tr>
-                  <tr><td>Agama</td><td>:</td><td>Islam</td></tr>
-                  <tr><td className="align-top">Alamat</td><td className="align-top">:</td><td>Pekon Kandang Besi Kecamatan Kotaagung Barat, Kabupaten Tanggamus.</td></tr>
-                </tbody>
-              </table>
+            <div className="ml-10 space-y-1">
+              <div className="flex w-full"><span className="w-44 uppercase">Nama</span><span>: {formData.nama}</span></div>
+              <div className="flex w-full"><span className="w-44 uppercase">No NIK</span><span>: {formData.nik}</span></div>
+              <div className="flex w-full"><span className="w-44 uppercase">Tempat, Tgl Lahir</span><span>: {formData.ttl}</span></div>
+              <div className="flex w-full"><span className="w-44 uppercase">Jenis Kelamin</span><span>: {formData.kelamin}</span></div>
+              <div className="flex w-full"><span className="w-44 uppercase">Pekerjaan</span><span>: {formData.pekerjaan}</span></div>
+              <div className="flex w-full"><span className="w-44 uppercase">Agama</span><span>: {formData.agama}</span></div>
+              <div className="flex w-full items-start"><span className="w-44 uppercase">Alamat</span><span className="flex-1">: {formData.alamat}</span></div>
             </div>
 
-            <p>
-              Adalah benar bertempat tinggal lebih dari 3 (tiga) tahun berturut-turut dan benar berdomisili di Pekon Kandang Besi Kecamatan Kotaagung Barat Kabupaten Tanggamus.
-            </p>
-            <p>
-              Demikian surat keterangan Domisili ini dibuat agar dapat digunakan sebagaimana mestinya.
-            </p>
+            {formData.jenisSurat === "domisili" ? (
+              <p>Adalah benar bertempat tinggal lebih dari 3 (tiga) tahun berturut-turut dan benar berdomisili di Pekon Kandang Besi Kecamatan Kotaagung Barat Kabupaten Tanggamus.</p>
+            ) : (
+              <div className="space-y-4">
+                <p>Nama tersebut diatas adalah penduduk Pekon Kandang Besi yang bertempat tinggal di wilayah Kandang Besi.</p>
+                <p>Nama tersebut diatas membuka usaha “{formData.isiTambahan}” yang berlokasi di wilayah Pekon Kandang Besi sejak tahun 2021 sampai berjalan saat ini.</p>
+              </div>
+            )}
+
+            <p>Demikian surat keterangan ini dibuat agar dapat digunakan sebagaimana mestinya.</p>
           </div>
 
           {/* TANDA TANGAN */}
-          <div className="mt-16 ml-auto w-[7cm] text-center">
-            <p className="text-[12pt]">Kandang Besi, 30 Desember 2025</p>
-            <p className="text-[12pt] font-bold mb-24">Kepala Pekon Kandang Besi</p>
-            <p className="font-bold text-[12pt] underline uppercase">Mukhtar</p>
+          <div className="mt-16 ml-auto w-72 text-center">
+            <p>Kandang Besi, {formData.tglSurat}</p>
+            <p className="font-bold uppercase mb-24">Kepala Pekon Kandang Besi</p>
+            <p className="font-bold underline uppercase">{formData.penandatangan}</p>
           </div>
-
         </div>
       </div>
     </div>

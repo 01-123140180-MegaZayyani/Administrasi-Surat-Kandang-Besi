@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
+import { Upload, Briefcase } from 'lucide-react';
 
 export default function FormSKU() {
   const navigate = useNavigate();
@@ -11,22 +12,28 @@ export default function FormSKU() {
     tempatLahir: '',
     tanggalLahir: '',
     jenisKelamin: '',
-    agama: '',
+    agama: 'Islam',
     pekerjaan: '',
     alamatLengkap: '',
     namaUsaha: '',
-    lokasiUsaha: '',
-    tahunBerdiri: '',
-    fotoKtp: null,
-    fotoKk: null,
-    suratRT: null
+    lokasiUsaha: 'Pekon Kandang Besi',
+    fotoKtp: null
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const data = new FormData();
-    Object.keys(formData).forEach(key => data.append(key, formData[key]));
+    
+    // Gabung Tempat & Tgl Lahir sesuai format surat: "Kandang Besi, 08-09-2001"
+    const ttl = `${formData.tempatLahir}, ${formData.tanggalLahir}`;
+    data.append('ttl', ttl);
+    
+    Object.keys(formData).forEach(key => {
+      if (key !== 'tempatLahir' && key !== 'tanggalLahir') {
+        data.append(key, formData[key]);
+      }
+    });
 
     try {
       await api.post('/surat', data);
@@ -40,133 +47,101 @@ export default function FormSKU() {
   };
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen pb-12">
-      {/* Header Navy Tanpa Navigasi Kembali */}
+    <div className="bg-[#F8FAFC] min-h-screen pb-12 font-sans text-left">
       <div className="bg-[#1E3A8A] text-white p-6 mb-8 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="bg-white p-2 rounded-full w-12 h-12 flex items-center justify-center text-[#1E3A8A] font-bold">DESA</div>
+        <div className="max-w-4xl mx-auto flex items-center gap-4">
+          <div className="bg-white/20 p-2 rounded-xl">
+            <Briefcase size={28} />
+          </div>
           <div>
-            <h1 className="text-xl font-bold uppercase tracking-wide">Surat Keterangan Usaha (SKU)</h1>
-            <p className="text-sm opacity-80 text-blue-100">Layanan pengurusan surat secara online - mudah & cepat</p>
+            <h1 className="text-xl font-bold uppercase tracking-wide">Surat Keterangan Usaha</h1>
+            <p className="text-xs opacity-80">Pemerintah Pekon Kandang Besi</p>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-white py-4 px-8 border-b border-slate-100 text-center">
-          <h2 className="text-[#1E3A8A] font-bold text-lg uppercase tracking-wider">Formulir Surat Keterangan Usaha</h2>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-8 space-y-10 text-slate-700">
+        <form onSubmit={handleSubmit} className="p-8 space-y-8">
           
-          {/* I. DATA DIRI PEMOHON */}
+          {/* DATA DIRI */}
           <section className="space-y-6">
-            <h3 className="text-[#1E3A8A] font-bold flex items-center gap-2 border-b pb-2 text-sm uppercase">
-              I. DATA DIRI PEMOHON
-            </h3>
-            
+            <h3 className="text-[#1E3A8A] font-bold border-b pb-2 text-sm uppercase tracking-wider">I. Data Pemilik Usaha</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Nama Lengkap <span className="text-red-500">*</span></label>
-                <input type="text" placeholder="Masukkan nama lengkap" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
+              <div className="md:col-span-2 flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-600">Nama Lengkap (Sesuai KTP)</label>
+                <input type="text" className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required 
                   onChange={(e) => setFormData({...formData, nama: e.target.value})} />
               </div>
-
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">NIK <span className="text-red-500">*</span></label>
-                <input type="text" placeholder="16 digit NIK" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-600">NIK</label>
+                <input type="text" maxLength="16" className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required 
                   onChange={(e) => setFormData({...formData, nik: e.target.value})} />
               </div>
-
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Tempat Lahir <span className="text-red-500">*</span></label>
-                <input type="text" placeholder="Tempat lahir" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
-                  onChange={(e) => setFormData({...formData, tempatLahir: e.target.value})} />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Tanggal Lahir <span className="text-red-500">*</span></label>
-                <input type="date" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
-                  onChange={(e) => setFormData({...formData, tanggalLahir: e.target.value})} />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Jenis Kelamin <span className="text-red-500">*</span></label>
-                <select className="p-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-blue-50 outline-none" required
+                <label className="text-sm font-semibold text-slate-600">Jenis Kelamin</label>
+                <select className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required
                   onChange={(e) => setFormData({...formData, jenisKelamin: e.target.value})}>
                   <option value="">-- Pilih --</option>
                   <option value="Laki-Laki">Laki-Laki</option>
                   <option value="Perempuan">Perempuan</option>
                 </select>
               </div>
-
-              {/* AGAMA & PEKERJAAN BERSEBELAHAN */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Agama <span className="text-red-500">*</span></label>
-                <select className="p-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-blue-50 outline-none" required
-                  onChange={(e) => setFormData({...formData, agama: e.target.value})}>
-                  <option value="">-- Pilih Agama --</option>
-                  <option value="Islam">Islam</option>
-                  <option value="Kristen">Kristen</option>
-                  <option value="Katolik">Katolik</option>
-                  <option value="Hindu">Hindu</option>
-                  <option value="Budha">Budha</option>
-                </select>
+                <label className="text-sm font-semibold text-slate-600">Tempat Lahir</label>
+                <input type="text" className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required 
+                  onChange={(e) => setFormData({...formData, tempatLahir: e.target.value})} />
               </div>
-
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Pekerjaan <span className="text-red-500">*</span></label>
-                <input type="text" placeholder="Contoh: Petani/Pekebun" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
-                  onChange={(e) => setFormData({...formData, pekerjaan: e.target.value})} />
-              </div>
-
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Alamat Lengkap <span className="text-red-500">*</span></label>
-                <textarea className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" rows="3" required 
-                  placeholder="Masukkan alamat lengkap pemohon..."
-                  onChange={(e) => setFormData({...formData, alamatLengkap: e.target.value})}></textarea>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-600">Tanggal Lahir</label>
+                <input type="date" className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required 
+                  onChange={(e) => setFormData({...formData, tanggalLahir: e.target.value})} />
               </div>
             </div>
           </section>
 
-          {/* II. KETERANGAN USAHA */}
+          {/* KETERANGAN USAHA */}
           <section className="space-y-6 pt-4">
-            <h3 className="text-[#1E3A8A] font-bold flex items-center gap-2 border-b pb-2 text-sm uppercase">
-              II. KETERANGAN USAHA
-            </h3>
+            <h3 className="text-[#1E3A8A] font-bold border-b pb-2 text-sm uppercase tracking-wider">II. Keterangan Usaha</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Nama Usaha <span className="text-red-500">*</span></label>
-                <input type="text" placeholder='Contoh: "JUAL BELI HASIL BUMI"' className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
+              <div className="md:col-span-2 flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-600">Nama/Jenis Usaha</label>
+                <input type="text" placeholder='Contoh: "JUAL BELI HASIL BUMI"' className="p-3 rounded-xl border border-slate-200 outline-none focus:ring-4 focus:ring-blue-50" required 
                   onChange={(e) => setFormData({...formData, namaUsaha: e.target.value})} />
               </div>
-              <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Lokasi Usaha <span className="text-red-500">*</span></label>
-                <input type="text" placeholder="Masukkan lokasi usaha" className="p-3 rounded-xl border border-slate-200 focus:border-[#1E3A8A] focus:ring-4 focus:ring-blue-50 outline-none" required 
+              <div className="md:col-span-2 flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-slate-600">Lokasi Usaha</label>
+                <input type="text" defaultValue="Pekon Kandang Besi" className="p-3 rounded-xl border border-slate-200 bg-slate-50 outline-none" required 
                   onChange={(e) => setFormData({...formData, lokasiUsaha: e.target.value})} />
               </div>
             </div>
           </section>
 
-          {/* III. LAMPIRAN */}
-          <section className="space-y-6 pt-4">
-            <h3 className="text-[#1E3A8A] font-bold flex items-center gap-2 border-b pb-2 text-sm uppercase">
-              III. LAMPIRAN PERSYARATAN
-            </h3>
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#1E3A8A]">Unggah KTP <span className="text-red-500">*</span></label>
-                <div className="border-2 border-dashed border-blue-100 rounded-xl p-4 flex items-center justify-between bg-blue-50/30">
-                  <input type="file" required accept="image/*" className="text-sm file:mr-4 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-[#1E3A8A] file:text-white hover:file:bg-blue-800 transition-all cursor-pointer" 
-                    onChange={(e) => setFormData({...formData, fotoKtp: e.target.files[0]})} />
+          {/* LAMPIRAN - COMPACT SIZE */}
+          <section className="space-y-4 pt-4">
+            <h3 className="text-[#1E3A8A] font-bold border-b pb-2 text-sm uppercase tracking-wider">III. Lampiran</h3>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-slate-600">Upload Foto KTP</label>
+              <div className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all relative group">
+                <Upload size={20} className="text-[#1E3A8A]" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-600">
+                    {formData.fotoKtp ? formData.fotoKtp.name : "Pilih foto KTP pemohon"}
+                  </span>
                 </div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  required 
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={(e) => setFormData({...formData, fotoKtp: e.target.files[0]})} 
+                />
               </div>
             </div>
           </section>
 
-          <div className="flex justify-end pt-6">
-            <button type="submit" disabled={isSubmitting} className="bg-[#1E3A8A] text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-900 transition-all shadow-lg active:scale-95 disabled:opacity-50">
-              {isSubmitting ? 'Mengirim...' : 'Kirim'}
+          <div className="flex justify-end pt-4">
+            <button type="submit" disabled={isSubmitting} className="bg-[#1E3A8A] text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-900 shadow-lg transition-all active:scale-95 disabled:opacity-50">
+              {isSubmitting ? 'Mengirim...' : 'Ajukan SKU'}
             </button>
           </div>
         </form>
