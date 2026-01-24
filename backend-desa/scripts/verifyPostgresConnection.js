@@ -20,9 +20,7 @@ async function verifyPostgresConnection() {
     const users = await prisma.user.findMany({
       select: {
         id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
+        fullName: true,
         role: true,
         createdAt: true
       }
@@ -45,7 +43,7 @@ async function verifyPostgresConnection() {
       console.log(`✅ Admin ditemukan:`);
       console.log(`   ID: ${admin.id}`);
       console.log(`   Username: ${admin.username}`);
-      console.log(`   Nama: ${admin.firstName} ${admin.lastName}`);
+      console.log(`   Nama: ${admin.fullName}`);
       console.log(`   Role: ${admin.role}`);
       console.log(`   Dibuat: ${admin.createdAt}`);
     } else {
@@ -70,7 +68,7 @@ async function verifyPostgresConnection() {
     console.error('');
     console.error('Kemungkinan masalah:');
     console.error('1. DATABASE_URL tidak valid atau database tidak running');
-    console.error('2. Username/password PostgreSQL salah');
+    console.error('2. NIK/password PostgreSQL salah');
     console.error('3. Database atau tabel belum dibuat');
     console.error('');
     console.error('Penuh error:', err);
