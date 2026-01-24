@@ -1,72 +1,209 @@
-import React from 'react';
-import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-
-// IMPORT SEMUA FORM
-import FormDomisili from "./Form/FormDomisili";
-import FormSKTM from "./Form/FormSKTM";
-import FormKelahiran from "./Form/FormKelahiran";
-import FormKematian from "./Form/FormKematian";
-import FormBelumNikah from "./Form/FormBelumNikah";
-import FormImunasiCatin from "./Form/FormImunasiCatin";
-import FormKehilangan from "./Form/FormKehilangan";
-import FormSKU from "./Form/FormSKU";
-import FormKeramaian from "./Form/FormKeramaian";
-import FormNA from "./Form/FormNA";
-import FormSKCK from "./Form/FormSKCK";
-import FormTMI from "./Form/FormTMI";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { FileText, Upload, MessageSquare } from "lucide-react";
 
 export default function FormulirSurat() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  
-  // Ambil data 'type' dari URL (contoh: /formulir-surat?type=domisili)
-  const jenisSurat = searchParams.get("type");
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get("type")?.toLowerCase() || "";
 
-  const renderForm = () => {
-    switch (jenisSurat) {
-      case 'domisili': return <FormDomisili />;
-      case 'sktm': return <FormSKTM />;
-      case 'kelahiran': return <FormKelahiran />;
-      case 'kematian': return <FormKematian />;
-      case 'belum-pernah-menikah': return <FormBelumNikah />;
-      case 'imunisasi-catin': return <FormImunasiCatin />;
-      case 'kehilangan': return <FormKehilangan />;
-      case 'sku': return <FormSKU />;
-      case 'izin-keramaian': return <FormKeramaian />;
-      case 'nikah': return <FormNA />;
-      case 'skck': return <FormSKCK />;
-      case 'ijazah': return <FormTMI />;
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user_profile")));
+  const [loading, setLoading] = useState(false);
+  const [inputs, setInputs] = useState({
+    nama: user?.nama_lengkap || "",
+    nik: user?.nik || "",
+    tempat_tgl_lahir: "",
+    agama: "Islam", // Default Agama
+    jenis_kelamin: "",
+    pekerjaan: "",
+    alamat: "",
+    status_perkawinan: "Kawin",
+    keterangan_surat: ""
+  });
 
-      default:
-        return (
-          <div className="max-w-4xl mx-auto bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Pilih Jenis Surat Dahulu</h2>
-            <p className="text-slate-500 mb-6 text-sm">Sistem tidak menemukan jenis surat yang Anda maksud.</p>
-            <Link to="/buat-surat" className="bg-[#1E3A8A] text-white px-8 py-3 rounded-xl font-bold inline-block">
-              Kembali ke Buat Surat
-            </Link>
-          </div>
-        );
+  const [files, setFiles] = useState({});
+
+  useEffect(() => {
+    let kalimat = "";
+    if (type === "domisili") {
+      kalimat = "Adalah benar bertempat tinggal lebih dari 3 ( tiga ) tahun berturut-turut dan benar berdomisili di Pekon Kandang Besi Kecamatan Kotaagung Barat Kabupaten Tanggamus.";
+    } else if (type === "sku") {
+      kalimat = "Nama tersebut diatas membuka usaha [NAMA USAHA] yang berlokasi di wilayah Pekon Kandang Besi sejak tahun [TAHUN] sampai berjalan saat ini.";
+    } else if (type === "kematian") {
+      kalimat = "Menerangkan bahwa [NAMA ALMARHUM] telah meninggal dunia pada tanggal [TANGGAL] karena [PENYEBAB].";
+    } else if (type === "na") {
+      kalimat = "Surat ini diajukan sebagai persyaratan administrasi pernikahan (NA) bagi warga tersebut di atas.";
+    }
+    setInputs(prev => ({ ...prev, keterangan_surat: kalimat }));
+  }, [type]);
+
+  const handleChange = (e) => {
+    setInputs({ ...inputs, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setFiles({ ...files, [e.target.name]: e.target.files[0] });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("nik_pengaju", user.nik);
+      formData.append("nama_warga", inputs.nama);
+      formData.append("jenis_surat", type.toUpperCase());
+      formData.append("data_form", JSON.stringify(inputs));
+      
+      Object.keys(files).forEach((key) => {
+        formData.append(key, files[key]);
+      });
+
+      await axios.post("http://localhost:5000/api/pengajuan", formData);
+      alert("Pengajuan Berhasil!");
+      navigate("/status");
+    } catch (err) {
+      alert("Gagal mengirim pengajuan.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const renderFileUploads = () => {
+    const syarat = {
+      na: ["ktp_pria", "ktp_wanita", "kk_pria", "kk_wanita"],
+      sku: ["ktp"],
+      sktm: ["ktp", "kk"],
+      kematian: ["kk", "ktp_pelapor"],
+      domisili: ["ktp"],
+      kelahiran: ["kk", "ktp_ayah", "ktp_ibu"]
+    };
+
+    const currentSyarat = syarat[type] || ["ktp", "kk"];
+
+    return (
+      <div className="flex flex-col gap-3"> {/* Memanjang ke bawah */}
+        {currentSyarat.map((item) => (
+          <div key={item} className="p-3 border rounded-xl bg-slate-50 flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase">
+              Unggah {item.replace("_", " ")}
+            </label>
+            <input 
+              type="file" 
+              name={item} 
+              onChange={handleFileChange} 
+              className="text-[11px] file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-100 file:text-blue-700" 
+              required 
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar />
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <button 
-          onClick={() => navigate('/buat-surat')} 
-          className="flex items-center gap-2 text-slate-500 hover:text-[#1E3A8A] transition-colors mb-8 font-bold text-sm uppercase tracking-wider"
-        >
-          ← Kembali Pilih Surat
-        </button>
-        
-        {/* Render form berdasarkan parameter type */}
-        {renderForm()}
-      </main>
-      <Footer />
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
+      <div className="bg-[#1E3A8A] text-white py-10 px-6 text-center">
+        <h1 className="text-xl font-bold uppercase tracking-wider">
+          Formulir Surat {type.toUpperCase()}
+        </h1>
+        <p className="text-blue-200 text-[10px] mt-1 uppercase tracking-widest">
+          Pekon Kandang Besi
+        </p>
+      </div>
+
+      <div className="max-w-3xl mx-auto -mt-6 px-4 pb-20">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+          <div className="bg-white rounded-3xl shadow-md p-6 border border-slate-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3 text-[#1E3A8A]">
+              <FileText size={18} />
+              <h2 className="font-bold text-xs uppercase">Data Identitas Sesuai KTP</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
+                <input name="nama" value={inputs.nama} onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">NIK</label>
+                <input name="nik" value={inputs.nik} onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required />
+              </div>
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Tempat, Tanggal Lahir</label>
+                <input name="tempat_tgl_lahir" onChange={handleChange} placeholder="Contoh: Kandang Besi, 05-04-1964" className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required />
+              </div>
+              
+              {/* KOLOM AGAMA - DITAMBAHKAN */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Agama</label>
+                <select name="agama" value={inputs.agama} onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required>
+                  <option value="Islam">Islam</option>
+                  <option value="Kristen">Kristen</option>
+                  <option value="Katolik">Katolik</option>
+                  <option value="Hindu">Hindu</option>
+                  <option value="Budha">Budha</option>
+                  <option value="Khonghucu">Khonghucu</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Jenis Kelamin</label>
+                <select name="jenis_kelamin" onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required>
+                  <option value="">Pilih</option>
+                  <option value="Laki-Laki">Laki-Laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Pekerjaan</label>
+                <input name="pekerjaan" onChange={handleChange} placeholder="Contoh: Petani/Pekebun" className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required />
+              </div>
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Alamat Lengkap</label>
+                <textarea name="alamat" onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold h-20 outline-none" required />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-md p-6 border border-slate-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3 text-amber-500">
+              <MessageSquare size={18} />
+              <h2 className="text-[#1E3A8A] font-bold text-xs uppercase">Detail Keterangan Surat</h2>
+            </div>
+            <div className="space-y-2">
+              <textarea 
+                name="keterangan_surat" 
+                value={inputs.keterangan_surat} 
+                onChange={handleChange} 
+                className="w-full p-3 bg-amber-50 rounded-xl text-sm font-medium text-amber-900 border border-amber-100 outline-none h-28" 
+                required 
+              />
+              <p className="text-[9px] text-slate-400 italic">* Sesuaikan detail (nama usaha/tanggal/dll) sesuai keadaan sebenarnya.</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-md p-6 border border-slate-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3 text-emerald-600">
+              <Upload size={18} />
+              <h2 className="text-[#1E3A8A] font-bold text-xs uppercase">Unggah Berkas Persyaratan</h2>
+            </div>
+            {renderFileUploads()} {/* Memanggil fungsi upload memanjang ke bawah */}
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
+              loading ? "bg-slate-300" : "bg-[#1E3A8A] text-white hover:bg-blue-900"
+            }`}
+          >
+            {loading ? "Sedang Mengirim..." : "Kirim Pengajuan"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

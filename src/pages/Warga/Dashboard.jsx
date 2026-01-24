@@ -24,6 +24,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#1E293B]">
       <Navbar />
+      
       <main className="max-w-7xl mx-auto px-6 lg:px-10 py-12">
         
         {/* HERO SECTION */}
@@ -34,13 +35,13 @@ export default function Dashboard() {
             </div>
             <h2 className="text-4xl md:text-5xl font-black leading-[1.2] mb-6 uppercase tracking-tighter text-[#1E3A8A]">
               Layanan Digital <br /> 
-              <span className="text-blue-600 italic text-3xl md:text-4xl">Mandiri & Terintegrasi</span>
+              <span className="text-blue-600 italic text-3xl md:text-4xl font-black">Mandiri & Terintegrasi</span>
             </h2>
             <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-8 max-w-xl font-medium">
               Silakan gunakan layanan online untuk pengajuan cepat, atau cek persyaratan dokumen di bawah ini untuk pengurusan langsung di kantor desa.
             </p>
             <button 
-              onClick={() => navigate("/buat-surat")}
+              onClick={() => navigate("/layanan")}
               className="bg-[#1E3A8A] hover:bg-blue-800 text-white px-8 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-blue-100 transition-all active:scale-95 uppercase tracking-widest"
             >
               Ajukan Surat Online ➔
@@ -53,13 +54,11 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* SECTION: PERSYARATAN LENGKAP */}
+        {/* SECTION: PERSYARATAN */}
         <section className="mb-20">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-            <div>
-              <h3 className="text-[#1E3A8A] font-black text-3xl uppercase tracking-wider leading-none">Persyaratan Dokumen</h3>
-              <p className="text-slate-500 text-sm mt-3 font-medium italic">Siapkan dokumen berikut sebelum datang ke kantor desa</p>
-            </div>
+          <div className="mb-12">
+            <h3 className="text-[#1E3A8A] font-black text-3xl uppercase tracking-wider leading-none">Persyaratan Dokumen</h3>
+            <p className="text-slate-500 text-sm mt-3 font-medium italic">Siapkan dokumen berikut sebelum datang ke kantor desa</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -81,23 +80,17 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* INFO TAMBAHAN: TANDA TANGAN */}
+        {/* INFO TAMBAHAN */}
         <section className="bg-[#1E3A8A] p-10 rounded-[45px] text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-blue-200">
           <div className="max-w-2xl">
             <h3 className="text-2xl font-black uppercase mb-4 tracking-tight">Sistem Validasi Digital</h3>
             <p className="text-blue-100 text-sm leading-relaxed font-medium">
-              Seluruh surat yang diterbitkan dapat ditandatangani secara langsung maupun digital oleh **Kakon** atau **Sekdes**, menjamin keabsahan dokumen Anda di mata hukum.
+              Seluruh surat yang diterbitkan menjamin keabsahan dokumen Anda di mata hukum.
             </p>
           </div>
-          <div className="flex gap-4">
-            <div className="bg-white/10 p-4 rounded-2xl border border-white/20 text-center w-32">
-              <p className="text-[10px] font-black uppercase opacity-60 mb-1">Otoritas 1</p>
-              <p className="font-bold text-sm uppercase">Kakon</p>
-            </div>
-            <div className="bg-white/10 p-4 rounded-2xl border border-white/20 text-center w-32">
-              <p className="text-[10px] font-black uppercase opacity-60 mb-1">Otoritas 2</p>
-              <p className="font-bold text-sm uppercase">Sekdes</p>
-            </div>
+          <div className="flex gap-4 font-black">
+            <div className="bg-white/10 p-4 rounded-2xl border border-white/20 text-center w-32 uppercase text-sm">Kakon</div>
+            <div className="bg-white/10 p-4 rounded-2xl border border-white/20 text-center w-32 uppercase text-sm">Sekdes</div>
           </div>
         </section>
       </main>

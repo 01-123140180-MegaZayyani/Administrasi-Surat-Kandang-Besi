@@ -1,77 +1,88 @@
-import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    nama_lengkap: "",
+    nik: "",
+    no_telp: "",
+    password: "",
+    confirmPassword: ""
+  });
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      return alert("Konfirmasi kata sandi tidak cocok!");
+    }
+
+    try {
+      await axios.post("http://localhost:5000/api/auth/register", {
+        nama_lengkap: formData.nama_lengkap,
+        nik: formData.nik,
+        no_telp: formData.no_telp,
+        password: formData.password
+      });
+      alert("Pendaftaran Berhasil!");
+      navigate("/login");
+    } catch (err) {
+      alert(err.response?.data?.error || "Pendaftaran Gagal. NIK sudah terdaftar atau server mati.");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center font-sans p-6 py-12">
-      <div className="max-w-lg w-full">
-        {/* Logo/Identity */}
-        <div className="text-center mb-10">
-          <h2 className="text-[#1E3A8A] text-2xl font-black uppercase tracking-tighter text-center">Buat Akun Warga</h2>
-          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Daftarkan diri Anda untuk akses layanan</p>
-        </div>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans">
+      <div className="text-center mb-6">
+        <h1 className="text-[#1E3A8A] text-4xl font-black mb-1">SILADES</h1>
+        <p className="text-slate-500 text-sm font-medium italic">Sistem Layanan Administrasi Desa</p>
+      </div>
 
-        {/* Form Card */}
-        <div className="bg-white p-10 md:p-12 rounded-[50px] shadow-sm border border-slate-100">
-          <form className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              
-              {/* Nama Lengkap */}
-              <div className="md:col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">Nama Lengkap (Sesuai KTP)</label>
-                <input type="text" className="w-full mt-2 bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] outline-none" />
-              </div>
-              
-              {/* NIK */}
-              <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">NIK</label>
-                <input type="text" className="w-full mt-2 bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] outline-none" />
-              </div>
-
-              {/* No Telepon */}
-              <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">No. Telepon</label>
-                <input type="text" className="w-full mt-2 bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] outline-none" />
-              </div>
-
-              {/* Kata Sandi Utama */}
-              <div className="md:col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left block">Kata Sandi</label>
-                <input 
-                  type="password" 
-                  placeholder="Buat sandi yang aman" 
-                  className="w-full mt-2 bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] outline-none" 
-                />
-              </div>
-
-              {/* KONFIRMASI KATA SANDI (KOLOM BARU) */}
-              <div className="md:col-span-2">
-                <label className="text-[10px] font-black text-[#1E3A8A] uppercase tracking-widest ml-1 text-left block">Konfirmasi Kata Sandi</label>
-                <input 
-                  type="password" 
-                  placeholder="Ulangi kata sandi Anda" 
-                  className="w-full mt-2 bg-slate-50 border-2 border-blue-50 rounded-2xl px-6 py-4 text-sm font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] outline-none" 
-                />
-              </div>
-            </div>
-
-            <button 
-              type="button"
-              className="w-full bg-[#1E3A8A] hover:bg-blue-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-100 transition-all mt-6 active:scale-95"
-            >
-              Konfirmasi Pendaftaran
-            </button>
-          </form>
-
-          <div className="mt-8 text-center border-t border-slate-50 pt-8">
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-tighter">
-              Sudah punya akun? {" "}
-              <Link to="/login" className="text-[#1E3A8A] font-black hover:underline">Masuk</Link>
-            </p>
+      <div className="max-w-md w-full bg-white p-2 rounded-xl">
+        <form className="space-y-5" onSubmit={handleRegister}>
+          <div>
+            <label className="text-sm font-bold text-[#1E3A8A]">Nama Lengkap</label>
+            <input required type="text" placeholder="Masukkan nama lengkap Anda" 
+              className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})} />
           </div>
-        </div>
+
+          <div>
+            <label className="text-sm font-bold text-[#1E3A8A]">NIK (Nomor Induk Kependudukan)</label>
+            <input required type="text" placeholder="Masukkan NIK Anda" 
+              className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              onChange={(e) => setFormData({...formData, nik: e.target.value})} />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-[#1E3A8A]">Nomor Telepon</label>
+            <input required type="text" placeholder="Masukkan nomor telepon" 
+              className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              onChange={(e) => setFormData({...formData, no_telp: e.target.value})} />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-[#1E3A8A]">Kata Sandi</label>
+            <input required type="password" placeholder="Masukkan kata sandi" 
+              className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              onChange={(e) => setFormData({...formData, password: e.target.value})} />
+          </div>
+
+          <div>
+            <label className="text-sm font-bold text-[#1E3A8A]">Konfirmasi Kata Sandi</label>
+            <input required type="password" placeholder="Masukkan ulang kata sandi" 
+              className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} />
+          </div>
+
+          <button type="submit" className="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-bold uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-blue-100">
+            Daftar Akun
+          </button>
+        </form>
+        <p className="text-center text-sm mt-6">
+          Sudah punya akun? <span onClick={() => navigate("/login")} className="text-[#1E3A8A] font-bold cursor-pointer underline">Masuk disini</span>
+        </p>
       </div>
     </div>
   );

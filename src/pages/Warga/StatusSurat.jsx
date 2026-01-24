@@ -1,96 +1,114 @@
-import React, { useState } from "react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Clock, CheckCircle, XCircle, FileText, ChevronRight, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import Navbar from "../../components/Navbar"; // Pastikan path ini benar
+import Footer from "../../components/Footer"; // Pastikan path ini benar
 
 export default function StatusSurat() {
-  // Contoh Data (Nantinya data ini diambil dari Database/API)
-  const [daftarSurat] = useState([
-    {
-      id: "SRT-001",
-      jenis: "Surat Keterangan Usaha (SKU)",
-      tanggal: "18 Jan 2026",
-      status: "Diproses", // Bisa: "Menunggu", "Diproses", "Selesai", "Ditolak"
-      catatan: "Harap unggah foto lokasi usaha yang lebih jelas (tampak depan).",
-      progres: 50,
-    },
-    {
-      id: "SRT-002",
-      jenis: "Surat Domisili",
-      tanggal: "15 Jan 2026",
-      status: "Selesai",
-      catatan: "Surat sudah ditandatangani digital oleh Kakon. Silakan cetak mandiri.",
-      progres: 100,
-    }
-  ]);
+  const [daftarSurat, setDaftarSurat] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user_profile") || "{}");
 
-  // Fungsi Warna Status
+  useEffect(() => {
+    const fetchStatus = () => {
+      if (user.nik) {
+        axios.get(`http://localhost:5000/api/pengajuan-warga/${user.nik}`)
+          .then(res => setDaftarSurat(res.data))
+          .catch(err => console.error("Gagal ambil status"));
+      }
+    };
+
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 5000); // Cek tiap 5 detik
+    return () => clearInterval(interval);
+  }, [user.nik]);
+
+  const unduhSurat = (surat) => {
+    const doc = new jsPDF();
+    // Header Kop Surat
+    doc.setFontSize(14);
+    doc.text("PEMERINTAH KABUPATEN TANGGAMUS", 105, 20, { align: "center" });
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("KECAMATAN TALANG PADANG", 105, 28, { align: "center" });
+    doc.text("PEKON KANDANG BESI", 105, 36, { align: "center" });
+    doc.setLineWidth(1);
+    doc.line(20, 40, 190, 40);
+    
+    // Isi
+    doc.setFontSize(12);
+    doc.text(surat.jenis_surat.toUpperCase(), 105, 55, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text(`Nomor: 140 / ${surat.id} / 20.04 / 2026`, 105, 60, { align: "center" });
+
+    doc.text("Yang bertanda tangan di bawah ini, Kepala Pekon Kandang Besi menerangkan bahwa:", 20, 80);
+    
+    const tableData = [
+      ["Nama Lengkap", surat.nama_warga],
+      ["NIK", surat.nik_pengaju],
+      ["Jenis Layanan", surat.jenis_surat],
+      ["Tanggal Pengajuan", new Date(surat.created_at).toLocaleDateString('id-ID')]
+    ];
+
+    doc.autoTable({
+      startY: 85,
+      body: tableData,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 2 }
+    });
+
+    doc.text("Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.", 20, doc.lastAutoTable.finalY + 20);
+    doc.text("Kandang Besi, " + new Date().toLocaleDateString('id-ID'), 140, doc.lastAutoTable.finalY + 45);
+    doc.text("Kepala Pekon,", 140, doc.lastAutoTable.finalY + 50);
+    doc.setFont("helvetica", "italic");
+    doc.text("( Tanda Tangan Elektronik )", 140, doc.lastAutoTable.finalY + 70);
+    
+    doc.save(`Surat_${surat.nama_warga}.pdf`);
+  };
+
   const getStatusStyle = (status) => {
-    switch (status) {
-      case "Selesai": return "bg-green-100 text-green-700";
-      case "Diproses": return "bg-blue-100 text-[#1E3A8A]";
-      case "Ditolak": return "bg-red-100 text-red-700";
-      default: return "bg-slate-100 text-slate-600";
+    switch (status.toLowerCase()) {
+      case "selesai": return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "ditolak": return "bg-rose-100 text-rose-700 border-rose-200";
+      case "sedang diproses": return "bg-blue-100 text-blue-700 border-blue-200";
+      default: return "bg-amber-100 text-amber-700 border-amber-200";
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <Navbar />
-      <main className="max-w-5xl mx-auto px-6 py-16">
-        <div className="mb-12">
-          <h2 className="text-[#1E3A8A] text-3xl font-black uppercase tracking-tighter">Status Pengajuan</h2>
-          <p className="text-slate-500 font-medium italic mt-2 text-sm">Pantau progres surat dan lihat catatan petugas desa di sini.</p>
+      <main className="flex-grow max-w-5xl w-full mx-auto px-6 py-12">
+        <div className="mb-10">
+          <h1 className="text-3xl font-black text-[#1E3A8A] tracking-tight">Status Layanan</h1>
+          <p className="text-slate-500 text-sm mt-2 font-medium">Pantau progres pengajuan administrasi Anda secara real-time.</p>
         </div>
 
-        <div className="space-y-8">
+        <div className="grid gap-4">
           {daftarSurat.map((surat) => (
-            <div key={surat.id} className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-              <div className="p-8 md:p-10">
-                {/* Header Kartu */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{surat.id} • {surat.tanggal}</p>
-                    <h3 className="text-xl font-black text-[#1E3A8A] uppercase tracking-tight">{surat.jenis}</h3>
-                  </div>
-                  <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(surat.status)}`}>
-                    {surat.status}
-                  </span>
+            <div key={surat.id} className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="bg-[#1E3A8A]/5 p-4 rounded-2xl text-[#1E3A8A]"><FileText size={24} /></div>
+                <div>
+                  <h3 className="font-black text-slate-800 uppercase text-sm">{surat.jenis_surat}</h3>
+                  <p className="text-[11px] text-slate-400">ID: #{surat.id.toString().padStart(4, '0')}</p>
                 </div>
+              </div>
 
-                {/* Garis Progres (Timeline) */}
-                <div className="relative mb-10 pt-4">
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#1E3A8A] transition-all duration-1000" 
-                      style={{ width: `${surat.progres}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    <span>Diajukan</span>
-                    <span>Verifikasi</span>
-                    <span>Selesai</span>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div className={`px-5 py-2 rounded-full border text-[10px] font-black uppercase ${getStatusStyle(surat.status)}`}>
+                  {surat.status}
                 </div>
-
-                {/* Box Catatan Petugas */}
-                {surat.catatan && (
-                  <div className="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-2xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-orange-600 font-black text-xs uppercase tracking-widest">Catatan Petugas :</span>
-                    </div>
-                    <p className="text-slate-700 text-sm font-medium leading-relaxed italic">
-                      "{surat.catatan}"
-                    </p>
-                  </div>
-                )}
-
-                {/* Tombol Aksi */}
-                {surat.status === "Selesai" && (
-                  <div className="mt-8 flex justify-end">
-                    <button className="bg-[#1E3A8A] hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
-                      Cetak Surat (PDF)
-                    </button>
-                  </div>
+                
+                {/* Tombol Cetak muncul jika Selesai */}
+                {surat.status.toLowerCase() === "selesai" && (
+                  <button 
+                    onClick={() => unduhSurat(surat)}
+                    className="flex items-center gap-2 bg-[#1E3A8A] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-800 transition-all"
+                  >
+                    <Download size={14} /> Cetak Surat
+                  </button>
                 )}
               </div>
             </div>
