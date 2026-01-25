@@ -12,9 +12,7 @@ async function main(){
     where: { username: 'admin' },
     update: {},
     create: {
-      firstName: 'Admin',
-      lastName: 'User',
-      username: 'admin',
+      fullName: 'Admin',
       phoneNumber: '081234567890',
       nik: '0000000000000000',
       password,
