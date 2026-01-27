@@ -9,13 +9,13 @@ export default function FormulirSurat() {
   const queryParams = new URLSearchParams(location.search);
   const type = queryParams.get("type")?.toLowerCase() || "";
 
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user_profile")));
+  const [user] = useState(JSON.parse(localStorage.getItem("user_profile")));
   const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     nama: user?.nama_lengkap || "",
     nik: user?.nik || "",
     tempat_tgl_lahir: "",
-    agama: "Islam", // Default Agama
+    agama: "Islam",
     jenis_kelamin: "",
     pekerjaan: "",
     alamat: "",
@@ -61,9 +61,11 @@ export default function FormulirSurat() {
         formData.append(key, files[key]);
       });
 
-      await axios.post("http://localhost:5000/api/pengajuan", formData);
+      await axios.post("http://localhost:5000/api/pengajuan", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
       alert("Pengajuan Berhasil!");
-      navigate("/status");
+      navigate("/beranda");
     } catch (err) {
       alert("Gagal mengirim pengajuan.");
     } finally {
@@ -80,22 +82,21 @@ export default function FormulirSurat() {
       domisili: ["ktp"],
       kelahiran: ["kk", "ktp_ayah", "ktp_ibu"]
     };
-
     const currentSyarat = syarat[type] || ["ktp", "kk"];
 
     return (
-      <div className="flex flex-col gap-3"> {/* Memanjang ke bawah */}
+      <div className="flex flex-col gap-3">
         {currentSyarat.map((item) => (
           <div key={item} className="p-3 border rounded-xl bg-slate-50 flex flex-col gap-1">
             <label className="text-[10px] font-bold text-slate-500 uppercase">
               Unggah {item.replace("_", " ")}
             </label>
             <input 
+              required
               type="file" 
               name={item} 
               onChange={handleFileChange} 
               className="text-[11px] file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-100 file:text-blue-700" 
-              required 
             />
           </div>
         ))}
@@ -106,17 +107,12 @@ export default function FormulirSurat() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-700">
       <div className="bg-[#1E3A8A] text-white py-10 px-6 text-center">
-        <h1 className="text-xl font-bold uppercase tracking-wider">
-          Formulir Surat {type.toUpperCase()}
-        </h1>
-        <p className="text-blue-200 text-[10px] mt-1 uppercase tracking-widest">
-          Pekon Kandang Besi
-        </p>
+        <h1 className="text-xl font-bold uppercase tracking-wider">Formulir Surat {type.toUpperCase()}</h1>
+        <p className="text-blue-200 text-[10px] mt-1 uppercase tracking-widest">Pekon Kandang Besi</p>
       </div>
 
       <div className="max-w-3xl mx-auto -mt-6 px-4 pb-20">
         <form onSubmit={handleSubmit} className="space-y-4">
-          
           <div className="bg-white rounded-3xl shadow-md p-6 border border-slate-100">
             <div className="flex items-center gap-2 mb-6 border-b pb-3 text-[#1E3A8A]">
               <FileText size={18} />
@@ -135,8 +131,6 @@ export default function FormulirSurat() {
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Tempat, Tanggal Lahir</label>
                 <input name="tempat_tgl_lahir" onChange={handleChange} placeholder="Contoh: Kandang Besi, 05-04-1964" className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required />
               </div>
-              
-              {/* KOLOM AGAMA - DITAMBAHKAN */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Agama</label>
                 <select name="agama" value={inputs.agama} onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required>
@@ -148,7 +142,6 @@ export default function FormulirSurat() {
                   <option value="Khonghucu">Khonghucu</option>
                 </select>
               </div>
-
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Jenis Kelamin</label>
                 <select name="jenis_kelamin" onChange={handleChange} className="w-full p-3 bg-slate-50 rounded-xl text-sm font-semibold outline-none" required>
@@ -173,16 +166,7 @@ export default function FormulirSurat() {
               <MessageSquare size={18} />
               <h2 className="text-[#1E3A8A] font-bold text-xs uppercase">Detail Keterangan Surat</h2>
             </div>
-            <div className="space-y-2">
-              <textarea 
-                name="keterangan_surat" 
-                value={inputs.keterangan_surat} 
-                onChange={handleChange} 
-                className="w-full p-3 bg-amber-50 rounded-xl text-sm font-medium text-amber-900 border border-amber-100 outline-none h-28" 
-                required 
-              />
-              <p className="text-[9px] text-slate-400 italic">* Sesuaikan detail (nama usaha/tanggal/dll) sesuai keadaan sebenarnya.</p>
-            </div>
+            <textarea name="keterangan_surat" value={inputs.keterangan_surat} onChange={handleChange} className="w-full p-3 bg-amber-50 rounded-xl text-sm font-medium text-amber-900 border border-amber-100 outline-none h-28" required />
           </div>
 
           <div className="bg-white rounded-3xl shadow-md p-6 border border-slate-100">
@@ -190,16 +174,10 @@ export default function FormulirSurat() {
               <Upload size={18} />
               <h2 className="text-[#1E3A8A] font-bold text-xs uppercase">Unggah Berkas Persyaratan</h2>
             </div>
-            {renderFileUploads()} {/* Memanggil fungsi upload memanjang ke bawah */}
+            {renderFileUploads()}
           </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
-              loading ? "bg-slate-300" : "bg-[#1E3A8A] text-white hover:bg-blue-900"
-            }`}
-          >
+          <button type="submit" disabled={loading} className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${loading ? "bg-slate-300" : "bg-[#1E3A8A] text-white hover:bg-blue-900"}`}>
             {loading ? "Sedang Mengirim..." : "Kirim Pengajuan"}
           </button>
         </form>

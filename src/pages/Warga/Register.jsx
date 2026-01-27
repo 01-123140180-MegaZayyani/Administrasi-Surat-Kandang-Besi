@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -12,11 +12,62 @@ export default function Register() {
     confirmPassword: ""
   });
 
+  const [nikStatus, setNikStatus] = useState({ message: "", color: "" });
+  const [isNikValid, setIsNikValid] = useState(false);
+
+  // 1. FUNGSI VALIDASI LOGIKA NIK (Struktur KTP)
+  const validateNikLogic = (nik) => {
+    if (nik.length !== 16) return false;
+    let day = parseInt(nik.substring(6, 8));
+    let month = parseInt(nik.substring(8, 10));
+    if (day > 40) day -= 40; // Penyesuaian wanita
+    if (day < 1 || day > 31) return false;
+    if (month < 1 || month > 12) return false;
+    return true;
+  };
+
+  // 2. LOGIKA REAL-TIME CHECK (Debounce)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.nik.length === 16) {
+        // Cek logikanya dulu, baru cek ke database
+        if (!validateNikLogic(formData.nik)) {
+          setNikStatus({ message: "❌ Format NIK tidak valid", color: "text-red-600" });
+          setIsNikValid(false);
+        } else {
+          checkNikAvailability(formData.nik);
+        }
+      } else if (formData.nik.length > 0) {
+        setNikStatus({ message: "NIK harus 16 digit", color: "text-amber-500" });
+        setIsNikValid(false);
+      } else {
+        setNikStatus({ message: "", color: "" });
+        setIsNikValid(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.nik]);
+
+  const checkNikAvailability = async (nikInput) => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/auth/check-nik/${nikInput}`);
+      if (res.data.available) {
+        setNikStatus({ message: "✅ NIK valid & tersedia", color: "text-emerald-500" });
+        setIsNikValid(true);
+      } else {
+        setNikStatus({ message: "❌ NIK sudah terdaftar!", color: "text-red-500" });
+        setIsNikValid(false);
+      }
+    } catch (err) {
+      console.error("Gagal cek NIK");
+    }
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      return alert("Konfirmasi kata sandi tidak cocok!");
-    }
+    if (!isNikValid) return alert("Mohon pastikan NIK valid dan tersedia!");
+    if (formData.password !== formData.confirmPassword) return alert("Konfirmasi kata sandi tidak cocok!");
 
     try {
       await axios.post("http://localhost:5000/api/auth/register", {
@@ -28,7 +79,7 @@ export default function Register() {
       alert("Pendaftaran Berhasil!");
       navigate("/login");
     } catch (err) {
-      alert(err.response?.data?.error || "Pendaftaran Gagal. NIK sudah terdaftar atau server mati.");
+      alert(err.response?.data?.error || "Pendaftaran Gagal.");
     }
   };
 
@@ -39,7 +90,7 @@ export default function Register() {
         <p className="text-slate-500 text-sm font-medium italic">Sistem Layanan Administrasi Desa</p>
       </div>
 
-      <div className="max-w-md w-full bg-white p-2 rounded-xl">
+      <div className="max-w-md w-full bg-white p-2 rounded-xl text-left">
         <form className="space-y-5" onSubmit={handleRegister}>
           <div>
             <label className="text-sm font-bold text-[#1E3A8A]">Nama Lengkap</label>
@@ -50,9 +101,13 @@ export default function Register() {
 
           <div>
             <label className="text-sm font-bold text-[#1E3A8A]">NIK (Nomor Induk Kependudukan)</label>
-            <input required type="text" placeholder="Masukkan NIK Anda" 
+            <input required type="text" maxLength="16" placeholder="Masukkan 16 digit NIK" 
+              value={formData.nik}
               className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
-              onChange={(e) => setFormData({...formData, nik: e.target.value})} />
+              onChange={(e) => setFormData({...formData, nik: e.target.value.replace(/\D/g, "")})} />
+            {nikStatus.message && (
+              <p className={`text-[11px] font-bold mt-2 ml-1 ${nikStatus.color}`}>{nikStatus.message}</p>
+            )}
           </div>
 
           <div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import LogoSilades from "../assets/123.png";
 
 export default function Navbar() {
   const [userName, setUserName] = useState("Tamu");
@@ -32,15 +33,18 @@ export default function Navbar() {
 
   return (
     <nav className="bg-[#1E3A8A] px-10 py-4 flex justify-between items-center shadow-lg sticky top-0 z-[9999]">
-      {/* Logo & Brand */}
-      <div className="flex items-center gap-3">
-        <div className="bg-white text-[#1E3A8A] p-2 rounded-lg font-black text-sm">DS</div>
-        <div>
-           <span className="text-white font-black block leading-none uppercase text-sm">DigitalDesa</span>
-           <span className="text-white/70 text-[8px] uppercase tracking-widest font-bold">Pelayanan Publik</span>
-        </div>
-      </div>
-
+    {/* Logo & Brand */}
+<div className="flex items-center gap-3">
+  <img 
+    src={LogoSilades} 
+    alt="Logo SILADES" 
+    className="h-10 w-auto rounded-lg object-contain bg-white p-1"
+  />
+  <div>
+    <span className="text-white font-black block leading-none uppercase text-sm">SILADES</span>
+    <span className="text-white/70 text-[8px] uppercase tracking-widest font-bold">Sistem Layanan Administrasi Desa</span>
+  </div>
+</div>
       {/* Navigasi Utama */}
       <div className="flex items-center gap-8">
         <Link to="/beranda" className="text-white/80 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all">

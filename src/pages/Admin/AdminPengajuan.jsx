@@ -14,9 +14,7 @@ export default function AdminPengajuan() {
       .catch(err => console.error("Gagal ambil data"));
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const handleProsesSurat = (item) => {
     const dataForm = JSON.parse(item.data_form || '{}');
@@ -96,30 +94,21 @@ export default function AdminPengajuan() {
       {detailTerpilih && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-6xl rounded-[48px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            
-            {/* MODAL HEADER */}
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
               <div>
                 <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">Detail Permohonan</h2>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">ID: #{detailTerpilih.id.toString().padStart(4, '0')}</p>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">ID: #{detailTerpilih.id}</p>
               </div>
-              <button onClick={() => setDetailTerpilih(null)} className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all">
-                <X size={24} />
-              </button>
+              <button onClick={() => setDetailTerpilih(null)} className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all"><X size={24} /></button>
             </div>
             
-            {/* MODAL BODY */}
             <div className="p-8 overflow-y-auto bg-slate-50/30 flex-grow">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                {/* KOLOM KIRI: DATA FORMULIR */}
                 <div className="space-y-6">
                   <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                     <div className="flex items-center gap-3 mb-6 border-b border-slate-50 pb-4">
-                      <FileText className="text-blue-600" size={20} />
-                      <h3 className="font-black text-xs uppercase tracking-widest text-slate-800">Biodata Pengaju</h3>
+                      <FileText className="text-blue-600" size={20} /><h3 className="font-black text-xs uppercase tracking-widest text-slate-800">Biodata Pengaju</h3>
                     </div>
-                    
                     <div className="grid grid-cols-1 gap-5">
                       {(() => {
                         const data = JSON.parse(detailTerpilih.data_form || '{}');
@@ -133,7 +122,7 @@ export default function AdminPengajuan() {
                           { label: "Status Kawin", value: data.status_perkawinan },
                           { label: "Alamat Lengkap", value: data.alamat },
                         ].map((info, i) => (
-                          <div key={i} className="flex flex-col border-b border-slate-50 pb-2 last:border-0">
+                          <div key={i} className="flex flex-col border-b border-slate-50 pb-2">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{info.label}</span>
                             <span className="text-sm font-bold text-slate-700">{info.value || "-"}</span>
                           </div>
@@ -143,64 +132,29 @@ export default function AdminPengajuan() {
                   </div>
                 </div>
 
-                {/* KOLOM KANAN: LAMPIRAN KTP */}
                 <div className="space-y-6">
-                  <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-6 border-b border-slate-50 pb-4">
-                      <div className="flex items-center gap-3">
-                        <ImageIcon className="text-blue-600" size={20} />
-                        <h3 className="font-black text-xs uppercase tracking-widest text-slate-800">Lampiran KTP</h3>
-                      </div>
-                      
-                      {/* Tombol Download Real */}
-                      {JSON.parse(detailTerpilih.data_form).berkas?.ktp && (
-                        <a 
-                          href={`http://localhost:5000/uploads/${JSON.parse(detailTerpilih.data_form).berkas.ktp}`}
-                          download
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-2 bg-[#1E3A8A] text-white px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-800 transition-all shadow-md shadow-blue-100"
-                        >
-                          <Download size={14} /> UNDUH KTP
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="flex-grow bg-slate-50 rounded-[24px] border-2 border-dashed border-slate-200 overflow-hidden relative group min-h-[300px] flex items-center justify-center">
-                      {JSON.parse(detailTerpilih.data_form).berkas?.ktp ? (
-                        <img 
-                          src={`http://localhost:5000/uploads/${JSON.parse(detailTerpilih.data_form).berkas.ktp}`}
-                          alt="Lampiran KTP"
-                          className="max-w-full max-h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="text-center">
-                          <ImageIcon size={48} className="mx-auto text-slate-200 mb-2" />
-                          <p className="text-slate-400 text-[10px] font-black uppercase">Berkas tidak tersedia</p>
-                        </div>
-                      )}
+                  <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-full">
+                    <h3 className="font-black text-xs uppercase mb-6 text-slate-800 border-b pb-4">Lampiran Berkas</h3>
+                    <div className="flex-grow grid grid-cols-1 gap-4 overflow-y-auto max-h-[400px]">
+                      {(() => {
+                        const data = JSON.parse(detailTerpilih.data_form || '{}');
+                        const berkas = data.berkas || {};
+                        return Object.entries(berkas).map(([key, file]) => (
+                          <div key={key} className="p-4 border rounded-2xl bg-slate-50">
+                            <p className="text-[9px] font-bold uppercase text-blue-600 mb-2">{key}</p>
+                            <img src={`http://localhost:5000/uploads/${file}`} className="w-full rounded-xl" alt={key} />
+                          </div>
+                        ));
+                      })()}
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
-            {/* MODAL FOOTER */}
             <div className="p-8 border-t border-slate-50 flex gap-4 bg-white">
-              <button 
-                onClick={() => handleProsesSurat(detailTerpilih)} 
-                className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-emerald-100 transition-all active:scale-95"
-              >
-                <CheckCircle size={18} /> Proses & Isi Template
-              </button>
-              
-              <button 
-                onClick={() => updateStatus(detailTerpilih.id, 'Ditolak')} 
-                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-rose-100 transition-all active:scale-95"
-              >
-                <XCircle size={18} /> Tolak Pengajuan
-              </button>
+              <button onClick={() => handleProsesSurat(detailTerpilih)} className="flex-[2] bg-emerald-600 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95"><CheckCircle size={18} /> Proses & Isi Template</button>
+              <button onClick={() => updateStatus(detailTerpilih.id, 'Ditolak')} className="flex-1 bg-rose-600 text-white py-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95"><XCircle size={18} /> Tolak Pengajuan</button>
             </div>
           </div>
         </div>
