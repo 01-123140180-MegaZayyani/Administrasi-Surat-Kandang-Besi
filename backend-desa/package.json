@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "prisma generate && node src/app.js",
+    "install": "npm install"
+}
   },
   "keywords": [],
   "author": "",
