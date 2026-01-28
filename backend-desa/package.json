@@ -2,12 +2,11 @@
   "name": "backend-desa",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build": "prisma generate",
-    "dev": "nodemon index.js",
-    "start": "node src/app.js"
-},
+    "start": "node server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
