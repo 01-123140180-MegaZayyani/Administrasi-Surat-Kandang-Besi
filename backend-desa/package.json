@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate && node src/app.js && vite build",
+    "build": "prisma generate && vite build",
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node src/app.js"
 },
   "keywords": [],
   "author": "",
