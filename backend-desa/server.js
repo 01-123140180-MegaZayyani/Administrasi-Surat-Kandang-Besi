@@ -1,8 +1,7 @@
 const express = require("express");
-const prisma = require(".db");
+const prisma = require("./db");
 const cors = require("cors");
 const multer = require("multer");
-
 
 const app = express();
 
