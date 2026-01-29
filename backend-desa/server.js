@@ -9,9 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const authRoutes = require("./routes/auth/authRoutes");
-const suratRoutes = require("./routes/suratRoutes");
-const adminRoutes = require("./routes/admin/adminRoutes");
+const authRoutes = require("./src/routes/auth/authRoutes");
+const suratRoutes = require("./src/routes/suratRoutes");
+const adminRoutes = require("./src/routes/admin/adminRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
