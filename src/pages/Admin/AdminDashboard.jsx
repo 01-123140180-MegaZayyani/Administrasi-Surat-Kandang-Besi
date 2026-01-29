@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api"
 import { ChevronDown, FileText, CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -8,7 +8,7 @@ export default function AdminDashboard() {
 
   const fetchPengajuan = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/pengajuan");
+      const res = await api.get("/api/pengajuan");
       setPengajuan(res.data);
     } catch (err) { 
       console.error(err); 
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     }
     try {
       // Mengirim status baru ke backend
-      await axios.put(`http://localhost:5000/api/pengajuan/${id}`, { status, catatan });
+      await api.put(`/api/pengajuan/${id}`, { status, catatan });
       fetchPengajuan(); // Refresh data agar statistik dan tabel update
     } catch (err) { 
       alert("Gagal update status"); 

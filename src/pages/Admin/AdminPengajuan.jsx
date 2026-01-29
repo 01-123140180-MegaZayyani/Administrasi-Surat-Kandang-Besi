@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api"
 import { X, CheckCircle, XCircle, Download, FileText, Image as ImageIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +9,7 @@ export default function AdminPengajuan() {
   const navigate = useNavigate();
 
   const fetchData = () => {
-    axios.get("http://localhost:5000/api/pengajuan")
+    api.get("/api/pengajuan")
       .then(res => setPengajuan(res.data))
       .catch(err => console.error("Gagal ambil data"));
   };
@@ -35,7 +35,7 @@ export default function AdminPengajuan() {
   };
 
   const updateStatus = (id, statusBaru) => {
-    axios.put(`http://localhost:5000/api/pengajuan/${id}`, { status: statusBaru })
+    api.put(`/api/pengajuan/${id}`, { status: statusBaru })
       .then(() => {
         fetchData();
         setDetailTerpilih(null);
@@ -142,7 +142,7 @@ export default function AdminPengajuan() {
                         return Object.entries(berkas).map(([key, file]) => (
                           <div key={key} className="p-4 border rounded-2xl bg-slate-50">
                             <p className="text-[9px] font-bold uppercase text-blue-600 mb-2">{key}</p>
-                            <img src={`http://localhost:5000/uploads/${file}`} className="w-full rounded-xl" alt={key} />
+                            <img src={`https://backend-administrasi-surat-kandang-two.vercel.app/uploads/${file}`} className="w-full rounded-xl" alt={key} />
                           </div>
                         ));
                       })()}
