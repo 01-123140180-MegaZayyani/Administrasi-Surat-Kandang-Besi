@@ -142,7 +142,7 @@ export default function AdminPengajuan() {
                         return Object.entries(berkas).map(([key, file]) => (
                           <div key={key} className="p-4 border rounded-2xl bg-slate-50">
                             <p className="text-[9px] font-bold uppercase text-blue-600 mb-2">{key}</p>
-                            <img src={`https://backend-administrasi-surat-kandang-two.vercel.app/uploads/${file}`} className="w-full rounded-xl" alt={key} />
+                            <img src={file} className="w-full rounded-xl" alt={key} />
                           </div>
                         ));
                       })()}
