@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from '../../../utils/api';
+import api from '../../utils/api';
 import { FileText, Upload, MessageSquare } from "lucide-react";
 
 export default function FormulirSurat() {
