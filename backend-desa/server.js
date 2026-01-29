@@ -9,6 +9,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Route untuk cek apakah backend jalan
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "success", 
+    message: "Backend Administrasi Surat Desa Berjalan Lancar! 🚀" 
+  });
+});
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
