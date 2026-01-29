@@ -61,6 +61,7 @@ export default function Register() {
       }
     } catch (err) {
       console.error("Gagal cek NIK");
+      setNikStatus({ message: "⚠️ Layanan pengecekan sedang sibuk", color: "text-amber-600" });
     }
   };
 

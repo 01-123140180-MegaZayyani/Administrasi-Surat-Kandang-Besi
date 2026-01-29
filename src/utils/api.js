@@ -1,7 +1,7 @@
 // src/utils/api.js
 import axios from 'axios';
 
-const API_URL = 'https://backend-administrasi-surat-kandang-two.vercel.app/'; 
+const API_URL = 'https://backend-administrasi-surat-kandang-two.vercel.app'; 
 
 const api = axios.create({
   baseURL: API_URL,
