@@ -2,18 +2,12 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const cors = require("cors");
 const multer = require("multer");
-const authRoutes = require('./routes/auth/authRoutes.js');
-const adminRoutes = require('./routes/admin/adminRoutes.js');
-const suratRoutes = require('./routes/suratRoutes.js');
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/surat', suratRoutes);
 
 // Route untuk cek apakah backend jalan
 app.get("/", (req, res) => {
@@ -25,6 +19,14 @@ app.get("/", (req, res) => {
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+const authRoutes = require(path.join(__dirname, "routes", "authRoutes"));
+const adminRoutes = require(path.join(__dirname, "routes", "adminRoutes"));
+const suratRoutes = require(path.join(__dirname, "routes", "suratRoutes"));
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/surat", suratRoutes);
 
 // --- API AUTHENTICATION ---
 app.get("/api/auth/check-nik/:nik", async (req, res) => {
