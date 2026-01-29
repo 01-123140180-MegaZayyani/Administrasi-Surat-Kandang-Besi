@@ -70,7 +70,7 @@ export default function Register() {
     if (formData.password !== formData.confirmPassword) return alert("Konfirmasi kata sandi tidak cocok!");
 
     try {
-      await api.post("/api/pengajuan/api/auth/register", {
+      await api.post("/api/auth/register", {
         nama_lengkap: formData.nama_lengkap,
         nik: formData.nik,
         no_telp: formData.no_telp,
