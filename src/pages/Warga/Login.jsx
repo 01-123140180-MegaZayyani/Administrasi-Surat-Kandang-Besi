@@ -17,10 +17,10 @@ export default function Login() {
         password: password 
       });
       
-      localStorage.setItem("user_data", JSON.stringify(res.data.user)); 
+      localStorage.setItem("user_profile", JSON.stringify(res.data.user)); 
       localStorage.setItem("token", res.data.token);
       
-      if (res.data.profil.role === "admin") {
+      if (res.data.user.role === "admin") {
         alert("Login Admin Berhasil!");
         navigate("/admin/dashboard");
       } else {
