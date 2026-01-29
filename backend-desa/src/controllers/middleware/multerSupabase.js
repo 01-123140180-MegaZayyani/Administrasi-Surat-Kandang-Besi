@@ -25,7 +25,7 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 // ✅ Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 // ✅ Setup memory storage (file akan diupload ke Supabase setelah multer parsing)
 const storage = multer.memoryStorage();

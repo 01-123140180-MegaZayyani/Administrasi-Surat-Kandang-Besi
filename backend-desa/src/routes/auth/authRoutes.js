@@ -1,10 +1,13 @@
-// backend/src/routes/auth/authRoutes.js
-import express from 'express';
-import prisma from '../../db.js';
-import * as loginController from '../../controllers/auth/loginController.js';
-import * as registerController from '../../controllers/auth/registerController.js';
-import * as profileController from '../../controllers/auth/profileController.js';
-import authMiddleware from '../../controllers/middleware/authMiddleware.js';
+// backend-desa/routes/authRoutes.js
+const express = require('express');
+const prisma = require('../db'); // Pastikan db.js ada di luar folder routes
+
+// Pastikan file-file controller di bawah ini juga pakai module.exports, 
+// kalau belum, mending buat route manual dulu di sini untuk tes.
+const loginController = require('../controllers/auth/loginController');
+const registerController = require('../controllers/auth/registerController');
+const profileController = require('../controllers/auth/profileController');
+const authMiddleware = require('../controllers/middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -12,16 +15,9 @@ const router = express.Router();
 // 🔐 AUTHENTICATION ROUTES
 // --------------------------------------------------
 
-// Register user baru
 router.post('/register', registerController.register);
-
-// Login user
 router.post('/login', loginController.login);
-
-// Get user profile (protected)
 router.get('/profile', authMiddleware.protect, profileController.getProfile);
-
-// Update user profile (protected)
 router.put('/profile', authMiddleware.protect, profileController.updateProfile);
 
 module.exports = router;

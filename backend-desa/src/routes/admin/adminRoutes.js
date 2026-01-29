@@ -1,19 +1,15 @@
 // backend/src/routes/admin/adminRoutes.js
-import express from 'express';
-import prisma from '../../db.js';
-import * as adminSuratController from '../../controllers/admin/adminSuratController.js';
-import adminMiddleware from '../../controllers/middleware/adminMiddleware.js';
+const express = require('express');
+const adminSuratController = require('../../controllers/admin/adminSuratController');
+const adminMiddleware = require('../../controllers/middleware/adminMiddleware');
 
 const router = express.Router();
 
-// ✅ Apply admin middleware to all routes
+// Apply admin middleware to all routes
 router.use(adminMiddleware);
 
+// Update admin profile
 router.put('/update-profil', adminSuratController.updateAdminProfil);
-
-// --------------------------------------------------
-// 📋 SURAT MANAGEMENT ROUTES
-// --------------------------------------------------
 
 // Get all surat (admin)
 router.get('/surat', adminSuratController.getAllSurat);

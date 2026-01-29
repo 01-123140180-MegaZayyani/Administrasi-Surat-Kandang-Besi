@@ -1,22 +1,16 @@
 // backend/src/routes/suratRoutes.js
-import express from 'express';
-import prisma from '../db.js';
-import * as suratController from '../controllers/suratController.js';
-import authMiddleware from '../controllers/middleware/authMiddleware.js';
-import upload from '../controllers/middleware/multerSupabase.js';
-
+const express = require('express');
+const suratController = require('../controllers/suratController');
+const authMiddleware = require('../controllers/middleware/authMiddleware');
+const upload = require('../controllers/middleware/multerSupabase');
 
 const router = express.Router();
-
-// --------------------------------------------------
-// 📄 SURAT ROUTES (WARGA)
-// --------------------------------------------------
 
 // Create surat baru (protected)
 router.post('/', authMiddleware.protect, suratController.createSurat);
 
 // Create surat baru with file uploads (protected)
-router.post('/', 
+router.post('/upload-lengkap', 
   authMiddleware.protect, 
   upload.fields([
     { name: 'fotoKtp', maxCount: 1 },
