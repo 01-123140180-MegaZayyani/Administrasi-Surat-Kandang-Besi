@@ -2,9 +2,9 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const cors = require("cors");
 const multer = require("multer");
-import authRoutes from './routes/auth/authRoutes.js';
-import adminRoutes from './routes/admin/adminRoutes.js';
-import suratRoutes from './routes/suratRoutes.js';
+const authRoutes = require('./routes/auth/authRoutes.js');
+const adminRoutes = require('./routes/admin/adminRoutes.js');
+const suratRoutes = require('./routes/suratRoutes.js');
 
 const prisma = new PrismaClient();
 const app = express();
