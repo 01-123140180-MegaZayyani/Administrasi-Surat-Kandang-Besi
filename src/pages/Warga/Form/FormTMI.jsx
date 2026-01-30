@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 
@@ -26,7 +26,7 @@ export default function FormTMI() {
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
 
     try {
-      await api.post('/surat', data);
+      await api.post('/api/surat', data);
       alert("✅ Permohonan Surat Keterangan Tidak Memiliki Ijazah Berhasil!");
       navigate('/beranda');
     } catch (error) {

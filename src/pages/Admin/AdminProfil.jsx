@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from "../../utils/api";
 import NavbarAdmin from "../../components/NavbarAdmin";
 
 export default function AdminProfil() {
@@ -19,7 +19,7 @@ export default function AdminProfil() {
 
   const handleUpdate = async () => {
     try {
-      const res = await axios.put("http://localhost:5000/api/admin/update-profil", { ...formData, id: adminData.id });
+      const res = await api.put("/api/admin/update-profil", { ...formData, id: adminData.id });
       localStorage.setItem("profil", JSON.stringify(res.data.profil));
       setAdminData(res.data.profil);
       setIsEditing(false);

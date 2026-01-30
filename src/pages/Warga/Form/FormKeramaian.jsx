@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 
@@ -27,7 +27,7 @@ export default function FormKeramaian() {
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
 
     try {
-      await api.post('/surat', data);
+      await api.post('/api/surat', data);
       alert("✅ Permohonan Izin Keramaian Berhasil Diajukan!");
       navigate('/beranda');
     } catch (error) {

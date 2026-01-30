@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from '../../utils/api';
 import { FileText, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar"; 
@@ -12,7 +12,7 @@ export default function StatusSurat() {
 
   useEffect(() => {
     if (user.nik) {
-      axios.get(`http://localhost:5000/api/pengajuan-warga/${user.nik}`)
+      api.get(`/api/surat?nik_pengaju=${user.nik}`)
         .then(res => setDaftarSurat(res.data))
         .catch(err => console.error("Gagal ambil status"));
     }

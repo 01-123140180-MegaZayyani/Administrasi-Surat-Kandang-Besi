@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from '../../utils/api';
 import Navbar from "../../components/Navbar";
 
 export default function Profil() {
@@ -20,7 +20,7 @@ export default function Profil() {
   const handleUpdate = async () => {
     try {
       // Kirim formData lengkap termasuk ID ke backend
-      const res = await axios.put("http://localhost:5000/api/auth/update-profil", {
+      const res = await api.put("/api/auth/profile", {
         ...formData,
         id: userData.id 
       });

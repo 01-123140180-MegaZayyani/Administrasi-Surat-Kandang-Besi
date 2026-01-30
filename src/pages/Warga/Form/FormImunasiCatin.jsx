@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 
@@ -25,7 +25,7 @@ export default function FormImunisasiCatin() {
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
 
     try {
-      await api.post('/surat', data);
+      await api.post('/api/surat', data);
       alert("✅ Permohonan Surat Imunisasi Berhasil!");
       navigate('/beranda');
     } catch (error) {

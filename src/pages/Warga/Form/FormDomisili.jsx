@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import { Upload } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function FormDomisili() {
     });
 
     try {
-      await api.post('/surat-domisili', data);
+      await api.post('/api/surat', data);
       alert("✅ Permohonan Domisili Berhasil!");
       navigate('/beranda');
     } catch (error) {

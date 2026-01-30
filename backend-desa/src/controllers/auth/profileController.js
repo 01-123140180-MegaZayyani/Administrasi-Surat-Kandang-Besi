@@ -1,6 +1,5 @@
   // /backend/src/controllers/auth/profileController.js
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../../../db');
 
 exports.getProfile = async (req, res) => {
   try {
@@ -8,8 +7,8 @@ exports.getProfile = async (req, res) => {
       where: { id: parseInt(req.user.id) },
       select: {
         id: true,
-        fullName: true,
-        phoneNumber: true,
+        nama_lengkap: true,
+        no_telp: true,
         nik: true,
         role: true,
         tempatLahir: true,
@@ -42,14 +41,14 @@ exports.getProfile = async (req, res) => {
 
   exports.updateProfile = async (req, res) => {
     try {
-      const { fullName, nik, phoneNumber, tempatLahir, tanggalLahir, jenisKelamin, agama, pekerjaan, statusPerkawinan, pendidikan, alamatLengkap } = req.body;
+      const { nama_lengkap, nik, no_telp, tempatLahir, tanggalLahir, jenisKelamin, agama, pekerjaan, statusPerkawinan, pendidikan, alamatLengkap } = req.body;
 
       const updatedUser = await prisma.user.update({
         where: { id: parseInt(req.user.id) },
         data: {
-          fullName,
+          nama_lengkap,
           nik,
-          phoneNumber,
+          no_telp,
           tempatLahir,
           tanggalLahir: tanggalLahir ? new Date(tanggalLahir) : undefined,
           jenisKelamin,
@@ -66,8 +65,8 @@ exports.getProfile = async (req, res) => {
         message: 'Profil berhasil diperbarui',
         user: {
           id: updatedUser.id,
-          fullName: updatedUser.fullName,
-          phoneNumber: updatedUser.phoneNumber,
+          nama_lengkap: updatedUser.nama_lengkap,
+          no_telp: updatedUser.no_telp,
           nik: updatedUser.nik,
           role: updatedUser.role,
           tempatLahir: updatedUser.tempatLahir,

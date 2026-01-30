@@ -1,129 +1,95 @@
 const express = require("express");
-const mysql = require("mysql");
-const cors = require("cors");
-const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
+const cors = require("cors");
+const prisma = require("./db");
+const multer = require("multer");
 
 const app = express();
-const PORT = 5000;
 
-// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
-if (!fs.existsSync("./uploads")) { fs.mkdirSync("./uploads"); }
+const authRoutes = require("./src/routes/auth/authRoutes");
+const suratRoutes = require("./src/routes/suratRoutes");
+const adminRoutes = require("./src/routes/admin/adminRoutes");
 
-// --- DATABASE CONNECTION ---
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "desa_kandang_besi"
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/surat", suratRoutes);
+
+// Route untuk cek apakah backend jalan
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "success", 
+    message: "Backend Administrasi Surat Desa Berjalan Lancar! 🚀" 
+  });
 });
 
-db.connect((err) => {
-  if (err) console.error("Database Gagal:", err);
-  else console.log("Database MySQL Terhubung!");
-});
-
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: (req, file, cb) => { cb(null, Date.now() + "-" + file.originalname); }
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+
 // --- API AUTHENTICATION ---
-app.get("/api/auth/check-nik/:nik", (req, res) => {
-  db.query("SELECT nik FROM warga WHERE nik = ?", [req.params.nik], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ available: result.length === 0 });
-  });
+app.get("/api/auth/check-nik/:nik", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ // Pakai model 'user' sesuai gambar
+      where: { nik: req.params.nik }
+    });
+    res.json({ available: !user });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post("/api/auth/register", (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
   const { nama_lengkap, nik, no_telp, password } = req.body;
-  const sql = "INSERT INTO warga (nama_lengkap, nik, no_hp, password) VALUES (?, ?, ?, ?)";
-  db.query(sql, [nama_lengkap, nik, no_telp, password], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    await prisma.user.create({
+      data: {
+        nama_lengkap: nama_lengkap, // Sesuai field 'nama_lengkap' di gambar
+        nik: nik,
+        no_telp: no_telp, // Sesuai field 'no_telp' di gambar
+        password: password,
+        role: "WARGA"
+      }
+    });
     res.json({ message: "Registrasi Berhasil!" });
-  });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post("/api/auth/login", (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
   const { nama_lengkap, password } = req.body;
-  const sqlAdmin = "SELECT *, 'admin' as role FROM admin WHERE username = ? AND password = ?";
-  db.query(sqlAdmin, [nama_lengkap, password], (err, adminRes) => {
-    if (adminRes && adminRes.length > 0) return res.json({ profil: adminRes[0] });
-    const sqlWarga = "SELECT *, 'warga' as role FROM warga WHERE nama_lengkap = ? AND password = ?";
-    db.query(sqlWarga, [nama_lengkap, password], (err, wargaRes) => {
-      if (wargaRes && wargaRes.length > 0) return res.json({ profil: wargaRes[0] });
-      res.status(401).json({ error: "Akun tidak ditemukan!" });
+  try {
+    // Di schema baru, Admin dan Warga ada di satu tabel "User" dengan beda role
+    const user = await prisma.user.findFirst({
+      where: { nama_lengkap: nama_lengkap, password: password }
     });
-  });
-});
 
-// --- API UPDATE PROFIL (WARGA & ADMIN) ---
-app.put("/api/auth/update-profil", (req, res) => {
-  const { id, nama_lengkap, no_hp, password, pekerjaan, agama, email, alamat } = req.body;
-  let sql, params;
-  if (password) {
-    sql = "UPDATE warga SET nama_lengkap=?, no_hp=?, password=?, pekerjaan=?, agama=?, email=?, alamat=? WHERE id=?";
-    params = [nama_lengkap, no_hp, password, pekerjaan, agama, email, alamat, id];
-  } else {
-    sql = "UPDATE warga SET nama_lengkap=?, no_hp=?, pekerjaan=?, agama=?, email=?, alamat=? WHERE id=?";
-    params = [nama_lengkap, no_hp, pekerjaan, agama, email, alamat, id];
-  }
-  db.query(sql, params, (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    db.query("SELECT * FROM warga WHERE id = ?", [id], (err, user) => {
-      res.json({ message: "Profil diperbarui!", profil: user[0] });
-    });
-  });
-});
+    if (user) return res.json({ profil: user });
 
-app.put("/api/admin/update-profil", (req, res) => {
-  const { id, username, password } = req.body;
-  let sql = password ? "UPDATE admin SET username=?, password=? WHERE id=?" : "UPDATE admin SET username=? WHERE id=?";
-  let params = password ? [username, password, id] : [username, id];
-  db.query(sql, params, (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    db.query("SELECT *, 'admin' as role FROM admin WHERE id = ?", [id], (err, resAdmin) => {
-      res.json({ message: "Profil Admin diperbarui!", profil: resAdmin[0] });
-    });
-  });
+    res.status(401).json({ error: "Akun tidak ditemukan!" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- API PENGAJUAN ---
-app.post("/api/pengajuan", upload.any(), (req, res) => {
-  const { nik_pengaju, nama_warga, jenis_surat, data_form } = req.body;
-  let parsedData = JSON.parse(data_form);
-  const berkas = {};
-  if (req.files) req.files.forEach(f => berkas[f.fieldname] = f.filename);
-  parsedData.berkas = berkas;
-  const sql = "INSERT INTO pengajuan (nik_pengaju, nama_warga, jenis_surat, data_form, status) VALUES (?, ?, ?, ?, 'Pending')";
-  db.query(sql, [nik_pengaju, nama_warga, jenis_surat, JSON.stringify(parsedData)], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
+app.post("/api/pengajuan", upload.any(), async (req, res) => {
+  const { userId, jenisSurat, noTiket, data_form } = req.body;
+  try {
+    let parsedData = JSON.parse(data_form);
+    await prisma.surat.create({ // Menggunakan model 'surat'
+      data: {
+        userId: parseInt(userId),
+        jenisSurat: jenisSurat,
+        noTiket: noTiket || `TKT-${Date.now()}`,
+        data: parsedData,
+        status: "Belum Dikerjakan"
+      }
+    });
     res.json({ message: "Berhasil!" });
-  });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get("/api/pengajuan", (req, res) => {
-  db.query("SELECT * FROM pengajuan ORDER BY id DESC", (err, result) => res.json(result));
-});
+module.exports = app;
 
-app.get("/api/pengajuan-warga/:nik", (req, res) => {
-  db.query("SELECT * FROM pengajuan WHERE nik_pengaju = ? ORDER BY id DESC", [req.params.nik], (err, result) => res.json(result));
-});
-
-app.put("/api/pengajuan/finalkan/:id", (req, res) => {
-  const sql = "UPDATE pengajuan SET status = 'Selesai', data_final = ? WHERE id = ?";
-  db.query(sql, [JSON.stringify(req.body.data_final), req.params.id], (err) => res.json({ message: "Selesai!" }));
-});
-
-app.put("/api/pengajuan/:id", (req, res) => {
-  db.query("UPDATE pengajuan SET status = ? WHERE id = ?", [req.body.status, req.params.id], (err) => res.json({ message: "Updated" }));
-});
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../../utils/api';
 import { FileText, Upload, MessageSquare } from "lucide-react";
 
 export default function FormulirSurat() {
@@ -61,9 +61,10 @@ export default function FormulirSurat() {
         formData.append(key, files[key]);
       });
 
-      await axios.post("http://localhost:5000/api/pengajuan", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+      await api.post('/api/surat', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+      
       alert("Pengajuan Berhasil!");
       navigate("/beranda");
     } catch (err) {
