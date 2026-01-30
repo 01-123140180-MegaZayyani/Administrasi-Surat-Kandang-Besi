@@ -1,6 +1,7 @@
   // /backend/src/controllers/auth/profileController.js
 const prisma = require('../../../db');
 
+
 exports.getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({

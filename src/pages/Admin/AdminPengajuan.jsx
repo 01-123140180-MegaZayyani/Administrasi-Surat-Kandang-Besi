@@ -35,7 +35,7 @@ export default function AdminPengajuan() {
   };
 
   const updateStatus = (id, statusBaru) => {
-    api.put(`/api/pengajuan/${id}`, { status: statusBaru })
+    api.put(`/api/admin/surat/${id}/status`, { status: statusBaru })
       .then(() => {
         fetchData();
         setDetailTerpilih(null);
