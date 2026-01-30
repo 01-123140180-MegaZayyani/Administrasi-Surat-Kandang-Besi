@@ -18,16 +18,11 @@ router.get('/check-nik/:nik', async (req, res) => {
     try {
         const { nik } = req.params;
         const user = await prisma.user.findUnique({
-            where: { nik: nik }
+            where: { nik: nik },
+            select: { id: true } // <--- PAKSA HANYA AMBIL ID
         });
 
-        if (user) {
-            // Jika user ketemu, berarti NIK sudah terdaftar (TIDAK AVAILABLE)
-            return res.json({ available: false });
-        } else {
-            // Jika user tidak ada, berarti NIK bisa dipakai (AVAILABLE)
-            return res.json({ available: true });
-        }
+        return res.json({ available: !user }); 
     } catch (error) {
         console.error("Error cek NIK:", error);
         res.status(500).json({ error: "Internal Server Error" });
