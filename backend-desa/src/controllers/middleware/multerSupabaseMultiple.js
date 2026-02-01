@@ -44,7 +44,7 @@ const upload = multer({
 });
 
 // ✅ Middleware untuk upload multiple files ke Supabase
-const uploadMultipleToSupabase = (bucketName = 'surat-desa') => {
+const uploadMultipleToSupabase = (bucketName = 'surat_desa') => {
   return async (req, res, next) => {
     try {
       if (!req.files || req.files.length === 0) {
@@ -127,7 +127,7 @@ module.exports = {
   // Shorthand untuk user files
   uploadUserFiles: [
     upload.any(), // Accept any field
-    uploadMultipleToSupabase('surat-desa')
+    uploadMultipleToSupabase('surat_desa')
   ],
   
   // Shorthand untuk specific fields
@@ -136,6 +136,6 @@ module.exports = {
       { name: 'fotoKtp', maxCount: 1 },
       { name: 'fotoKk', maxCount: 1 }
     ]),
-    uploadMultipleToSupabase('surat-desa')
+    uploadMultipleToSupabase('surat_desa')
   ]
 };

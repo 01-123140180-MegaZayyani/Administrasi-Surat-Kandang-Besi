@@ -43,7 +43,7 @@ exports.createSurat = async (req, res) => {
           
           // Upload Buffer ke Supabase Storage (Bucket 'berkas-desa')
           const { data, error } = await supabase.storage
-            .from('berkas-desa') // ✅ Pastikan nama bucket sesuai di Supabase
+            .from('surat_desa') // ✅ Pastikan nama bucket sesuai di Supabase
             .upload(`pengajuan/${fileName}`, file.buffer, {
               contentType: file.mimetype
             });
@@ -52,7 +52,7 @@ exports.createSurat = async (req, res) => {
 
           // Dapatkan Public URL
           const { data: publicData } = supabase.storage
-            .from('berkas-desa')
+            .from('surat_desa')
             .getPublicUrl(`pengajuan/${fileName}`);
             
           berkasUrls[file.fieldname] = publicData.publicUrl;
@@ -248,7 +248,7 @@ exports.archiveSurat = async (req, res) => {
         const fileName = `ARSIP_${Date.now()}_${id}.pdf`;
 
         const { data, error } = await supabase.storage
-            .from('berkas-desa') // Pastikan bucket benar
+            .from('surat_desa') // Pastikan bucket benar
             .upload(`arsip/${fileName}`, file.buffer, {
                 contentType: 'application/pdf'
             });
@@ -256,7 +256,7 @@ exports.archiveSurat = async (req, res) => {
         if (error) throw error;
 
         const { data: publicData } = supabase.storage
-            .from('berkas-desa')
+            .from('surat_desa')
             .getPublicUrl(`arsip/${fileName}`);
         
         fileUrl = publicData.publicUrl;
