@@ -47,6 +47,14 @@ export default function AdminTemplate() {
     jabatan_penandatangan: "Kepala Pekon Kandang Besi",
   });
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const generatePDF = async () => {
     setLoading(true);
     try {
