@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import { Upload, Briefcase } from 'lucide-react';
@@ -36,7 +36,7 @@ export default function FormSKU() {
     });
 
     try {
-      await api.post('/surat', data);
+      await api.post('/api/surat', data);
       alert("✅ Permohonan SKU Berhasil Diajukan!");
       navigate('/beranda');
     } catch (error) {

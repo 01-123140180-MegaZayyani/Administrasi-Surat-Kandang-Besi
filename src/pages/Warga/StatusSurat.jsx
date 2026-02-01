@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FileText, Download, AlertCircle, RefreshCw, XCircle } from "lucide-react";
+=======
+import { useState, useEffect } from "react";
+import api from '../../utils/api';
+import { FileText, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/Navbar"; 
+import Footer from "../../components/Footer"; 
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
 export default function StatusSurat() {
   const [daftarSurat, setDaftarSurat] = useState([]);
@@ -46,6 +55,7 @@ export default function StatusSurat() {
   };
 
   useEffect(() => {
+<<<<<<< HEAD
     fetchStatusSurat();
   }, []);
 
@@ -70,6 +80,14 @@ export default function StatusSurat() {
     
     return texts[status] || status;
   };
+=======
+    if (user.nik) {
+      api.get(`/api/surat?nik_pengaju=${user.nik}`)
+        .then(res => setDaftarSurat(res.data))
+        .catch(err => console.error("Gagal ambil status"));
+    }
+  }, [user.nik]);
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">

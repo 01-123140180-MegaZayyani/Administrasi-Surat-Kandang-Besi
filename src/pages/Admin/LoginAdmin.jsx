@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Lock, User } from "lucide-react";
 
@@ -11,7 +11,7 @@ export default function LoginAdmin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/admin/login", {
+      const res = await api.post("https://backend-administrasi-surat-kandang-two.vercel.app/api/admin/login", {
         username,
         password,
       });

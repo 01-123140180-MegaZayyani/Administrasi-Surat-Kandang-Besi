@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../../utils/api';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function Register() {
 
   const checkNikAvailability = async (nikInput) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/check-nik/${nikInput}`);
+      const res = await api.get(`/api/auth/check-nik/${nikInput}`);
       if (res.data.available) {
         setNikStatus({ message: "✅ NIK valid & tersedia", color: "text-emerald-500" });
         setIsNikValid(true);
@@ -61,6 +61,7 @@ export default function Register() {
       }
     } catch (err) {
       console.error("Gagal cek NIK");
+      setNikStatus({ message: "⚠️ Layanan pengecekan sedang sibuk", color: "text-amber-600" });
     }
   };
 
@@ -70,7 +71,7 @@ export default function Register() {
     if (formData.password !== formData.confirmPassword) return alert("Konfirmasi kata sandi tidak cocok!");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await api.post("/api/auth/register", {
         nama_lengkap: formData.nama_lengkap,
         nik: formData.nik,
         no_telp: formData.no_telp,

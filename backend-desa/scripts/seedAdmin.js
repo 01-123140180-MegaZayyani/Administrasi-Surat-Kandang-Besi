@@ -12,8 +12,8 @@ async function main(){
     where: { username: 'admin' },
     update: {},
     create: {
-      fullName: 'Admin',
-      phoneNumber: '081234567890',
+      nama_lengkap: 'Admin',
+      no_telp: '081234567890',
       nik: '0000000000000000',
       password,
       role: 'ADMIN'

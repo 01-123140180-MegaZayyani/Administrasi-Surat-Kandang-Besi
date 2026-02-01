@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import axios from "axios";
 import { FileText, Upload } from "lucide-react";
+=======
+import api from '../../utils/api';
+import { FileText, Upload, MessageSquare } from "lucide-react";
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
 export default function FormulirSurat() {
   const location = useLocation();
@@ -85,12 +90,18 @@ export default function FormulirSurat() {
         if (files[key]) { formData.append(key, files[key]); }
       });
 
-      await axios.post("http://localhost:5000/api/pengajuan", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+      await api.post('/api/surat', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+<<<<<<< HEAD
 
       alert("Pengajuan Berhasil Terkirim!");
       navigate("/status"); 
+=======
+      
+      alert("Pengajuan Berhasil!");
+      navigate("/beranda");
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
     } catch (err) {
       console.error(err);
       alert("Gagal mengirim pengajuan.");

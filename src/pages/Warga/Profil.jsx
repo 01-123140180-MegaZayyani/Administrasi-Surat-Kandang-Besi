@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from '../../utils/api';
 import Navbar from "../../components/Navbar";
 
 export default function Profil() {
@@ -18,9 +18,34 @@ export default function Profil() {
   }, []);
 
   const handleUpdate = async () => {
+<<<<<<< HEAD
   try {
     // Pastikan formData mengandung ID atau NIK sesuai query server.js kamu
     const res = await axios.put("http://localhost:5000/api/auth/update-profil", formData);
+=======
+    try {
+      // Kirim formData lengkap termasuk ID ke backend
+      const res = await api.put("/api/auth/profile", {
+        ...formData,
+        id: userData.id 
+      });
+
+      // Update State dan LocalStorage dengan data terbaru dari server
+      const updatedUser = { ...userData, ...res.data.profil };
+      setUserData(updatedUser);
+      localStorage.setItem("profil", JSON.stringify(updatedUser));
+      
+      setIsEditing(false);
+      alert("Profil Berhasil Diperbarui!");
+      
+      // Trigger update navbar jika perlu
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || "Gagal memperbarui profil");
+    }
+  };
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
     // 1. Simpan ke localStorage dengan KEY YANG SAMA (user_profile)
     localStorage.setItem("user_profile", JSON.stringify(formData));

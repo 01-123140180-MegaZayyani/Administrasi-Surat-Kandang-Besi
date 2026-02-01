@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../../utils/api';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [nama, setNama] = useState("");
+  const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -12,14 +12,19 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", { 
-        nama_lengkap: nama, 
+      const res = await api.post("/api/auth/login", { 
+        nik: nik, 
         password: password 
       });
       
+<<<<<<< HEAD
       localStorage.setItem("profil", JSON.stringify(res.data.profil));
+=======
+      localStorage.setItem("user_profile", JSON.stringify(res.data.user)); 
+      localStorage.setItem("token", res.data.token);
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
       
-      if (res.data.profil.role === "admin") {
+      if (res.data.user.role === "admin") {
         alert("Login Admin Berhasil!");
         navigate("/admin/dashboard");
       } else {
@@ -27,7 +32,7 @@ export default function Login() {
         navigate("/beranda");
       }
     } catch (err) {
-      alert(err.response?.data?.error || "Gagal masuk. Cek nama dan kata sandi.");
+      alert(err.response?.data?.error || "Gagal masuk. Cek NIK dan kata sandi.");
     } finally {
       setLoading(false);
     }
@@ -43,9 +48,9 @@ export default function Login() {
       <div className="max-w-md w-full bg-white p-4">
         <form className="space-y-6" onSubmit={handleLogin}>
           <div>
-            <label className="text-xs font-bold text-[#1E3A8A] uppercase">Nama Lengkap / Username</label>
-            <input required type="text" placeholder="Masukkan nama" value={nama} 
-              onChange={(e) => setNama(e.target.value)}
+            <label className="text-xs font-bold text-[#1E3A8A] uppercase">NIK</label>
+            <input required type="text" placeholder="Masukkan NIK" value={nik} 
+              onChange={(e) => setNik(e.target.value)}
               className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"/>
           </div>
 

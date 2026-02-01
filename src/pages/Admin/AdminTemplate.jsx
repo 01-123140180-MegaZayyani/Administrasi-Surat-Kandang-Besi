@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+<<<<<<< HEAD
 import axios from "axios";
 import logoTanggamus from '../../assets/Kabupaten Tanggamus.png';
 import ttdPekon from '../../assets/Tanda Tangan.png'; 
@@ -10,6 +11,8 @@ import ttdPekon from '../../assets/Tanda Tangan.png';
 // Deklarasi konstanta di luar komponen
 const LOGO_PATH = logoTanggamus; 
 const TTD_PEKON_PATH = ttdPekon; // TTD Kepala Pekon
+=======
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
 export default function AdminTemplate() {
   const location = useLocation();

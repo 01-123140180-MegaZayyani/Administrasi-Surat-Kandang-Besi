@@ -1,29 +1,36 @@
 // src/utils/api.js
-const api = {
-  get: async (url) => {
-    console.log("Mock GET request to:", url);
-    return {
-      data: {
-        user: {
-          firstName: "Budi",
-          lastName: "Santoso",
-          nik: "3201234567890123",
-          tempatLahir: "Bandar Lampung",
-          tanggalLahir: "1990-01-01",
-          jenisKelamin: "Laki-laki",
-          agama: "Islam",
-          statusPerkawinan: "Kawin",
-          pekerjaan: "Wiraswasta",
-          kewarganegaraan: "Indonesia",
-          phoneNumber: "08123456789"
-        }
-      }
-    };
+import axios from 'axios';
+
+const API_URL = 'https://backend-administrasi-surat-kandang-two.vercel.app'; 
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
   },
-  post: async (url, data) => {
-    console.log("Mock POST request to:", url, data);
-    return { data: { surat: { noTiket: "TKT-" + Date.now() } } };
+});
+
+// Interceptor: Otomatis tempel Token JWT di setiap kiriman
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-};
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+// Interceptor: Jika token kadaluarsa (Error 401), otomatis logout
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+=======
+import { useState, useEffect } from "react";
+import api from "../../utils/api";
+import { X, CheckCircle, XCircle, Download, FileText, Image as ImageIcon } from "lucide-react";
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 import { useNavigate } from "react-router-dom";
 import { X, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 
@@ -9,7 +15,7 @@ export default function AdminPengajuan() {
   const navigate = useNavigate();
 
   const fetchData = () => {
-    axios.get("http://localhost:5000/api/pengajuan")
+    api.get("/api/admin/surat")
       .then(res => setPengajuan(res.data))
       .catch(err => console.error(err));
   };
@@ -42,6 +48,18 @@ export default function AdminPengajuan() {
     });
   };
 
+<<<<<<< HEAD
+=======
+  const updateStatus = (id, statusBaru) => {
+    api.put(`/api/pengajuan/${id}`, { status: statusBaru })
+      .then(() => {
+        fetchData();
+        setDetailTerpilih(null);
+      })
+      .catch(err => alert("Gagal update status"));
+  };
+
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
   return (
     <div className="p-10 bg-slate-50 min-h-screen font-sans text-left">
       <h1 className="text-3xl font-black text-slate-800 uppercase mb-10 tracking-tight">Daftar Pengajuan</h1>
@@ -121,6 +139,28 @@ export default function AdminPengajuan() {
                     )}
                   </div>
                 </div>
+<<<<<<< HEAD
+=======
+
+                <div className="space-y-6">
+                  <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-full">
+                    <h3 className="font-black text-xs uppercase mb-6 text-slate-800 border-b pb-4">Lampiran Berkas</h3>
+                    <div className="flex-grow grid grid-cols-1 gap-4 overflow-y-auto max-h-[400px]">
+                      {(() => {
+                        const data = JSON.parse(detailTerpilih.data_form || '{}');
+                        const berkas = data.berkas || {};
+                        return Object.entries(berkas).map(([key, file]) => (
+                          <div key={key} className="p-4 border rounded-2xl bg-slate-50">
+                            <p className="text-[9px] font-bold uppercase text-blue-600 mb-2">{key}</p>
+                            <img src={file} className="w-full rounded-xl" alt={key} />
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
             </div>
 
             <div className="p-8 border-t bg-slate-50 flex gap-4">

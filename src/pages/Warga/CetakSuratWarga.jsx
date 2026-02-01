@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Download, ArrowLeft } from "lucide-react";
 import jsPDF from "jspdf";

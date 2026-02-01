@@ -1,18 +1,15 @@
 const express = require("express");
-const mysql = require("mysql");
-const cors = require("cors");
-const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
+const cors = require("cors");
+const prisma = require("./db");
+const multer = require("multer");
 
 const app = express();
-const PORT = 5000;
 
-// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
+<<<<<<< HEAD
 // Pastikan folder uploads ada
 if (!fs.existsSync("./uploads")) { 
     fs.mkdirSync("./uploads"); 
@@ -43,18 +40,63 @@ const upload = multer({ storage });
 
 // --- AUTH API ---
 app.post("/api/auth/login", (req, res) => {
-  const { nama_lengkap, password } = req.body;
-  const sqlAdmin = "SELECT *, 'admin' as role FROM admin WHERE username = ? AND password = ?";
-  db.query(sqlAdmin, [nama_lengkap, password], (err, adminRes) => {
-    if (adminRes && adminRes.length > 0) return res.json({ profil: adminRes[0] });
-    const sqlWarga = "SELECT *, 'warga' as role FROM warga WHERE nama_lengkap = ? AND password = ?";
-    db.query(sqlWarga, [nama_lengkap, password], (err, wargaRes) => {
-      if (wargaRes && wargaRes.length > 0) return res.json({ profil: wargaRes[0] });
-      res.status(401).json({ error: "Akun tidak ditemukan!" });
-    });
+=======
+const authRoutes = require("./src/routes/auth/authRoutes");
+const suratRoutes = require("./src/routes/suratRoutes");
+const adminRoutes = require("./src/routes/admin/adminRoutes");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/surat", suratRoutes);
+
+// Route untuk cek apakah backend jalan
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "success", 
+    message: "Backend Administrasi Surat Desa Berjalan Lancar! 🚀" 
   });
 });
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+// --- API AUTHENTICATION ---
+app.get("/api/auth/check-nik/:nik", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ // Pakai model 'user' sesuai gambar
+      where: { nik: req.params.nik }
+    });
+    res.json({ available: !user });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/api/auth/register", async (req, res) => {
+  const { nama_lengkap, nik, no_telp, password } = req.body;
+  try {
+    await prisma.user.create({
+      data: {
+        nama_lengkap: nama_lengkap, // Sesuai field 'nama_lengkap' di gambar
+        nik: nik,
+        no_telp: no_telp, // Sesuai field 'no_telp' di gambar
+        password: password,
+        role: "WARGA"
+      }
+    });
+    res.json({ message: "Registrasi Berhasil!" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
+  const { nama_lengkap, password } = req.body;
+  try {
+    // Di schema baru, Admin dan Warga ada di satu tabel "User" dengan beda role
+    const user = await prisma.user.findFirst({
+      where: { nama_lengkap: nama_lengkap, password: password }
+    });
+
+<<<<<<< HEAD
 // --- PENGAJUAN API ---
 app.post("/api/pengajuan", upload.any(), (req, res) => {
   const { nik_pengaju, nama_warga, jenis_surat, data_form } = req.body;
@@ -68,10 +110,33 @@ app.post("/api/pengajuan", upload.any(), (req, res) => {
   const sql = "INSERT INTO pengajuan (nik_pengaju, nama_warga, jenis_surat, data_form, status) VALUES (?, ?, ?, ?, 'Pending')";
   db.query(sql, [nik_pengaju, nama_warga, jenis_surat, JSON.stringify(parsedData)], (err) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Berhasil!" });
-  });
+=======
+    if (user) return res.json({ profil: user });
+
+    res.status(401).json({ error: "Akun tidak ditemukan!" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- API PENGAJUAN ---
+app.post("/api/pengajuan", upload.any(), async (req, res) => {
+  const { userId, jenisSurat, noTiket, data_form } = req.body;
+  try {
+    let parsedData = JSON.parse(data_form);
+    await prisma.surat.create({ // Menggunakan model 'surat'
+      data: {
+        userId: parseInt(userId),
+        jenisSurat: jenisSurat,
+        noTiket: noTiket || `TKT-${Date.now()}`,
+        data: parsedData,
+        status: "Belum Dikerjakan"
+      }
+    });
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
+    res.json({ message: "Berhasil!" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+<<<<<<< HEAD
 app.get("/api/pengajuan", (req, res) => {
   db.query("SELECT * FROM pengajuan ORDER BY id DESC", (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -101,3 +166,11 @@ app.put("/api/pengajuan/arsip/:id", upload.single("pdf"), (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+=======
+module.exports = app;
+
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49

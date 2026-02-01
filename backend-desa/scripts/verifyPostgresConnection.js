@@ -20,7 +20,7 @@ async function verifyPostgresConnection() {
     const users = await prisma.user.findMany({
       select: {
         id: true,
-        fullName: true,
+        nama_lengkap: true,
         role: true,
         createdAt: true
       }
@@ -43,7 +43,7 @@ async function verifyPostgresConnection() {
       console.log(`✅ Admin ditemukan:`);
       console.log(`   ID: ${admin.id}`);
       console.log(`   Username: ${admin.username}`);
-      console.log(`   Nama: ${admin.fullName}`);
+      console.log(`   Nama: ${admin.nama_lengkap}`);
       console.log(`   Role: ${admin.role}`);
       console.log(`   Dibuat: ${admin.createdAt}`);
     } else {

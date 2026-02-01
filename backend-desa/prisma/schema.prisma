@@ -9,8 +9,8 @@ datasource db {
 
 model User {
   id            Int      @id @default(autoincrement())
-  fulltName     String
-  phoneNumber   String   @unique
+  nama_lengkap     String
+  no_telp   String   @unique
   nik           String   @unique
   password      String
   role          String   @default("WARGA")

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FileText, Clock, CheckCircle, AlertCircle, RefreshCw, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+=======
+import { useState, useEffect } from "react";
+import api from "../../utils/api";
+import { ChevronDown, FileText, CheckCircle, Clock, AlertCircle } from "lucide-react";
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -20,6 +26,7 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+<<<<<<< HEAD
       const response = await axios.get("http://localhost:5000/api/pengajuan");
       const data = response.data;
       
@@ -47,6 +54,14 @@ export default function AdminDashboard() {
       console.error("❌ Error fetching dashboard data:", err);
     } finally {
       setLoading(false);
+=======
+      const res = await api.get("/api/admin/surat");
+      setPengajuan(res.data);
+    } catch (err) { 
+      console.error(err); 
+    } finally { 
+      setLoading(false); 
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
     }
   };
 
@@ -98,6 +113,7 @@ export default function AdminDashboard() {
 
     // Untuk status lain, langsung update
     try {
+<<<<<<< HEAD
       await axios.put(`http://localhost:5000/api/pengajuan/${item.id}`, {
         status: newStatus
       });
@@ -129,6 +145,13 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error rejecting:", err);
       alert("❌ Gagal menolak pengajuan");
+=======
+      // Mengirim status baru ke backend
+      await api.put(`/api/pengajuan/${id}`, { status, catatan });
+      fetchPengajuan(); // Refresh data agar statistik dan tabel update
+    } catch (err) { 
+      alert("Gagal update status"); 
+>>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
     }
   };
 
