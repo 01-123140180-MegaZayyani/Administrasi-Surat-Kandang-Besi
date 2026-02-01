@@ -126,7 +126,7 @@ export default function AdminPengajuan() {
                     Object.entries(JSON.parse(detailTerpilih.data_form).berkas).map(([key, file]) => (
                       <a 
                         key={key} 
-                        href={`http://localhost:5000/uploads/${file}`} 
+                        href={`/api/uploads/${file}`} 
                         target="_blank" 
                         rel="noreferrer" 
                         className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-blue-500 hover:bg-blue-50 transition-all"

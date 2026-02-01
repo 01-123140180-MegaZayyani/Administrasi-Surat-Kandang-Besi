@@ -166,7 +166,7 @@ export default function StatusSurat() {
                     <div className="text-right ml-4">
                       {surat.status === "Selesai" && surat.file_final ? (
                         <a 
-                          href={`http://localhost:5000/uploads/${surat.file_final}`} 
+                          href={`/api/uploads/${surat.file_final}`} 
                           target="_blank" 
                           rel="noreferrer"
                           className="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-900 transition-all"
