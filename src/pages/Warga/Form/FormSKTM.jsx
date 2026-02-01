@@ -15,6 +15,9 @@ export default function FormSKTM() {
     e.preventDefault();
     setIsSubmitting(true);
     const data = new FormData();
+
+    data.append('jenisSurat', 'Surat Keterangan Tidak Mampu');
+
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
     try {
       await api.post('/api/surat', data);

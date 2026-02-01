@@ -24,6 +24,9 @@ export default function FormKeramaian() {
     e.preventDefault();
     setIsSubmitting(true);
     const data = new FormData();
+
+    data.append('jenisSurat', 'Izin Keramaian');
+
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
 
     try {

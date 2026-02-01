@@ -55,7 +55,7 @@ export default function CetakSuratWarga() {
         {/* JUDUL SURAT */}
         <div className="text-center mb-10">
           <h2 className="text-[14pt] font-bold underline uppercase tracking-widest">
-            {data.jenisSurat === "domisili" ? "Surat Keterangan Domisili" : "Surat Keterangan Usaha"}
+            {data.jenisSurat === "domisili" ? "Surat Keterangan Domisili" : data.jenisSurat === "sku" ? "Surat Keterangan Usaha" : "Surat Izin Keramaian"}
           </h2>
           <p className="text-[12pt]">Nomor : {data.nomorSurat}</p>
         </div>

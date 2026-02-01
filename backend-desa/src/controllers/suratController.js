@@ -28,42 +28,31 @@ exports.createSurat = async (req, res) => {
     const { jenisSurat, ...data_form } = req.body;
     const userId = req.user.id;
 
-    let parsedData = typeof data_form === 'string' ? JSON.parse(data_form) : data_form;
-
-    // Handle upload file dari Supabase (jika ada)
+    // Handle upload file dari Supabase
+    let berkas = {};
     if (req.files && req.files.length > 0) {
-      const filePaths = {};
       req.files.forEach(file => {
-        filePaths[file.fieldname] = file.path; 
+        // fieldname adalah nama inputnya (misal: fotoKtp, fotoKk)
+        berkas[file.fieldname] = file.path; 
       });
-      parsedData.berkas = filePaths;
     }
+
+    // Gabungkan data teks dan link foto ke dalam kolom JSON 'data'
+    const finalData = { ...data_form, berkas };
 
     const newSurat = await prisma.surat.create({
       data: {
         userId: parseInt(userId),
-        jenisSurat: jenisSurat || "Domisili",
+        jenisSurat: jenisSurat || "Pengajuan Surat",
         noTiket: `TKT-${Date.now()}`,
-        data: parsedData,
-        status: "Pending"
-      },
-      include: {
-        user: {
-          select: {
-            nama_lengkap: true,
-            nik: true,
-            no_telp: true
-          }
-        }
+        data: finalData,
+        status: "Belum Dikerjakan"
       }
     });
 
-    res.status(201).json({ 
-      success: true, 
-      data: transformSuratData(newSurat) 
-    });
+    res.status(201).json({ success: true, data: newSurat });
   } catch (error) {
-    console.error("❌ Error Create Surat:", error);
+    console.error("❌ Error createSurat:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
