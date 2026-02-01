@@ -9,7 +9,12 @@ const supabase = createClient(
 
 // Gunakan Memory Storage
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // Batas 5 MB per file
+  }
+});
 
 // Kita export 'upload' (untuk middleware di route) 
 // dan 'supabase' (untuk dipakai di controller nanti)

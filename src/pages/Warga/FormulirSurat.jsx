@@ -66,8 +66,20 @@ export default function FormulirSurat() {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
+  const [fileError, setFileError] = useState("");
+
   const handleFileChange = (e) => {
-    setFiles({ ...files, [e.target.name]: e.target.files[0] });
+    const file = e.target.files[0];
+    const maxSize = 5 * 1024 * 1024; // 5MB dalam bytes
+
+    if (file && file.size > maxSize) {
+      setFileError(`File ${file.name} terlalu besar! Maksimal 5 MB.`);
+      e.target.value = ""; // Reset input file
+      return;
+    }
+
+    setFileError(""); // Hapus error jika file valid
+    setFiles({ ...files, [e.target.name]: file });
   };
 
   const handleSubmit = async (e) => {
@@ -301,6 +313,12 @@ export default function FormulirSurat() {
             {renderFileUploads()}
           </div>
 
+            {fileError && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                <p className="text-red-700 text-xs font-bold uppercase">{fileError}</p>
+              </div>
+            )}
+            
           <button type="submit" disabled={loading} className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${loading ? "bg-slate-300" : "bg-[#1E3A8A] text-white hover:bg-blue-900"}`}>
             {loading ? "Sedang Mengirim..." : "Kirim Pengajuan"}
           </button>
