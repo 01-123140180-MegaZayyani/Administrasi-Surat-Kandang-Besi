@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import axios from "axios";
 import logoTanggamus from '../../assets/Kabupaten Tanggamus.png';
 import ttdPekon from '../../assets/Tanda Tangan.png'; 
 
@@ -20,11 +19,12 @@ export default function AdminTemplate() {
   const { id_pengajuan, warga, jenis_surat } = location.state || {};
   const type = jenis_surat?.toLowerCase() || "";
 
+  // MAPPING OTOMATIS: Mengambil data yang dikirim warga
   const [formData, setFormData] = useState({
-    nomorSurat: type === "keramaian" ? "331/017/60.2005/VIII/2025" : type === "domisili" ? "470/019/60.2005/XII/2025" : type === "sktm" ? "470/001/60.2005/I/2026" : "470/001/60.2005/I/2026",
-    tglSurat: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: type === "keramaian" ? '2-digit' : 'long', year: 'numeric' }).replace(/\//g, '-'),
-    nama: warga?.nama?.toUpperCase() || "",
-    nik: warga?.nik || "",
+    nomorSurat: "470/..../60.2005/..../2026",
+    tglSurat: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }),
+    nama: warga?.nama?.toUpperCase() || warga?.nama_warga?.toUpperCase() || "",
+    nik: warga?.nik || warga?.nik_pengaju || "",
     ttl: warga?.tempat_tgl_lahir || "",
     agama: warga?.agama || "Islam",
     jenis_kelamin: warga?.jenis_kelamin || "",
@@ -34,165 +34,55 @@ export default function AdminTemplate() {
     umur: warga?.umur || "",
     status: warga?.status || "Kawin",
     peringkat_desil: warga?.peringkat_desil || "1",
-    nama_pemilik_orgen: warga?.nama_orgen_pemilik || "",
-    umur_orgen: warga?.umur_orgen || "",
-    pekerjaan_orgen: warga?.pekerjaan_orgen || "",
-    alamat_orgen: warga?.alamat_orgen || "",
-    nama_unit_orgen: warga?.nama_unit_orgen || "",
-    hari: "MINGGU",
-    tanggal_kegiatan: "10-08-2025",
-    waktu: "08.00 s.d 18.00 WIB",
-    acara: "KHITANAN",
-    resepsi: "KHITANAN",
-    tempat_kegiatan: warga?.alamat ? `Kediaman Bpk. ${warga.nama?.split(' ')[0]} Di ${warga.alamat}` : "",
-    hiburan: warga?.nama_unit_orgen || "BERKA NADA MUSIC (Orgen Tunggal)",
-    jumlah_tamu: "750",
-    saksi1_nama: "IWAN",
-    saksi2_nama: "EDI IRAWAN",
+    // Data Khusus SKU
     nama_usaha: warga?.nama_usaha?.toUpperCase() || "",
     tahun_berdiri: warga?.tahun_berdiri || "",
     alamat_usaha: warga?.alamat_usaha || "",
+    // Data Khusus Keramaian
+    nama_pemilik_orgen: warga?.nama_orgen_pemilik || "",
+    nama_unit_orgen: warga?.nama_unit_orgen || "",
+    // Setting Default Admin
     tempat_dibuat: "Kandang Besi",
-    penandatangan: type === "keramaian" ? "MUKHTAR" : "FATHURRAHIM",
-    jabatan_penandatangan: type === "keramaian" ? "" : type === "domisili" ? "" : "A.n Kasi Pelayanan",
-    nama_camat: "",
-    nip_camat: ""
+    penandatangan: "FATHURRAHIM",
+    jabatan_penandatangan: "Kepala Pekon Kandang Besi",
   });
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const generatePDF = async () => {
-  setLoading(true);
-  try {
-    console.log("🔄 Memulai generate PDF...");
-    
-    const element = suratRef.current;
-    
-    const style = document.createElement('style');
-    style.id = 'pdf-layout-fix';
-    style.textContent = `
-      .page {
-        position: relative !important;
-        display: block !important;
-        width: 210mm !important;
-        min-height: auto !important;
-        /* ✅ HAPUS BARIS INI - biar pakai padding dari template */
-        /* padding: 20mm 15mm !important; */
-        margin: 0 !important;
-        background: white !important;
-        box-sizing: border-box !important;
-        overflow: visible !important;
-      }
-      .page * {
-        position: static !important;
-        color: #000000 !important;
-        background-color: transparent !important;
-        font-family: 'Times New Roman', Times, serif !important;
-        box-sizing: border-box !important;
-      }
-      .page table {
-        border-collapse: collapse !important;
-        border-spacing: 0 !important;
-        table-layout: fixed !important;
-      }
-    `;
-    
-    document.head.appendChild(style);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const pages = element.querySelectorAll('.page');
-    console.log(`📄 Jumlah halaman ditemukan: ${pages.length}`);
-    
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    for (let i = 0; i < pages.length; i++) {
-      console.log(`🖼️ Memproses halaman ${i + 1}...`);
+    setLoading(true);
+    try {
+      const element = suratRef.current;
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
       
-      const pageClone = pages[i].cloneNode(true);
-      pageClone.style.position = 'absolute';
-      pageClone.style.left = '-9999px';
-      pageClone.style.width = '210mm';
-      pageClone.style.minHeight = 'auto';
-      document.body.appendChild(pageClone);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      await new Promise(resolve => setTimeout(resolve, 300));
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       
-      const canvas = await html2canvas(pageClone, { 
-        scale: 3,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        removeContainer: true,
-        allowTaint: false,
-        foreignObjectRendering: false,
-        imageTimeout: 0,
-        width: 794,
-        windowWidth: 794
-      });
-      
-      document.body.removeChild(pageClone);
-      
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      const imgProps = pdf.getImageProperties(imgData);
-      
-      let imgWidth = pdfWidth;
-      let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      if (i > 0) pdf.addPage();
-      
-      if (imgHeight > pdfHeight) {
-        console.log(`⚠️ Halaman ${i + 1} terlalu tinggi (${imgHeight}mm), scaling down ke ${pdfHeight}mm`);
-        const ratio = pdfHeight / imgHeight;
-        imgWidth = imgWidth * ratio;
-        imgHeight = pdfHeight;
-      }
-      
-      const xOffset = (pdfWidth - imgWidth) / 2;
-      pdf.addImage(imgData, "PNG", xOffset, 0, imgWidth, imgHeight, undefined, 'FAST');
-      
-      console.log(`✅ Halaman ${i + 1} selesai (${imgWidth.toFixed(2)}mm x ${imgHeight.toFixed(2)}mm)`);
-    }
-    
-    const styleToRemove = document.getElementById('pdf-layout-fix');
-    if (styleToRemove) document.head.removeChild(styleToRemove);
-    
-    const timestamp = Date.now();
-    const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
-    
-    const pdfBlob = pdf.output("blob");
-    const uploadData = new FormData();
-    uploadData.append("pdf", pdfBlob, fileName);
-    uploadData.append("status", "Selesai");
+      // 1. Download untuk Admin
+      pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
 
-    const response = await api.put(
-      `/api/pengajuan/arsip/${id_pengajuan}`, 
-      uploadData,
-      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
-    );
-    
-    console.log("✅ Response dari server:", response.data);
-    pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
-    alert(`✅ Surat berhasil diterbitkan!\n\n📄 Total: ${pages.length} halaman\n🎉 Status diperbarui ke 'Selesai'\n📥 Warga sudah bisa download surat mereka`);
-    navigate("/admin/pengajuan");
-    
-  } catch (err) {
-    console.error("❌ Error detail:", err);
-    if (err.response) {
-      alert(`Gagal upload PDF: ${err.response.data.message || err.response.statusText}`);
-    } else if (err.request) {
-      alert("Server tidak merespons. Pastikan backend berjalan!");
-    } else {
-      alert(`Terjadi kesalahan: ${err.message}`);
+      // 2. Upload ke Server untuk Arsip Warga
+      const pdfBlob = pdf.output("blob");
+      const uploadData = new FormData();
+      uploadData.append("pdf", pdfBlob, `surat_${id_pengajuan}.pdf`);
+      uploadData.append("status", "Selesai");
+
+      await api.put(`/api/admin/surat/arsip/${id_pengajuan}`, uploadData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      alert("Surat Berhasil Diterbitkan & Diarsipkan!");
+      navigate("/admin/pengajuan");
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menerbitkan surat.");
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+  
   const renderSidebarEditor = () => {
     if (type === "domisili") {
       return (

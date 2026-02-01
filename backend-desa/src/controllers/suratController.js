@@ -189,7 +189,34 @@ exports.getSuratById = async (req, res) => {
   }
 };
 
+
 // 7. Placeholder Download
 exports.downloadSuratSelesai = async (req, res) => {
   res.json({ message: "File PDF di-generate di Frontend" });
+};
+
+// Fungsi Arsip Surat (Admin mengunggah PDF yang sudah jadi)
+exports.archiveSurat = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    let fileUrl = null;
+    if (req.files && req.files.length > 0) {
+      // Logic upload ke Supabase/Storage Anda
+      fileUrl = req.files[0].path; 
+    }
+
+    const updated = await prisma.surat.update({
+      where: { id: parseInt(id) },
+      data: {
+        status: status || "Selesai",
+        filePdf: fileUrl // Simpan link PDF agar warga bisa download
+      }
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
