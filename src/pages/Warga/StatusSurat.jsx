@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import api from '../../utils/api';
 import { FileText, Download, RefreshCw, AlertCircle, XCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar"; 
 import Footer from "../../components/Footer"; 
 
@@ -9,35 +8,24 @@ export default function StatusSurat() {
   const [daftarSurat, setDaftarSurat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const user = JSON.parse(localStorage.getItem("profil") || "{}");
 
   const fetchStatusSurat = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log("🔍 Fetching status surat untuk NIK:", user.nik);
+      console.log("🔍 Fetching status surat...");
       
-      const response = await api.get("/api/pengajuan");
+      // ✅ Backend sudah filter berdasarkan userId dari token
+      const response = await api.get("/api/surat");
       console.log("📦 Data dari server:", response.data);
       
-      // Filter berdasarkan NIK dengan konversi tipe yang konsisten
-      const milikSaya = response.data.filter(item => {
-        const itemNIK = String(item.nik_pengaju).trim();
-        const userNIK = String(user.nik).trim();
-        console.log(`Comparing: ${itemNIK} === ${userNIK} ?`, itemNIK === userNIK);
-        return itemNIK === userNIK;
-      });
-      
-      console.log("✅ Data surat milik saya:", milikSaya);
-      
-      setDaftarSurat(milikSaya);
+      setDaftarSurat(response.data);
     } catch (err) {
       console.error("❌ Error mengambil status:", err);
       
       if (err.response) {
-        setError(`Server error: ${err.response.status}`);
+        setError(`Server error: ${err.response.status} - ${err.response.data?.error || 'Unknown error'}`);
       } else if (err.request) {
         setError("Server tidak merespons. Pastikan backend berjalan!");
       } else {
@@ -59,7 +47,6 @@ export default function StatusSurat() {
       'Ditolak': 'bg-red-100 text-red-600',
       'Pending': 'bg-amber-100 text-amber-600'
     };
-    
     return badges[status] || 'bg-slate-100 text-slate-600';
   };
 
@@ -70,7 +57,6 @@ export default function StatusSurat() {
       'Ditolak': 'Ditolak',
       'Pending': 'Menunggu Antrean'
     };
-    
     return texts[status] || status;
   };
 
@@ -93,7 +79,6 @@ export default function StatusSurat() {
           </button>
         </div>
         
-        {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 flex items-start gap-3">
             <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
@@ -110,7 +95,6 @@ export default function StatusSurat() {
           </div>
         )}
         
-        {/* Loading State */}
         {loading && !error && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
@@ -118,7 +102,6 @@ export default function StatusSurat() {
           </div>
         )}
         
-        {/* Data State */}
         {!loading && !error && (
           <div className="grid gap-4">
             {daftarSurat.length > 0 ? (
@@ -137,7 +120,7 @@ export default function StatusSurat() {
                           {surat.jenis_surat}
                         </h3>
                         <p className="text-xs text-slate-400 mt-1">
-                          Diajukan: {new Date(surat.tanggal_request || surat.created_at || Date.now()).toLocaleDateString('id-ID')}
+                          Diajukan: {new Date(surat.tanggal_request || surat.created_at).toLocaleDateString('id-ID')}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${getStatusBadge(surat.status)}`}>
@@ -145,7 +128,6 @@ export default function StatusSurat() {
                           </span>
                         </div>
 
-                        {/* CATATAN PENOLAKAN */}
                         {surat.status === "Ditolak" && surat.catatan_penolakan && (
                           <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
                             <div className="flex items-start gap-2">
@@ -175,21 +157,13 @@ export default function StatusSurat() {
                         </a>
                       ) : surat.status === "Selesai" ? (
                         <div className="text-center">
-                          <span className="text-[10px] font-bold text-slate-400 block mb-1">
-                            Surat Sudah Selesai
-                          </span>
-                          <span className="text-[9px] text-slate-400 italic">
-                            Ambil di Kantor Desa
-                          </span>
+                          <span className="text-[10px] font-bold text-slate-400 block mb-1">Surat Sudah Selesai</span>
+                          <span className="text-[9px] text-slate-400 italic">Ambil di Kantor Desa</span>
                         </div>
                       ) : surat.status === "Ditolak" ? (
                         <div className="text-center">
-                          <span className="text-[10px] font-bold text-red-500 block mb-1">
-                            ✗ Ditolak
-                          </span>
-                          <span className="text-[9px] text-slate-400 italic">
-                            Lihat alasan di bawah
-                          </span>
+                          <span className="text-[10px] font-bold text-red-500 block mb-1">✗ Ditolak</span>
+                          <span className="text-[9px] text-slate-400 italic">Lihat alasan di bawah</span>
                         </div>
                       ) : (
                         <span className={`text-[10px] font-bold uppercase tracking-widest block ${
@@ -208,15 +182,12 @@ export default function StatusSurat() {
                   <FileText size={32} className="text-slate-300" />
                 </div>
                 <h3 className="font-bold text-slate-700 mb-2">Belum Ada Pengajuan</h3>
-                <p className="text-slate-400 text-sm">
-                  Anda belum mengajukan surat apapun.
-                </p>
+                <p className="text-slate-400 text-sm">Anda belum mengajukan surat apapun.</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Info Card */}
         {!loading && !error && daftarSurat.length > 0 && (
           <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-5">
             <h4 className="font-bold text-blue-900 text-xs uppercase mb-2">Informasi</h4>
@@ -224,7 +195,7 @@ export default function StatusSurat() {
               <li>• Status <strong>Pending</strong>: Menunggu verifikasi admin</li>
               <li>• Status <strong>Proses</strong>: Sedang dikerjakan oleh admin</li>
               <li>• Status <strong>Selesai</strong>: Surat sudah siap diambil/diunduh</li>
-              <li>• Status <strong>Ditolak</strong>: Ada masalah dengan pengajuan Anda, silakan baca alasan penolakan dan ajukan ulang</li>
+              <li>• Status <strong>Ditolak</strong>: Ada masalah dengan pengajuan Anda</li>
             </ul>
           </div>
         )}

@@ -1,5 +1,4 @@
 const express = require('express');
-const prisma = require('../../../db');
 const suratController = require('../../controllers/suratController');
 const adminMiddleware = require('../../controllers/middleware/adminMiddleware');
 const authMiddleware = require('../../controllers/middleware/authMiddleware');
@@ -10,9 +9,10 @@ const router = express.Router();
 router.use(authMiddleware.protect); 
 router.use(adminMiddleware);
 
-// Rute yang diminta Frontend temenmu:
-router.get('/surat', suratController.getAllSurat); // Dipakai di AdminDashboard & AdminPengajuan
-router.put('/surat/:id/status', suratController.updateStatusSurat); // Dipakai di AdminDashboard dropdown
-router.delete('/surat/:id', suratController.deleteSurat);
+// ✅ Rute Admin - Sesuai kebutuhan Frontend
+router.get('/surat', suratController.getAllSurat); // GET semua surat
+router.put('/surat/:id', suratController.updateStatusSurat); // UPDATE status (mendukung catatan_penolakan)
+router.put('/surat/:id/status', suratController.updateStatusSurat); // Backward compatibility
+router.delete('/surat/:id', suratController.deleteSurat); // DELETE surat
 
 module.exports = router;

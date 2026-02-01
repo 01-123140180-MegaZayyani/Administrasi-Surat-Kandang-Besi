@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
-import { ChevronDown, FileText, CheckCircle, Clock, AlertCircle, RefreshCw, X } from "lucide-react";
+import { FileText, CheckCircle, Clock, AlertCircle, RefreshCw, X } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -33,18 +33,12 @@ export default function AdminDashboard() {
         selesai: data.filter(item => item.status === "Selesai").length
       });
 
-      // Ambil 5 pengajuan terbaru
-      const sortedData = [...data].sort((a, b) => {
-        // Coba berbagai field tanggal yang mungkin ada
-        const dateA = new Date(a.tanggal_request || a.created_at || a.tanggal_pengajuan || a.createdAt || Date.now());
-        const dateB = new Date(b.tanggal_request || b.created_at || b.tanggal_pengajuan || b.createdAt || Date.now());
-        return dateB - dateA;
-      });
-      
-      setRecentPengajuan(sortedData.slice(0, 5));
+      // Ambil 5 pengajuan terbaru (backend sudah sort by createdAt desc)
+      setRecentPengajuan(data.slice(0, 5));
       
     } catch (err) {
       console.error("❌ Error fetching dashboard data:", err);
+      alert("Gagal memuat data: " + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }
@@ -55,16 +49,11 @@ export default function AdminDashboard() {
   }, []);
 
   const formatTanggal = (tanggal) => {
-    // Handle berbagai format tanggal
     if (!tanggal) return "-";
     
     try {
       const date = new Date(tanggal);
-      
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return "-";
-      }
+      if (isNaN(date.getTime())) return "-";
       
       return date.toLocaleDateString('id-ID', {
         day: '2-digit',
@@ -72,7 +61,6 @@ export default function AdminDashboard() {
         year: 'numeric'
       });
     } catch (error) {
-      console.error("Error formatting date:", error);
       return "-";
     }
   };
@@ -88,15 +76,13 @@ export default function AdminDashboard() {
   };
 
   const handleStatusChange = async (item, newStatus) => {
-    // Jika status diubah ke "Ditolak", tampilkan modal
     if (newStatus === "Ditolak") {
       setSelectedItem(item);
-      setCatatanPenolakan(""); // Reset catatan
+      setCatatanPenolakan("");
       setShowRejectModal(true);
       return;
     }
 
-    // Untuk status lain, langsung update
     try {
       await api.put(`/api/admin/surat/${item.id}`, {
         status: newStatus
@@ -133,7 +119,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-10 bg-slate-50 min-h-screen font-sans">
-      {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">SILADES</h1>
@@ -149,7 +134,6 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
         <div className="bg-white rounded-3xl shadow-sm p-6 border border-slate-100">
           <div className="flex justify-between items-start mb-4">
@@ -200,7 +184,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent Submissions Table */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100">
           <h2 className="font-black text-slate-800 uppercase tracking-tight">Antrean Pengajuan Terbaru</h2>
@@ -225,8 +208,8 @@ export default function AdminDashboard() {
               {recentPengajuan.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                   <td className="p-6">
-                    <div className="font-bold text-slate-700">{item.nama_warga || "Warga"}</div>
-                    <div className="text-[10px] text-slate-400">NIK: {item.nik_pengaju || "-"}</div>
+                    <div className="font-bold text-slate-700">{item.nama_warga}</div>
+                    <div className="text-[10px] text-slate-400">NIK: {item.nik_pengaju}</div>
                   </td>
                   <td>
                     <span className="px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase">
@@ -234,7 +217,7 @@ export default function AdminDashboard() {
                     </span>
                   </td>
                   <td className="text-sm text-slate-600">
-                    {formatTanggal(item.tanggal_request || item.created_at || item.tanggal_pengajuan || item.createdAt)}
+                    {formatTanggal(item.tanggal_request || item.created_at)}
                   </td>
                   <td>
                     <select
@@ -274,10 +257,9 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* MODAL PENOLAKAN */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl animate-in zoom-in duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-black text-slate-800 uppercase">Tolak Pengajuan</h2>

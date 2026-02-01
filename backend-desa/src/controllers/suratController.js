@@ -1,6 +1,23 @@
 // src/controllers/suratController.js
 const prisma = require('../../db');
 
+// Helper function untuk transform data Prisma ke format Frontend
+const transformSuratData = (surat) => {
+  return {
+    id: surat.id,
+    jenis_surat: surat.jenisSurat,
+    nama_warga: surat.user?.nama_lengkap || "Unknown",
+    nik_pengaju: surat.user?.nik || "-",
+    status: surat.status,
+    data_form: JSON.stringify(surat.data || {}),
+    file_final: surat.filePdf || null,
+    tanggal_request: surat.createdAt,
+    created_at: surat.createdAt,
+    catatan_penolakan: surat.catatanPenolakan || null,
+    no_tiket: surat.noTiket
+  };
+};
+
 // --------------------------------------------------
 // 🏢 FUNGSI UNTUK WARGA (PENGGUNA)
 // --------------------------------------------------
@@ -8,22 +25,18 @@ const prisma = require('../../db');
 // 1. Membuat Pengajuan Surat Baru
 exports.createSurat = async (req, res) => {
   try {
-    // Kita ambil jenisSurat dan sisanya dianggap data_form
     const { jenisSurat, ...data_form } = req.body;
-    const userId = req.user.id; // Didapat dari authMiddleware.protect
+    const userId = req.user.id;
 
-    // Parsing data form karena biasanya dikirim sebagai JSON string dari frontend
-    // (Jika menggunakan FormData di frontend, data biasanya sudah berupa object di req.body)
     let parsedData = typeof data_form === 'string' ? JSON.parse(data_form) : data_form;
 
-    // Menghandle upload file dari Supabase (jika ada)
+    // Handle upload file dari Supabase (jika ada)
     if (req.files && req.files.length > 0) {
       const filePaths = {};
       req.files.forEach(file => {
-        // file.path berisi URL dari Supabase yang dibuat oleh middleware
         filePaths[file.fieldname] = file.path; 
       });
-      parsedData.berkas = filePaths; // Masukkan link foto ke dalam JSON data
+      parsedData.berkas = filePaths;
     }
 
     const newSurat = await prisma.surat.create({
@@ -31,14 +44,26 @@ exports.createSurat = async (req, res) => {
         userId: parseInt(userId),
         jenisSurat: jenisSurat || "Domisili",
         noTiket: `TKT-${Date.now()}`,
-        data: parsedData, // Data form disimpan di kolom JSON
-        status: "Belum Dikerjakan"
+        data: parsedData,
+        status: "Pending"
+      },
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            nik: true,
+            no_telp: true
+          }
+        }
       }
     });
 
-    res.status(201).json({ success: true, data: newSurat });
+    res.status(201).json({ 
+      success: true, 
+      data: transformSuratData(newSurat) 
+    });
   } catch (error) {
-    console.error("Error Create Surat:", error);
+    console.error("❌ Error Create Surat:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -49,10 +74,22 @@ exports.getMySurat = async (req, res) => {
     const userId = req.user.id;
     const surat = await prisma.surat.findMany({
       where: { userId: parseInt(userId) },
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            nik: true,
+            no_telp: true
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(surat); // Kirim array langsung agar cocok dengan frontend
+
+    const transformedSurat = surat.map(transformSuratData);
+    res.json(transformedSurat);
   } catch (error) {
+    console.error("❌ Error getMySurat:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -77,9 +114,10 @@ exports.getAllSurat = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
     
-    // Kirim array langsung karena AdminDashboard.jsx pakai res.data (array)
-    res.json(surat); 
+    const transformedSurat = surat.map(transformSuratData);
+    res.json(transformedSurat);
   } catch (error) {
+    console.error("❌ Error getAllSurat:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -88,15 +126,34 @@ exports.getAllSurat = async (req, res) => {
 exports.updateStatusSurat = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // Misal: "Sedang Diproses", "Selesai", "Ditolak"
+    const { status, catatan_penolakan } = req.body;
+
+    const updateData = { status: status };
+    
+    if (status === "Ditolak" && catatan_penolakan) {
+      updateData.catatanPenolakan = catatan_penolakan;
+    }
 
     const updatedSurat = await prisma.surat.update({
-      where: { id: id }, // ID Surat adalah UUID (String)
-      data: { status: status }
+      where: { id: id },
+      data: updateData,
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            nik: true,
+            no_telp: true
+          }
+        }
+      }
     });
 
-    res.json({ success: true, data: updatedSurat });
+    res.json({ 
+      success: true, 
+      data: transformSuratData(updatedSurat) 
+    });
   } catch (error) {
+    console.error("❌ Error updateStatusSurat:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -110,6 +167,7 @@ exports.deleteSurat = async (req, res) => {
     });
     res.json({ success: true, message: "Berhasil dihapus" });
   } catch (error) {
+    console.error("❌ Error deleteSurat:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -130,14 +188,19 @@ exports.getSuratById = async (req, res) => {
         } 
       }
     });
-    if (!surat) return res.status(404).json({ error: "Tidak ditemukan" });
-    res.json(surat);
+    
+    if (!surat) {
+      return res.status(404).json({ error: "Surat tidak ditemukan" });
+    }
+
+    res.json(transformSuratData(surat));
   } catch (error) {
+    console.error("❌ Error getSuratById:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
 // 7. Placeholder Download
 exports.downloadSuratSelesai = async (req, res) => {
-    res.json({ message: "File PDF di-generate di Frontend" });
+  res.json({ message: "File PDF di-generate di Frontend" });
 };

@@ -1,20 +1,18 @@
 const express = require('express');
 const suratController = require('../controllers/suratController');
 const authMiddleware = require('../controllers/middleware/authMiddleware');
-// Perhatikan kurung kurawal { upload } di bawah ini:
 const { upload } = require('../controllers/middleware/multerSupabase');
 
 const router = express.Router();
 
-// Route tanpa file
+// ✅ Route untuk membuat surat (dengan file upload)
 router.post('/', 
   authMiddleware.protect, 
   upload.any(), 
   suratController.createSurat
 );
 
-
-// Route dengan file (Sekarang upload.fields pasti JALAN)
+// ✅ Route dengan multiple files
 router.post('/upload-lengkap', 
   authMiddleware.protect, 
   upload.fields([
@@ -25,7 +23,13 @@ router.post('/upload-lengkap',
   suratController.createSurat
 );
 
-router.get('/', authMiddleware.protect, suratController.getAllSurat); // Untuk Admin
-router.get('/my', authMiddleware.protect, suratController.getMySurat); // Untuk Warga
+// ✅ GET /api/surat - Untuk mendapatkan surat milik user yang login (Warga)
+router.get('/', authMiddleware.protect, suratController.getMySurat);
+
+// ✅ GET /api/surat/my - Alias untuk surat milik user
+router.get('/my', authMiddleware.protect, suratController.getMySurat);
+
+// ✅ GET /api/surat/:id - Detail surat berdasarkan ID
+router.get('/:id', authMiddleware.protect, suratController.getSuratById);
 
 module.exports = router;
