@@ -24,7 +24,7 @@ export default function Login() {
       localStorage.setItem("token", res.data.token);
 >>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
       
-      if (res.data.user.role === "admin") {
+      if (res.data.user.role === "ADMIN") {
         alert("Login Admin Berhasil!");
         navigate("/admin/dashboard");
       } else {

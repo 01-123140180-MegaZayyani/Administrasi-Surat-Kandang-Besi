@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       alert("❌ Gagal menolak pengajuan");
 =======
       // Mengirim status baru ke backend
-      await api.put(`/api/pengajuan/${id}`, { status, catatan });
+      await api.put(`/api/admin/surat/${id}`, { status, catatan });
       fetchPengajuan(); // Refresh data agar statistik dan tabel update
     } catch (err) { 
       alert("Gagal update status"); 

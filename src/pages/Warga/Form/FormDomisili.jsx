@@ -21,7 +21,12 @@ export default function FormDomisili() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
     const data = new FormData();
+    
+    // Memberitahu backend jenis surat yang diajukan
+    data.append('jenisSurat', 'Surat Keterangan Domisili');
+
     const ttl = `${formData.tempatLahir}, ${formData.tanggalLahir}`;
     data.append('ttl', ttl);
     
@@ -36,6 +41,7 @@ export default function FormDomisili() {
       alert("✅ Permohonan Domisili Berhasil!");
       navigate('/beranda');
     } catch (error) {
+      console.error("Submit Error:", error);
       alert("❌ Gagal mengirim permohonan");
     } finally {
       setIsSubmitting(false);

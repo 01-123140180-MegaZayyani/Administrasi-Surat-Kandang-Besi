@@ -8,27 +8,28 @@ const prisma = require('../../db');
 // 1. Membuat Pengajuan Surat Baru
 exports.createSurat = async (req, res) => {
   try {
-    const { jenisSurat, data_form } = req.body;
+    // Kita ambil jenisSurat dan sisanya dianggap data_form
+    const { jenisSurat, ...data_form } = req.body;
     const userId = req.user.id; // Didapat dari authMiddleware.protect
 
     // Parsing data form karena biasanya dikirim sebagai JSON string dari frontend
+    // (Jika menggunakan FormData di frontend, data biasanya sudah berupa object di req.body)
     let parsedData = typeof data_form === 'string' ? JSON.parse(data_form) : data_form;
 
     // Menghandle upload file dari Supabase (jika ada)
-    if (req.files) {
+    if (req.files && req.files.length > 0) {
       const filePaths = {};
-      Object.keys(req.files).forEach(key => {
-        // req.files[key][0].path berisi URL publik Supabase dari middleware
-        filePaths[key] = req.files[key][0].path; 
+      req.files.forEach(file => {
+        // file.path berisi URL dari Supabase yang dibuat oleh middleware
+        filePaths[file.fieldname] = file.path; 
       });
-      // Simpan URL gambar ke dalam object berkas
-      parsedData.berkas = filePaths;
+      parsedData.berkas = filePaths; // Masukkan link foto ke dalam JSON data
     }
 
     const newSurat = await prisma.surat.create({
       data: {
         userId: parseInt(userId),
-        jenisSurat: jenisSurat,
+        jenisSurat: jenisSurat || "Domisili",
         noTiket: `TKT-${Date.now()}`,
         data: parsedData, // Data form disimpan di kolom JSON
         status: "Belum Dikerjakan"
@@ -37,6 +38,7 @@ exports.createSurat = async (req, res) => {
 
     res.status(201).json({ success: true, data: newSurat });
   } catch (error) {
+    console.error("Error Create Surat:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -66,9 +68,9 @@ exports.getAllSurat = async (req, res) => {
       include: {
         user: {
           select: {
-            nama_lengkap: true,
+            nama_lengkap: true, 
             nik: true,
-            no_telp: true
+            no_telp: true       
           }
         }
       },
@@ -89,7 +91,7 @@ exports.updateStatusSurat = async (req, res) => {
     const { status } = req.body; // Misal: "Sedang Diproses", "Selesai", "Ditolak"
 
     const updatedSurat = await prisma.surat.update({
-      where: { id: parseInt(id) },
+      where: { id: id }, // ID Surat adalah UUID (String)
       data: { status: status }
     });
 
@@ -104,7 +106,7 @@ exports.deleteSurat = async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.surat.delete({
-      where: { id: parseInt(id) }
+      where: { id: id }
     });
     res.json({ success: true, message: "Berhasil dihapus" });
   } catch (error) {
@@ -117,8 +119,16 @@ exports.getSuratById = async (req, res) => {
   try {
     const { id } = req.params;
     const surat = await prisma.surat.findUnique({
-      where: { id: parseInt(id) },
-      include: { user: true }
+      where: { id: id },
+      include: { 
+        user: {
+          select: {
+            nama_lengkap: true, 
+            nik: true,
+            no_telp: true       
+          }
+        } 
+      }
     });
     if (!surat) return res.status(404).json({ error: "Tidak ditemukan" });
     res.json(surat);

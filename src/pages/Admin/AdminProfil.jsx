@@ -11,7 +11,7 @@ export default function AdminProfil() {
     const saved = localStorage.getItem("profil");
     if (saved) {
       const data = JSON.parse(saved);
-      if (data.role !== 'admin') return window.location.href = "/login";
+      if (data.role !== 'ADMIN') return window.location.href = "/login";
       setAdminData(data);
       setFormData({ username: data.username, password: "" });
     }

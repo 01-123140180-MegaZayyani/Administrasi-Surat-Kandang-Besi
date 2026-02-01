@@ -2,9 +2,9 @@
 // Load environment variables when running this script directly
 require('dotenv').config();
 
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../db');
 const bcrypt = require('bcryptjs');
-const prisma = new PrismaClient();
+
 
 async function main(){
   const password = await bcrypt.hash('Admin123!', 10);
@@ -15,7 +15,7 @@ async function main(){
       nama_lengkap: 'Admin',
       no_telp: '081234567890',
       nik: '0000000000000000',
-      password,
+      password: password,
       role: 'ADMIN'
     }
   });

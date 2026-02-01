@@ -7,7 +7,12 @@ const { upload } = require('../controllers/middleware/multerSupabase');
 const router = express.Router();
 
 // Route tanpa file
-router.post('/', authMiddleware.protect, suratController.createSurat);
+router.post('/', 
+  authMiddleware.protect, 
+  upload.any(), 
+  suratController.createSurat
+);
+
 
 // Route dengan file (Sekarang upload.fields pasti JALAN)
 router.post('/upload-lengkap', 
@@ -20,6 +25,7 @@ router.post('/upload-lengkap',
   suratController.createSurat
 );
 
-router.get('/', authMiddleware.protect, suratController.getMySurat);
+router.get('/', authMiddleware.protect, suratController.getAllSurat); // Untuk Admin
+router.get('/my', authMiddleware.protect, suratController.getMySurat); // Untuk Warga
 
 module.exports = router;
