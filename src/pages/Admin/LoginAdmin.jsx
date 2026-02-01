@@ -19,7 +19,7 @@ export default function LoginAdmin() {
       if (res.data.isAdmin) {
         localStorage.setItem("isAdmin", "true"); // Simpan status login
         alert("Akses Diterima! Selamat bekerja, Admin.");
-        navigate("/admin/dashboard");
+        navigate("/admin/AdminDashboard");
       }
     } catch (err) {
       alert("Username atau Password salah! Hanya staf yang bisa masuk.");

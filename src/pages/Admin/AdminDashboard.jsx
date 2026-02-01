@@ -98,7 +98,7 @@ export default function AdminDashboard() {
 
     // Untuk status lain, langsung update
     try {
-      await api.put(`/api/pengajuan/${item.id}`, {
+      await api.put(`/api/admin/surat/${item.id}`, {
         status: newStatus
       });
       fetchDashboardData();
