@@ -17,11 +17,13 @@ export default function LoginAdmin() {
       });
       
       if (res.data.isAdmin) {
-        localStorage.setItem("isAdmin", "true"); // Simpan status login
+        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("adminData", JSON.stringify(res.data));
         alert("Akses Diterima! Selamat bekerja, Admin.");
-        navigate("/admin/AdminDashboard");
+        navigate("/admin/dashboard");
       }
     } catch (err) {
+      console.error("Login error:", err);
       alert("Username atau Password salah! Hanya staf yang bisa masuk.");
     }
   };
@@ -46,6 +48,7 @@ export default function LoginAdmin() {
                 type="text"
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
                 placeholder="Masukkan username..."
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
@@ -60,6 +63,7 @@ export default function LoginAdmin() {
                 type="password"
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
                 placeholder="••••••••"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
@@ -73,6 +77,15 @@ export default function LoginAdmin() {
             Masuk ke Dashboard
           </button>
         </form>
+
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => navigate("/")}
+            className="text-xs text-slate-400 hover:text-slate-600 underline"
+          >
+            Kembali ke Halaman Utama
+          </button>
+        </div>
       </div>
     </div>
   );

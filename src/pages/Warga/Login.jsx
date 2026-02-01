@@ -17,7 +17,8 @@ export default function Login() {
         password: password 
       });
       
-      localStorage.setItem("user_profile", JSON.stringify(res.data.user)); 
+      // Simpan data user ke localStorage dengan key yang konsisten
+      localStorage.setItem("profil", JSON.stringify(res.data.user)); 
       localStorage.setItem("token", res.data.token);
       
       if (res.data.user.role === "ADMIN") {
@@ -28,6 +29,7 @@ export default function Login() {
         navigate("/beranda");
       }
     } catch (err) {
+      console.error("Login error:", err);
       alert(err.response?.data?.error || "Gagal masuk. Cek NIK dan kata sandi.");
     } finally {
       setLoading(false);
@@ -45,22 +47,37 @@ export default function Login() {
         <form className="space-y-6" onSubmit={handleLogin}>
           <div>
             <label className="text-xs font-bold text-[#1E3A8A] uppercase">NIK</label>
-            <input required type="text" placeholder="Masukkan NIK" value={nik} 
+            <input 
+              required 
+              type="text" 
+              placeholder="Masukkan NIK" 
+              value={nik} 
               onChange={(e) => setNik(e.target.value)}
-              className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"/>
+              className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+            />
           </div>
 
           <div>
             <label className="text-xs font-bold text-[#1E3A8A] uppercase">Kata Sandi</label>
-            <input required type="password" placeholder="Masukkan kata sandi" value={password} 
+            <input 
+              required 
+              type="password" 
+              placeholder="Masukkan kata sandi" 
+              value={password} 
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"/>
+              className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+            />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-[#1E3A8A] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl">
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="w-full bg-[#1E3A8A] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl disabled:opacity-50"
+          >
             {loading ? "Mengecek Data..." : "Masuk Sistem ➔"}
           </button>
         </form>
+        
         <p className="text-center text-xs mt-10 text-slate-400">
           Warga baru? <span onClick={() => navigate("/register")} className="text-[#1E3A8A] font-bold cursor-pointer underline">Daftar Akun</span>
         </p>

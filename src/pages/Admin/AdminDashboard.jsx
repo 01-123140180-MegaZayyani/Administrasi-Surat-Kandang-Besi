@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
-import { ChevronDown, FileText, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { ChevronDown, FileText, CheckCircle, Clock, AlertCircle, RefreshCw, X } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -46,7 +47,6 @@ export default function AdminDashboard() {
       console.error("❌ Error fetching dashboard data:", err);
     } finally {
       setLoading(false);
-      setPengajuan(res.data);
     }
   };
 
@@ -120,7 +120,6 @@ export default function AdminDashboard() {
         status: "Ditolak",
         catatan_penolakan: catatanPenolakan
       });
-      fetchPengajuan(); // Refresh data agar statistik dan tabel update
       setShowRejectModal(false);
       setSelectedItem(null);
       setCatatanPenolakan("");
@@ -129,7 +128,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error rejecting:", err);
       alert("❌ Gagal menolak pengajuan");
-    } 
+    }
   };
 
   return (
