@@ -10,8 +10,8 @@ const transformSuratData = (surat) => {
     nama_warga: surat.user?.nama_lengkap || "Unknown",
     nik_pengaju: surat.user?.nik || "-",
     status: surat.status,
-    data_form: JSON.stringify(surat.data || {}),
-    file_final: surat.fileSuratSelesai || null,
+    data_form: typeof surat.data === 'string' ? surat.data : JSON.stringify(surat.data || {}),
+    file_final: surat.fileSuratSelesai || null, // Pastikan ini sesuai kolom DB (fileSuratSelesai atau filePdf)
     tanggal_request: surat.createdAt,
     created_at: surat.createdAt,
     catatan_penolakan: surat.catatanAdmin || null,
@@ -27,18 +27,23 @@ const transformSuratData = (surat) => {
 exports.createSurat = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { jenisSurat, ...data_form } = req.body;
+    // Ambil jenis_surat dari body agar tidak undefined
+    const { jenis_surat, jenisSurat, ...data_form } = req.body; 
+    
+    // Prioritaskan jenis_surat (snake_case) dari frontend, fallback ke jenisSurat
+    const tipeSurat = jenis_surat || jenisSurat || "Pengajuan Lainnya";
 
     // Handle upload file dari Supabase
-    let berkasUrl = {};
+    let berkasUrls = {}; // ✅ FIX: Gunakan nama variabel jamak yang konsisten
+    
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
           // Nama file unik: timestamp_namafile
           const fileName = `${Date.now()}_${file.originalname.replace(/\s/g, '_')}`;
           
-          // Upload Buffer ke Supabase Storage
+          // Upload Buffer ke Supabase Storage (Bucket 'berkas-desa')
           const { data, error } = await supabase.storage
-            .from('data') 
+            .from('berkas-desa') // ✅ Pastikan nama bucket sesuai di Supabase
             .upload(`pengajuan/${fileName}`, file.buffer, {
               contentType: file.mimetype
             });
@@ -47,17 +52,19 @@ exports.createSurat = async (req, res) => {
 
           // Dapatkan Public URL
           const { data: publicData } = supabase.storage
-            .from('surat_desa')
+            .from('berkas-desa')
             .getPublicUrl(`pengajuan/${fileName}`);
             
-          berkasUrl[file.fieldname] = publicData.publicUrl;
+          berkasUrls[file.fieldname] = publicData.publicUrl;
         }
       }
 
-    // Parsing data_form dari string JSON kembali ke object untuk digabung dengan berkas
+    // Parsing data_form dari string JSON kembali ke object
     let parsedDataForm = {};
     try {
-        parsedDataForm = JSON.parse(data_form);
+        parsedDataForm = typeof data_form === 'string' ? JSON.parse(data_form) : data_form;
+        // Jika data_form masih terbungkus di properti 'data_form' (edge case formdata)
+        if (parsedDataForm.data_form) parsedDataForm = JSON.parse(parsedDataForm.data_form);
     } catch (e) {
         parsedDataForm = data_form; 
     }
@@ -71,10 +78,10 @@ exports.createSurat = async (req, res) => {
     const newSurat = await prisma.surat.create({
       data: {
         userId: parseInt(userId),
-        jenisSurat: jenisSurat || "Pengajuan Lainnya",
+        jenisSurat: tipeSurat,
         noTiket: `TKT-${Date.now()}`,
         data: finalData,
-        status: "Belum Dikerjakan"
+        status: "Proses" // Langsung status Proses agar admin notice
       }
     });
 
@@ -141,8 +148,6 @@ exports.getAllSurat = async (req, res) => {
 
 // 4. Update Status Surat (Dropdown di Dashboard Admin)
 exports.updateStatusSurat = async (req, res) => {
-  try {
-  exports.updateStatusSurat = async (req, res) => {
     try {
       const { id } = req.params;
       const { status, catatan_penolakan } = req.body; // Frontend kirim 'catatan_penolakan'
@@ -152,6 +157,9 @@ exports.updateStatusSurat = async (req, res) => {
       
       if (status === "Ditolak") {
         updateData.catatanAdmin = catatan_penolakan;
+      } else {
+        // Jika status bukan ditolak, hapus catatan lama (opsional)
+        updateData.catatanAdmin = null;
       }
 
       const updatedSurat = await prisma.surat.update({
@@ -226,28 +234,45 @@ exports.downloadSuratSelesai = async (req, res) => {
   res.json({ message: "File PDF di-generate di Frontend" });
 };
 
-// Fungsi Arsip Surat (Admin mengunggah PDF yang sudah jadi)
+// 8. Fungsi Arsip Surat (Admin mengunggah PDF yang sudah jadi)
 exports.archiveSurat = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
     
     let fileUrl = null;
+
+    // ✅ FIX: Logic Upload ke Supabase untuk Arsip (PDF Generate dari Admin)
     if (req.files && req.files.length > 0) {
-      // Logic upload ke Supabase/Storage Anda
-      fileUrl = req.files[0].path; 
+        const file = req.files[0]; // Ambil file pertama (PDF)
+        const fileName = `ARSIP_${Date.now()}_${id}.pdf`;
+
+        const { data, error } = await supabase.storage
+            .from('berkas-desa') // Pastikan bucket benar
+            .upload(`arsip/${fileName}`, file.buffer, {
+                contentType: 'application/pdf'
+            });
+
+        if (error) throw error;
+
+        const { data: publicData } = supabase.storage
+            .from('berkas-desa')
+            .getPublicUrl(`arsip/${fileName}`);
+        
+        fileUrl = publicData.publicUrl;
     }
 
     const updated = await prisma.surat.update({
-      where: { id: parseInt(id) },
+      where: { id: id }, // ✅ FIX: Jangan pakai parseInt jika ID UUID
       data: {
         status: status || "Selesai",
-        filePdf: fileUrl // Simpan link PDF agar warga bisa download
+        fileSuratSelesai: fileUrl // Pastikan nama kolom DB benar (fileSuratSelesai / filePdf)
       }
     });
 
     res.json({ success: true, data: updated });
   } catch (error) {
+    console.error("❌ Error archiveSurat:", error);
     res.status(500).json({ error: error.message });
   }
 };
