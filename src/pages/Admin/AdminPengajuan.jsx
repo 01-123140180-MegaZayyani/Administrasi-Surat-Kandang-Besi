@@ -22,10 +22,21 @@ export default function AdminPengajuan() {
   useEffect(() => { 
     fetchData(); 
   }, []);
+  
+  const handleTolakWithNote = (id) => {
+    const alasan = prompt("Masukkan alasan penolakan:");
+    if (alasan === null) return; // Batal ditekan
+    if (!alasan) return alert("Alasan penolakan wajib diisi!");
+    
+    handleUpdateStatus(id, "Ditolak", alasan);
+  };
 
-  const handleUpdateStatus = async (id, statusBaru) => {
+  const handleUpdateStatus = async (id, statusBaru, catatan = "") => {
     try {
-      await api.put(`/api/admin/surat/${id}`, { status: statusBaru });
+      await api.put(`/api/admin/surat/${id}`, { 
+          status: statusBaru,
+          catatan_penolakan: catatan // Dikirim ke backend
+      });
       alert("✅ Status Berhasil Diperbarui!");
       fetchData();
       setDetailTerpilih(null);
@@ -34,6 +45,7 @@ export default function AdminPengajuan() {
       alert("❌ Gagal Update Status: " + (err.response?.data?.error || err.message)); 
     }
   };
+
 
   const handleBukaTemplate = (item) => {
     const dataLengkap = JSON.parse(item.data_form || '{}');
@@ -165,9 +177,9 @@ export default function AdminPengajuan() {
                 <ExternalLink size={16}/> Buat Surat (Buka Template)
               </button>
               <button 
-                onClick={() => handleUpdateStatus(detailTerpilih.id, 'Ditolak')} 
+                onClick={() => handleTolakWithNote(detailTerpilih.id)} 
                 className="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-6 rounded-2xl font-black text-xs transition-all flex items-center gap-2"
-              >
+                >
                 <Trash2 size={16}/> Tolak
               </button>
             </div>

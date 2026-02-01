@@ -28,6 +28,8 @@ export default function FormSKU() {
     // Gabung Tempat & Tgl Lahir sesuai format surat: "Kandang Besi, 08-09-2001"
     const ttl = `${formData.tempatLahir}, ${formData.tanggalLahir}`;
     data.append('ttl', ttl);
+
+    data.append('jenisSurat', 'sku');
     
     Object.keys(formData).forEach(key => {
       if (key !== 'tempatLahir' && key !== 'tanggalLahir') {

@@ -102,10 +102,10 @@ export default function FormulirSurat() {
       });
 
       alert("Pengajuan Berhasil Terkirim!");
-      navigate("/status"); 
+      navigate("/status-surat"); 
     } catch (err) {
       console.error(err);
-      alert("Gagal mengirim pengajuan.");
+      alert("Gagal mengirim pengajuan: " + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }

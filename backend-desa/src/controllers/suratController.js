@@ -1,5 +1,6 @@
 // src/controllers/suratController.js
 const prisma = require('../../db');
+const { supabase } = require('./middleware/multerSupabase');
 
 // Helper function untuk transform data Prisma ke format Frontend
 const transformSuratData = (surat) => {
@@ -10,10 +11,10 @@ const transformSuratData = (surat) => {
     nik_pengaju: surat.user?.nik || "-",
     status: surat.status,
     data_form: JSON.stringify(surat.data || {}),
-    file_final: surat.filePdf || null,
+    file_final: surat.fileSuratSelesai || null,
     tanggal_request: surat.createdAt,
     created_at: surat.createdAt,
-    catatan_penolakan: surat.catatanPenolakan || null,
+    catatan_penolakan: surat.catatanAdmin || null,
     no_tiket: surat.noTiket
   };
 };
@@ -25,25 +26,52 @@ const transformSuratData = (surat) => {
 // 1. Membuat Pengajuan Surat Baru
 exports.createSurat = async (req, res) => {
   try {
-    const { jenisSurat, ...data_form } = req.body;
     const userId = req.user.id;
+    const { jenisSurat, ...data_form } = req.body;
 
     // Handle upload file dari Supabase
-    let berkas = {};
+    let berkasUrl = {};
     if (req.files && req.files.length > 0) {
-      req.files.forEach(file => {
-        // fieldname adalah nama inputnya (misal: fotoKtp, fotoKk)
-        berkas[file.fieldname] = file.path; 
-      });
+        for (const file of req.files) {
+          // Nama file unik: timestamp_namafile
+          const fileName = `${Date.now()}_${file.originalname.replace(/\s/g, '_')}`;
+          
+          // Upload Buffer ke Supabase Storage
+          const { data, error } = await supabase.storage
+            .from('data') 
+            .upload(`pengajuan/${fileName}`, file.buffer, {
+              contentType: file.mimetype
+            });
+
+          if (error) throw error;
+
+          // Dapatkan Public URL
+          const { data: publicData } = supabase.storage
+            .from('surat_desa')
+            .getPublicUrl(`pengajuan/${fileName}`);
+            
+          berkasUrl[file.fieldname] = publicData.publicUrl;
+        }
+      }
+
+    // Parsing data_form dari string JSON kembali ke object untuk digabung dengan berkas
+    let parsedDataForm = {};
+    try {
+        parsedDataForm = JSON.parse(data_form);
+    } catch (e) {
+        parsedDataForm = data_form; 
     }
 
-    // Gabungkan data teks dan link foto ke dalam kolom JSON 'data'
-    const finalData = { ...data_form, berkas };
+    // Gabungkan data text form dengan URL berkas dari Supabase
+    const finalData = { 
+        ...parsedDataForm, 
+        berkas: berkasUrls 
+    };
 
     const newSurat = await prisma.surat.create({
       data: {
         userId: parseInt(userId),
-        jenisSurat: jenisSurat || "Pengajuan Surat",
+        jenisSurat: jenisSurat || "Pengajuan Lainnya",
         noTiket: `TKT-${Date.now()}`,
         data: finalData,
         status: "Belum Dikerjakan"
@@ -114,33 +142,36 @@ exports.getAllSurat = async (req, res) => {
 // 4. Update Status Surat (Dropdown di Dashboard Admin)
 exports.updateStatusSurat = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status, catatan_penolakan } = req.body;
+  exports.updateStatusSurat = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, catatan_penolakan } = req.body; // Frontend kirim 'catatan_penolakan'
 
-    const updateData = { status: status };
-    
-    if (status === "Ditolak" && catatan_penolakan) {
-      updateData.catatanPenolakan = catatan_penolakan;
-    }
+      // ✅ FIX: Mapping ke nama kolom database yang benar (catatanAdmin)
+      const updateData = { status: status };
+      
+      if (status === "Ditolak") {
+        updateData.catatanAdmin = catatan_penolakan;
+      }
 
-    const updatedSurat = await prisma.surat.update({
-      where: { id: id },
-      data: updateData,
-      include: {
-        user: {
-          select: {
-            nama_lengkap: true,
-            nik: true,
-            no_telp: true
+      const updatedSurat = await prisma.surat.update({
+        where: { id: id }, // ID string (UUID)
+        data: updateData,
+        include: {
+          user: {
+            select: {
+              nama_lengkap: true,
+              nik: true,
+              no_telp: true
+            }
           }
         }
-      }
-    });
+      });
 
-    res.json({ 
-      success: true, 
-      data: transformSuratData(updatedSurat) 
-    });
+      res.json({ 
+        success: true, 
+        data: transformSuratData(updatedSurat) 
+      });
   } catch (error) {
     console.error("❌ Error updateStatusSurat:", error);
     res.status(500).json({ error: error.message });

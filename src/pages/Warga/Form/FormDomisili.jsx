@@ -29,6 +29,8 @@ export default function FormDomisili() {
 
     const ttl = `${formData.tempatLahir}, ${formData.tanggalLahir}`;
     data.append('ttl', ttl);
+
+    data.append('jenisSurat', 'domisili');
     
     Object.keys(formData).forEach(key => {
       if (key !== 'tempatLahir' && key !== 'tanggalLahir') {

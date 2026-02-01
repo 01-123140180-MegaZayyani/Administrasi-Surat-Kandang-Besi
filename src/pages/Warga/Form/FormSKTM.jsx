@@ -16,7 +16,7 @@ export default function FormSKTM() {
     setIsSubmitting(true);
     const data = new FormData();
 
-    data.append('jenisSurat', 'Surat Keterangan Tidak Mampu');
+    data.append('jenisSurat', 'sktm');
 
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
     try {
