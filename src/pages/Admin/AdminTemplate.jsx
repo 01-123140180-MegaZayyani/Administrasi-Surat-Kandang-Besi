@@ -172,8 +172,8 @@ export default function AdminTemplate() {
     uploadData.append("pdf", pdfBlob, fileName);
     uploadData.append("status", "Selesai");
 
-    const response = await axios.put(
-      `http://localhost:5000/api/pengajuan/arsip/${id_pengajuan}`, 
+    const response = await api.put(
+      `/api/pengajuan/arsip/${id_pengajuan}`, 
       uploadData,
       { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
     );

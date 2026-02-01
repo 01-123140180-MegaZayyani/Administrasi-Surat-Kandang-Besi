@@ -1,15 +1,9 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { FileText, Download, AlertCircle, RefreshCw, XCircle } from "lucide-react";
-=======
 import { useState, useEffect } from "react";
 import api from '../../utils/api';
 import { FileText, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar"; 
 import Footer from "../../components/Footer"; 
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
 export default function StatusSurat() {
   const [daftarSurat, setDaftarSurat] = useState([]);
@@ -25,7 +19,7 @@ export default function StatusSurat() {
     try {
       console.log("🔍 Fetching status surat untuk NIK:", user.nik);
       
-      const response = await axios.get("http://localhost:5000/api/pengajuan");
+      const response = await api.get("/api/pengajuan");
       console.log("📦 Data dari server:", response.data);
       
       // Filter berdasarkan NIK dengan konversi tipe yang konsisten
@@ -55,7 +49,6 @@ export default function StatusSurat() {
   };
 
   useEffect(() => {
-<<<<<<< HEAD
     fetchStatusSurat();
   }, []);
 
@@ -80,14 +73,12 @@ export default function StatusSurat() {
     
     return texts[status] || status;
   };
-=======
     if (user.nik) {
       api.get(`/api/surat?nik_pengaju=${user.nik}`)
         .then(res => setDaftarSurat(res.data))
         .catch(err => console.error("Gagal ambil status"));
     }
   }, [user.nik]);
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
@@ -180,7 +171,7 @@ export default function StatusSurat() {
                     <div className="text-right ml-4">
                       {surat.status === "Selesai" && surat.file_final ? (
                         <a 
-                          href={`http://localhost:5000/uploads/${surat.file_final}`} 
+                          href={`http:/uploads/${surat.file_final}`} 
                           target="_blank" 
                           rel="noreferrer"
                           className="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-900 transition-all"

@@ -18,14 +18,9 @@ export default function Profil() {
   }, []);
 
   const handleUpdate = async () => {
-<<<<<<< HEAD
-  try {
-    // Pastikan formData mengandung ID atau NIK sesuai query server.js kamu
-    const res = await axios.put("http://localhost:5000/api/auth/update-profil", formData);
-=======
     try {
       // Kirim formData lengkap termasuk ID ke backend
-      const res = await api.put("/api/auth/profile", {
+      const res = await api.put("/api/auth/update-profil", {
         ...formData,
         id: userData.id 
       });
@@ -45,7 +40,6 @@ export default function Profil() {
       alert(err.response?.data?.error || "Gagal memperbarui profil");
     }
   };
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 
     // 1. Simpan ke localStorage dengan KEY YANG SAMA (user_profile)
     localStorage.setItem("user_profile", JSON.stringify(formData));

@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-=======
 import { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { X, CheckCircle, XCircle, Download, FileText, Image as ImageIcon } from "lucide-react";
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
 import { useNavigate } from "react-router-dom";
 import { X, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 
@@ -24,7 +19,7 @@ export default function AdminPengajuan() {
 
   const handleUpdateStatus = async (id, statusBaru) => {
     try {
-      await axios.put(`http://localhost:5000/api/pengajuan/${id}`, { status: statusBaru });
+      await api.put(`/api/admin/surat/${id}`, { status: statusBaru });
       alert("Status Berhasil Diperbarui!");
       fetchData();
       setDetailTerpilih(null);
@@ -48,8 +43,6 @@ export default function AdminPengajuan() {
     });
   };
 
-<<<<<<< HEAD
-=======
   const updateStatus = (id, statusBaru) => {
     api.put(`/api/admin/surat/${id}/status`, { status: statusBaru })
       .then(() => {
@@ -59,7 +52,6 @@ export default function AdminPengajuan() {
       .catch(err => alert("Gagal update status"));
   };
 
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
   return (
     <div className="p-10 bg-slate-50 min-h-screen font-sans text-left">
       <h1 className="text-3xl font-black text-slate-800 uppercase mb-10 tracking-tight">Daftar Pengajuan</h1>
@@ -128,7 +120,7 @@ export default function AdminPengajuan() {
                   <div className="grid grid-cols-1 gap-3">
                     {detailTerpilih.data_form && JSON.parse(detailTerpilih.data_form).berkas ? (
                       Object.entries(JSON.parse(detailTerpilih.data_form).berkas).map(([key, file]) => (
-                        <a key={key} href={`http://localhost:5000/uploads/${file}`} target="_blank" rel="noreferrer" 
+                        <a key={key} href={`http:/uploads/${file}`} target="_blank" rel="noreferrer" 
                            className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-blue-500 hover:bg-blue-50 transition-all">
                           <span className="text-[10px] font-black uppercase text-slate-600 group-hover:text-blue-700">{key}</span>
                           <ExternalLink size={14} className="text-slate-400 group-hover:text-blue-500"/>
@@ -139,8 +131,6 @@ export default function AdminPengajuan() {
                     )}
                   </div>
                 </div>
-<<<<<<< HEAD
-=======
 
                 <div className="space-y-6">
                   <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-full">
@@ -160,7 +150,6 @@ export default function AdminPengajuan() {
                   </div>
                 </div>
               </div>
->>>>>>> 71ef24becb5e3a7830bea0a5e2e3ad4db0958f49
             </div>
 
             <div className="p-8 border-t bg-slate-50 flex gap-4">
