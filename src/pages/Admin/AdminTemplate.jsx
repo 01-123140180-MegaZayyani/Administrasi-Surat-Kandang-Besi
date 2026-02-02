@@ -264,7 +264,7 @@ export default function AdminTemplate() {
     }
   };
 
-  const renderFormFields = () => {
+    const renderFormFields = () => {
     if (type === "domisili") {
       return (
         <>
