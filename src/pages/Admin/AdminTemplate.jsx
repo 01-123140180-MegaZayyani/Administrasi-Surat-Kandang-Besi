@@ -264,7 +264,7 @@ export default function AdminTemplate() {
     }
   };
 
-    const renderFormFields = () => {
+  const renderFormFields = () => {
     if (type === "domisili") {
       return (
         <>
@@ -651,82 +651,224 @@ function TemplateSKTM({ formData }) {
 
 function TemplateKeramaian({ formData }) {
   return (
-    <div className="page" style={{ fontFamily: "'Times New Roman', serif", fontSize: "12pt", lineHeight: "1.5", backgroundColor: "#ffffff", width: "210mm", minHeight: "297mm", padding: "15mm 20mm", color: "#000000", boxSizing: "border-box" }}>
-      <div style={{ display: "flex", alignItems: "center", paddingBottom: "8px", marginBottom: "12px", borderBottom: "3px solid #000000" }}>
-        <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
-        <div style={{ flex: 1, textAlign: "center" }}>
-          <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
-          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
-          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
-          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos 35651</p>
+    <>
+      {/* ========== HALAMAN 1: SURAT DARI KEPALA PEKON KE KAPOLSEK ========== */}
+      <div className="page" style={{ fontFamily: "'Times New Roman', serif", fontSize: "12pt", lineHeight: "1.5", backgroundColor: "#ffffff", width: "210mm", minHeight: "297mm", padding: "15mm 20mm", color: "#000000", boxSizing: "border-box" }}>
+        <div style={{ display: "flex", alignItems: "center", paddingBottom: "8px", marginBottom: "12px", borderBottom: "3px solid #000000" }}>
+          <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
+          <div style={{ flex: 1, textAlign: "center" }}>
+            <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
+            <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
+            <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
+            <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Alamat : Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos : 35651</p>
+          </div>
         </div>
-      </div>
-      <div style={{ textAlign: "center", marginBottom: "14px" }}>
-        <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", textDecoration: "underline", textUnderlineOffset: "3px", margin: "0" }}>SURAT IZIN KERAMAIAN</h2>
-        <p style={{ fontSize: "12pt", margin: "5px 0 0 0" }}>Nomor : {formData.nomorSurat}</p>
-      </div>
-      <div style={{ marginBottom: "18px", fontSize: "12pt" }}>
-        <p style={{ textAlign: "justify", marginBottom: "12px", textIndent: "40px", lineHeight: "1.5" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
-        <table style={{ marginBottom: "14px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+        
+        <div style={{ textAlign: "right", marginBottom: "20px" }}>
+          <p style={{ margin: "0" }}>Kandang Besi, {formData.tglSurat}</p>
+        </div>
+
+        <table style={{ marginBottom: "20px", width: "100%", fontSize: "12pt" }}>
+          <tbody>
+            <tr>
+              <td style={{ width: "100px", verticalAlign: "top" }}>Nomor</td>
+              <td style={{ width: "15px" }}>:</td>
+              <td>{formData.nomorSurat}</td>
+              <td style={{ textAlign: "right" }}>Kepada Yth.,</td>
+            </tr>
+            <tr>
+              <td style={{ verticalAlign: "top" }}>Lampiran</td>
+              <td>:</td>
+              <td>3 Lembar</td>
+              <td style={{ textAlign: "right", fontWeight: "bold" }}>Bapak Ka. Polsek</td>
+            </tr>
+            <tr>
+              <td style={{ verticalAlign: "top" }}>Perihal</td>
+              <td>:</td>
+              <td>Permohonan Penerbitan Surat Izin Keramaian</td>
+              <td style={{ textAlign: "right", fontWeight: "bold" }}>Kotaagung</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style={{ textAlign: "right" }}>di -</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style={{ textAlign: "right", fontWeight: "bold" }}>KOTAAGUNG</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "16px" }}>
+          Yang bertanda tangan dibawah ini Kepala Pekon Kandang Besi Kecamatan Kotaagung Barat Kabupaten Tanggamus dengan hormat kehadapan Bapak untuk dapat kiranya menerbitkan Surat Izin Permikahan/ Keramaian terhadap warga kami :
+        </p>
+
+        <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
           <tbody>
             <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>Nama</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.nama}</td></tr>
-            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Umur</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.umur} Tahun</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tempat, Tanggal Lahir</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.ttl}</td></tr>
             <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Pekerjaan</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.pekerjaan}</td></tr>
             <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Alamat</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.alamat}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>No. HP</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.no_hp}</td></tr>
           </tbody>
         </table>
-        <p style={{ marginBottom: "12px", fontSize: "12pt", lineHeight: "1.5", textAlign: "justify", textIndent: "40px" }}>Orang tersebut diatas, benar-benar warga Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus yang akan mengadakan keramaian berupa {formData.acara} pada :</p>
-        <table style={{ marginBottom: "14px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+
+        <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "16px" }}>
+          Sehubungan dengan akan diadakannya kegiatan <strong>{formData.acara}</strong> dengan Hiburan <strong>{formData.hiburan}</strong> pada
+        </p>
+
+        <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
           <tbody>
-            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>Hari / Tanggal</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.hari} / {formData.tanggal_kegiatan}</td></tr>
+            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>Hari</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.hari}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tanggal</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tanggal_kegiatan}</td></tr>
             <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Waktu</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.waktu}</td></tr>
-            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Acara</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.acara}</td></tr>
-            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tempat</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tempat_kegiatan}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Resepsi</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.resepsi || formData.acara}</td></tr>
             <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Hiburan</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.hiburan}</td></tr>
-            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Jumlah Tamu</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>± {formData.jumlah_tamu} Orang</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tempat</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tempat_kegiatan}</td></tr>
           </tbody>
         </table>
-        <p style={{ marginBottom: "14px", fontSize: "12pt", lineHeight: "1.5", textAlign: "justify", textIndent: "40px" }}>Demikian Surat Izin Keramaian ini kami buat dengan sebenarnya, agar yang bersangkutan dapat melaksanakan acara dengan tertib dan aman.</p>
-      </div>
-      <div style={{ marginTop: "30px", fontSize: "12pt" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "50px" }}>
-          <div style={{ width: "45%" }}>
-            <p style={{ textAlign: "center", fontWeight: "bold", marginBottom: "60px" }}>SAKSI-SAKSI</p>
-            <table style={{ width: "100%", fontSize: "12pt" }}>
-              <tbody>
-                <tr><td style={{ paddingBottom: "40px" }}>1. {formData.saksi1_nama}</td><td style={{ paddingBottom: "40px", textAlign: "right" }}>(....................)</td></tr>
-                <tr><td>2. {formData.saksi2_nama}</td><td style={{ textAlign: "right" }}>(....................)</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div style={{ width: "45%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Kandang Besi, {formData.tglSurat}</p>
-            <p style={{ margin: "0 0 10px 0", fontWeight: "bold" }}>PEMOHON</p>
-            <div style={{ height: "60px" }}></div>
-            <p style={{ fontWeight: "bold", textDecoration: "underline", margin: "0" }}>{formData.nama}</p>
-          </div>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", fontSize: "11pt" }}>
+
+        <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "20px" }}>
+          Untuk bahan pertimbangan Bapak, bahwa dalam hajiatan tersebut akan mengundang tetangga, sanak saudara, family, kerabat serta handai taulan dengan jumlah sekitar ± {formData.jumlah_tamu} orang
+        </p>
+
+        <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "80px" }}>
+          Demikian dan atas Kebijaksanaan Bapak kami mengucapkan terimakasih.
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12pt" }}>
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Mengetahui,</p>
-            <p style={{ margin: "0 0 60px 0" }}>Camat Kotaagung Barat</p>
-            <p style={{ fontWeight: "bold", textDecoration: "underline", margin: "0" }}>{formData.nama_camat || "(...........................)"}</p>
-            <p style={{ fontSize: "10pt", margin: "2px 0 0 0" }}>NIP. {formData.nip_camat || "..........................."}</p>
+            <p style={{ margin: "0 0 5px 0" }}>Camat Kotaagung</p>
+            <div style={{ height: "80px" }}></div>
           </div>
+          
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Mengetahui,</p>
-            <p style={{ margin: "0 0 60px 0" }}>Danramil 418-10/KB</p>
-            <p style={{ fontWeight: "bold", textDecoration: "underline", margin: "0" }}>{formData.nama_danramil || "(...........................)"}</p>
-            <p style={{ fontSize: "10pt", margin: "2px 0 0 0" }}>NIP. {formData.nip_danramil || "..........................."}</p>
+            <p style={{ margin: "0 0 5px 0" }}>Kepala Pekon Kandang</p>
+            <p style={{ margin: "0 0 5px 0" }}>Besi</p>
+            <div style={{ height: "60px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "100px", height: "50px", objectFit: "contain" }} />
+            </div>
           </div>
+
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 60px 0" }}>Kepala Pekon Kandang Besi</p>
-            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "100px", height: "50px", objectFit: "contain", margin: "0 auto 5px", display: "block" }} />
-            <p style={{ fontWeight: "bold", textDecoration: "underline", margin: "0" }}>{formData.penandatangan}</p>
+            <p style={{ margin: "0 0 5px 0" }}>Danramil 04/KTA</p>
+            <div style={{ height: "80px" }}></div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* ========== HALAMAN 2: SURAT PERNYATAAN PEMOHON ========== */}
+      <div className="page" style={{ fontFamily: "'Times New Roman', serif", fontSize: "12pt", lineHeight: "1.6", backgroundColor: "#ffffff", width: "210mm", minHeight: "297mm", padding: "15mm 20mm", color: "#000000", boxSizing: "border-box" }}>
+        <h2 style={{ textAlign: "center", fontSize: "14pt", fontWeight: "bold", textDecoration: "underline", marginBottom: "30px", textUnderlineOffset: "3px" }}>SURAT PERNYATAAN</h2>
+
+        <p style={{ marginBottom: "20px" }}>Yang bertanda tangan dibawah ini, saya :</p>
+
+        <table style={{ marginBottom: "20px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+          <tbody>
+            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>Nama</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.nama}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tempat, Tgl Lahir</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.ttl}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Umur</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.umur} Tahun</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Agama</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.agama}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Pekerjaan</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.pekerjaan}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Alamat Lengkap</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.alamat}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Nomor HP</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.no_hp}</td></tr>
+          </tbody>
+        </table>
+
+        <p style={{ marginBottom: "16px" }}>Sehubungan dengan akan diadakannya Kegiatan Hiburan Orgen Tunggal Pada :</p>
+
+        <table style={{ marginBottom: "20px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+          <tbody>
+            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>Hari</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.hari}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tanggal</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tanggal_kegiatan}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Waktu</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.waktu}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Resepsi</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.resepsi || formData.acara}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>Tempat</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tempat_kegiatan}</td></tr>
+          </tbody>
+        </table>
+
+        <p style={{ textAlign: "justify", marginBottom: "16px" }}>
+          Dengan ini saya menyatakan bahwa demi untuk menjaga keamanan dan ketertiban selama acara berlangsung, saya akan mematuhi semua aturun dalam Perjanjian Keramaian termasuk batas waktu tertulis dalam Permohonan Surat Izin Keramaian serta tidak akan melakukan :
+        </p>
+
+        <p style={{ marginBottom: "10px" }}>1. Menyelenggarakan pesta Miras (MABOK) dan pesta Narkoba.</p>
+
+        <p style={{ marginBottom: "10px", textAlign: "justify" }}>
+          2. Penggunaan jalan umum sebagai Lokasi Pendirian Tenda (setengah badan jalan) atau menutup jalan yang dapat menggangu pengguna jalan.
+        </p>
+
+        <p style={{ marginBottom: "10px" }}>3. Tidak akan pernah ada ajang Perjudian.</p>
+
+        <p style={{ marginBottom: "10px", textAlign: "justify" }}>
+          4. Waktu Pelaksanaan Hiburan Orgen paling lambat Pukul 18.00 WIB sesuai dengan Kesepakatan bersama Forkopimda Kab.Tanggamus, Ketua FKUB Kab.Tanggamus, Ketua Apdesi Kab.Tanggamus, Tokoh Adat Lampung Kab.Tanggamus, Forkopimcab Se-Kab.Tanggamus, dan Pemilik Orgen Tunggal se-Kabupaten Tanggamus yang diatur dalam Perda Kabupaten Tanggamus No.05 Tahun 2017 tentang Pengaturan Hiburan Umum.
+        </p>
+
+        <p style={{ textAlign: "justify", marginBottom: "40px" }}>
+          Apabila saya melanggar, saya bersedia dikenakan Sanksi sesuai dengan undang-undang dan hukum yang berlaku di Wilayah Kabupaten Tanggamus, dan tidak akan melibatkan Aparatur Pekon setempat dan sepenuhnya menjadi tanggung jawab saya yang membuat Pernyataan.
+        </p>
+      </div>
+
+      {/* ========== HALAMAN 3: SURAT PERNYATAAN PEMILIK ORGEN ========== */}
+      <div className="page" style={{ fontFamily: "'Times New Roman', serif", fontSize: "12pt", lineHeight: "1.6", backgroundColor: "#ffffff", width: "210mm", minHeight: "297mm", padding: "15mm 20mm", color: "#000000", boxSizing: "border-box" }}>
+        <h2 style={{ textAlign: "center", fontSize: "14pt", fontWeight: "bold", textDecoration: "underline", marginBottom: "30px", textUnderlineOffset: "3px" }}>SURAT PERNYATAAN</h2>
+
+        <p style={{ marginBottom: "20px" }}>Yang bertanda tangan dibawah ini saya :</p>
+
+        <table style={{ marginBottom: "20px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+          <tbody>
+            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>NAMA</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.nama_pemilik_orgen || "BELLA"}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>UMUR</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.umur_orgen || "25"} Tahun</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>PEKERJAAN</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.pekerjaan_orgen || "PEMILIK ORGEN"}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>ALAMAT</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.alamat_orgen || "Jl maju terus"}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>NAMA ORGEN</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.nama_unit_orgen || formData.hiburan}</td></tr>
+          </tbody>
+        </table>
+
+        <p style={{ marginBottom: "16px" }}>Sehubungan akan diadakan resepsi khitanan pada :</p>
+
+        <table style={{ marginBottom: "20px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
+          <tbody>
+            <tr><td style={{ width: "180px", paddingBottom: "5px", verticalAlign: "top" }}>HARI</td><td style={{ width: "15px", paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.hari}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>TANGGAL</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tanggal_kegiatan}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>WAKTU</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.waktu}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>ACARA</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.acara}</td></tr>
+            <tr><td style={{ paddingBottom: "5px", verticalAlign: "top" }}>TEMPAT</td><td style={{ paddingBottom: "5px" }}>:</td><td style={{ paddingBottom: "5px" }}>{formData.tempat_kegiatan}</td></tr>
+          </tbody>
+        </table>
+
+        <p style={{ textAlign: "justify", marginBottom: "16px" }}>
+          Saya pemilik Orgen Tunggal dengan ini menyatakan bahwa demi untuk menjaga keamanan dan ketertiban selama acara berlangsung, saya akan mematuhi semua aturun dalam perjanjian keramaian, termasuk batas waktu yang tertulis dalam surat izin, serta saya tidak akan melakukan pelanggaran, yaitu :
+        </p>
+
+        <p style={{ marginBottom: "10px" }}>1. Menyelenggarakan pesta miras (mabuk-mabukan) dan pesta narkoba.</p>
+
+        <p style={{ marginBottom: "10px" }}>2. Tidak memakai Orgen tunggal diatas pukul 18.00 wib (malam hari).</p>
+
+        <p style={{ marginBottom: "10px", textAlign: "justify" }}>
+          3. Saya sebagai pemilik Orgen Tunggal siap menerima sanksi / hukuman dari Pihak kepolisian jika saya melanggar surat pernyataan ini.
+        </p>
+
+        <div style={{ marginTop: "80px", display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ textAlign: "center", width: "200px" }}>
+            <p style={{ marginBottom: "5px" }}>YANG MEMBUAT</p>
+            <p style={{ marginBottom: "5px" }}>PERNYATAAN</p>
+            <div style={{ height: "80px", fontStyle: "italic", fontSize: "10pt", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              Materai 10000
+            </div>
+            <p style={{ fontWeight: "bold" }}>{formData.nama_pemilik_orgen || "BELLA"}</p>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "60px" }}>
+          <p style={{ textAlign: "center", marginBottom: "5px" }}>Mengetahui</p>
+          <p style={{ textAlign: "center", marginBottom: "80px" }}>Kepala Pekon Kandang Besi</p>
+        </div>
+      </div>
+    </>
   );
 }
 
