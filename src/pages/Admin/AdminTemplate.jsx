@@ -166,7 +166,7 @@ export default function AdminTemplate() {
     
     const pdfBlob = pdf.output("blob");
     const uploadData = new FormData();
-    uploadData.append("file", pdfBlob, fileName);
+    uploadData.append("file_final", pdfBlob, fileName);
     uploadData.append("status", "Selesai");
 
     const response = await api.put(
