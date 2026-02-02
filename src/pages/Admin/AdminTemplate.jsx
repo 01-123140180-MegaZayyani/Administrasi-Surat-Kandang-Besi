@@ -172,7 +172,7 @@ export default function AdminTemplate() {
     const response = await api.put(
       `/api/admin/arsip/${id_pengajuan}`, 
       uploadData,
-      { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
+      {timeout: 30000 }
     );
     
     console.log("✅ Response dari server:", response.data);
