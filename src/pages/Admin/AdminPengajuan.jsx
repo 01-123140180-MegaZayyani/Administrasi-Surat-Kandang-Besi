@@ -63,6 +63,24 @@ export default function AdminPengajuan() {
     });
   };
 
+  const handleDownload = async (fileUrl, fileName) => {
+  try {
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error('Download gagal:', error);
+    alert('Gagal mendownload file');
+  }
+};
+
   return (
     <div className="p-10 bg-slate-50 min-h-screen font-sans text-left">
       <h1 className="text-3xl font-black text-slate-800 uppercase mb-10 tracking-tight">Daftar Pengajuan</h1>
@@ -165,9 +183,8 @@ export default function AdminPengajuan() {
                             </a>
                             
                             {/* Tombol Download */}
-                            <a 
-                              href={file} 
-                              download={`${key}_${detailTerpilih.nama_warga}.${file.split('.').pop()}`}
+                            <button 
+                              onClick={() => handleDownload(file, `${key}_${detailTerpilih.nama_warga}.${file.split('.').pop()}`)}
                               className="p-2 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white rounded-xl transition-all group/btn"
                               title="Download file"
                             >
@@ -186,7 +203,7 @@ export default function AdminPengajuan() {
                                 <polyline points="7 10 12 15 17 10"></polyline>
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                               </svg>
-                            </a>
+                            </button>
                           </div>
                         </div> 
                       ));

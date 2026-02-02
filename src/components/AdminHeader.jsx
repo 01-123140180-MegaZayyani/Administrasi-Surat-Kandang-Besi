@@ -11,6 +11,13 @@ export default function AdminHeader() {
       ? "text-white border-b-2 border-white" 
       : "text-blue-200 hover:text-white transition-all";
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('adminData');
+    localStorage.removeItem('isAdmin');
+    navigate('/admin/login'); // BUKAN /login
+  };
+
   return (
     <nav className="bg-[#1E3A8A] px-10 py-5 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -40,7 +47,9 @@ export default function AdminHeader() {
 
         {/* 3. SISI KANAN: LOGOUT */}
         <div className="flex justify-end w-1/4">
-          <button className="flex items-center gap-2 bg-red-500/10 hover:bg-red-600 text-red-100 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-red-500/20">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-500/10 hover:bg-red-600 text-red-100 hover:text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-red-500/20">
             <LogOut size={14} /> KELUAR SISTEM
           </button>
         </div>

@@ -39,6 +39,18 @@ function App() {
 
         {/* 3. RUTE LOGIN ADMIN */}
         <Route path="/admin/login" element={<LoginAdmin />} />
+        
+        <Route path="/admin/dashboard" element={
+          localStorage.getItem('token') 
+            ? <AdminDashboard /> 
+            : <Navigate to="/admin/login" replace />
+        } />
+        
+        <Route path="/admin/pengajuan" element={
+          localStorage.getItem('token') 
+            ? <AdminPengajuan /> 
+            : <Navigate to="/admin/login" replace />
+        } />
 
         {/* 4. RUTE DASHBOARD ADMIN (Menggunakan Layout) */}
         <Route path="/admin" element={<AdminLayout />}>

@@ -17,6 +17,7 @@ export default function LoginAdmin() {
       });
       
       if (res.data.isAdmin) {
+        localStorage.setItem("token", res.data.token);
         localStorage.setItem("isAdmin", "true");
         localStorage.setItem("adminData", JSON.stringify(res.data));
         alert("Akses Diterima! Selamat bekerja, Admin.");
