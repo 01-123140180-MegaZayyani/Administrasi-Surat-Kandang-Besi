@@ -538,9 +538,9 @@ function TemplateDomisili({ formData }) {
         <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
         <div style={{ flex: 1, textAlign: "center" }}>
           <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
-          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
+          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTA AGUNG BARAT</h2>
           <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
-          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos 35651</p>
+          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kota Agung Barat Kab. Tanggamus Kode Pos 35651</p>
         </div>
       </div>
       <div style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -548,7 +548,7 @@ function TemplateDomisili({ formData }) {
         <p style={{ fontSize: "12pt", margin: "6px 0 0 0" }}>Nomor : {formData.nomorSurat}</p>
       </div>
       <div style={{ marginBottom: "20px", fontSize: "12pt" }}>
-        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
+        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kota Agung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
         <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
           <tbody>
             <tr><td style={{ width: "180px", paddingBottom: "6px", verticalAlign: "top" }}>Nama</td><td style={{ width: "15px", paddingBottom: "6px" }}>:</td><td style={{ paddingBottom: "6px" }}>{formData.nama}</td></tr>
@@ -560,7 +560,7 @@ function TemplateDomisili({ formData }) {
             <tr><td style={{ paddingBottom: "6px", verticalAlign: "top" }}>Alamat</td><td style={{ paddingBottom: "6px" }}>:</td><td style={{ paddingBottom: "6px" }}>{formData.alamat}</td></tr>
           </tbody>
         </table>
-        <p style={{ marginBottom: "18px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Nama diatas adalah benar warga Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus dan berdomisili di alamat tersebut diatas.</p>
+        <p style={{ marginBottom: "18px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Nama diatas adalah benar warga Pekon Kandang Besi Kec. Kota Agung Barat Kabupaten Tanggamus dan berdomisili di alamat tersebut diatas.</p>
         <p style={{ marginBottom: "60px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Demikian Surat Keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px" }}>
@@ -593,9 +593,9 @@ function TemplateSKTM({ formData }) {
         <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
         <div style={{ flex: 1, textAlign: "center" }}>
           <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
-          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
+          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTA AGUNG BARAT</h2>
           <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
-          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos 35651</p>
+          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kota Agung Barat Kab. Tanggamus Kode Pos 35651</p>
         </div>
       </div>
       <div style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -603,7 +603,7 @@ function TemplateSKTM({ formData }) {
         <p style={{ fontSize: "12pt", margin: "6px 0 0 0" }}>Nomor : {formData.nomorSurat}</p>
       </div>
       <div style={{ marginBottom: "20px", fontSize: "12pt" }}>
-        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
+        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kota Agung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
         <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
           <tbody>
             <tr><td style={{ width: "180px", paddingBottom: "6px", verticalAlign: "top" }}>Nama</td><td style={{ width: "15px", paddingBottom: "6px" }}>:</td><td style={{ paddingBottom: "6px" }}>{formData.nama}</td></tr>
@@ -616,7 +616,7 @@ function TemplateSKTM({ formData }) {
             <tr><td style={{ paddingBottom: "6px", verticalAlign: "top" }}>Alamat</td><td style={{ paddingBottom: "6px" }}>:</td><td style={{ paddingBottom: "6px" }}>{formData.alamat}</td></tr>
           </tbody>
         </table>
-        <p style={{ marginBottom: "18px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Nama diatas adalah benar warga Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus, nama tersebut diatas adalah tergolong keluarga Tidak Mampu.</p>
+        <p style={{ marginBottom: "18px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Nama diatas adalah benar warga Pekon Kandang Besi Kec. Kota Agung Barat Kabupaten Tanggamus, nama tersebut diatas adalah tergolong keluarga Tidak Mampu.</p>
         <p style={{ marginBottom: "60px", fontSize: "12pt", lineHeight: "1.6", textAlign: "justify", textIndent: "40px" }}>Demikian Surat Keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px" }}>
@@ -632,7 +632,7 @@ function TemplateSKTM({ formData }) {
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px", paddingLeft: "40px", paddingRight: "40px" }}>
         <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
           <p style={{ margin: "0 0 3px 0" }}>Mengetahui</p>
-          <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kotaagung Barat</p>
+          <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kota Agung Barat</p>
           <div style={{ height: "70px" }}></div>
           <p style={{ margin: "0", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>{formData.nama_camat || "(....................................)"}</p>
           <p style={{ margin: "3px 0 0 0", fontSize: "11pt" }}>NIP. {formData.nip_camat || "...................................."}</p>
@@ -658,9 +658,9 @@ function TemplateKeramaian({ formData }) {
           <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
           <div style={{ flex: 1, textAlign: "center" }}>
             <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
-            <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
+            <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTA AGUNG BARAT</h2>
             <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
-            <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Alamat : Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos : 35651</p>
+            <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Alamat : Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kota Agung Barat Kab. Tanggamus Kode Pos : 35651</p>
           </div>
         </div>
         
@@ -686,7 +686,7 @@ function TemplateKeramaian({ formData }) {
               <td style={{ verticalAlign: "top" }}>Perihal</td>
               <td>:</td>
               <td>Permohonan Penerbitan Surat Izin Keramaian</td>
-              <td style={{ textAlign: "right", fontWeight: "bold" }}>Kotaagung</td>
+              <td style={{ textAlign: "right", fontWeight: "bold" }}>Kota Agung</td>
             </tr>
             <tr>
               <td></td>
@@ -698,13 +698,13 @@ function TemplateKeramaian({ formData }) {
               <td></td>
               <td></td>
               <td></td>
-              <td style={{ textAlign: "right", fontWeight: "bold" }}>KOTAAGUNG</td>
+              <td style={{ textAlign: "right", fontWeight: "bold" }}>KOTA AGUNG</td>
             </tr>
           </tbody>
         </table>
 
         <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "16px" }}>
-          Yang bertanda tangan dibawah ini Kepala Pekon Kandang Besi Kecamatan Kotaagung Barat Kabupaten Tanggamus dengan hormat kehadapan Bapak untuk dapat kiranya menerbitkan Surat Izin Permikahan/ Keramaian terhadap warga kami :
+          Yang bertanda tangan dibawah ini Kepala Pekon Kandang Besi Kecamatan Kota Agung Barat Kabupaten Tanggamus dengan hormat kehadapan Bapak untuk dapat kiranya menerbitkan Surat Izin Permikahan/ Keramaian terhadap warga kami :
         </p>
 
         <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
@@ -736,28 +736,64 @@ function TemplateKeramaian({ formData }) {
           Untuk bahan pertimbangan Bapak, bahwa dalam hajiatan tersebut akan mengundang tetangga, sanak saudara, family, kerabat serta handai taulan dengan jumlah sekitar ± {formData.jumlah_tamu} orang
         </p>
 
-        <p style={{ textAlign: "justify", textIndent: "40px", marginBottom: "80px" }}>
-          Demikian dan atas Kebijaksanaan Bapak kami mengucapkan terimakasih.
-        </p>
-
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12pt" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12pt", alignItems: "flex-end" }}>
+          
+          {/* === KOLOM 1: CAMAT === */}
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Camat Kotaagung</p>
-            <div style={{ height: "80px" }}></div>
+            <p style={{ margin: "0 0 10px 0" }}>Camat Kota Agung Barat</p>
+            
+            {/* Kotak Putih Kosong */}
+            <div style={{ 
+              border: "1px solid #000000", 
+              backgroundColor: "#ffffff", 
+              height: "80px", 
+              width: "100%", 
+              marginBottom: "5px" 
+            }}></div>
+            
+            {/* Tempat Nama */}
+            <p style={{ fontWeight: "bold" }}>( .................................... )</p>
           </div>
           
+          {/* === KOLOM 2: KEPALA PEKON === */}
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Kepala Pekon Kandang</p>
-            <p style={{ margin: "0 0 5px 0" }}>Besi</p>
-            <div style={{ height: "60px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "100px", height: "50px", objectFit: "contain" }} />
+            <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
+            
+            {/* Kotak Putih (Saya masukkan TTD Image di dalamnya agar rapi, bisa dihapus img-nya jika ingin kosong) */}
+            <div style={{ 
+              border: "1px solid #000000", 
+              backgroundColor: "#ffffff", 
+              height: "80px", 
+              width: "100%", 
+              marginBottom: "5px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+               <img src={TTD_PEKON_PATH} alt="TTD" style={{ maxHeight: "70px", maxWidth: "90%", objectFit: "contain" }} />
             </div>
+            
+            {/* Tempat Nama */}
+            <p style={{ fontWeight: "bold" }}>( .................................... )</p>
           </div>
 
+          {/* === KOLOM 3: DANRAMIL === */}
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 5px 0" }}>Danramil 04/KTA</p>
-            <div style={{ height: "80px" }}></div>
+            <p style={{ margin: "0 0 10px 0" }}>Danramil 04/KTA</p>
+            
+            {/* Kotak Putih Kosong */}
+            <div style={{ 
+              border: "1px solid #000000", 
+              backgroundColor: "#ffffff", 
+              height: "80px", 
+              width: "100%", 
+              marginBottom: "5px" 
+            }}></div>
+            
+            {/* Tempat Nama */}
+            <p style={{ fontWeight: "bold" }}>( .................................... )</p>
           </div>
+
         </div>
       </div>
 
@@ -810,6 +846,28 @@ function TemplateKeramaian({ formData }) {
         <p style={{ textAlign: "justify", marginBottom: "40px" }}>
           Apabila saya melanggar, saya bersedia dikenakan Sanksi sesuai dengan undang-undang dan hukum yang berlaku di Wilayah Kabupaten Tanggamus, dan tidak akan melibatkan Aparatur Pekon setempat dan sepenuhnya menjadi tanggung jawab saya yang membuat Pernyataan.
         </p>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", paddingRight: "10mm" }}>
+          <div style={{ textAlign: "center", width: "220px" }}>
+            {/* Opsional: Tempat dan Tanggal (bisa disesuaikan/dihapus jika tidak perlu) */}
+            <p style={{ marginBottom: "5px" }}>........................, ..............................</p>
+            
+            <p style={{ marginBottom: "10px" }}>Pemohon</p>
+
+            {/* KOTAK PUTIH KOSONG UNTUK TANDA TANGAN */}
+            <div style={{ 
+              border: "1px solid #000000", 
+              backgroundColor: "#ffffff", 
+              height: "80px",     /* Tinggi kotak */
+              width: "100%",      /* Lebar mengikuti container (220px) */
+              marginBottom: "10px"
+            }}>
+              {/* Kosong untuk tanda tangan fisik/digital */}
+            </div>
+
+            <p style={{ fontWeight: "bold", textDecoration: "underline" }}>{formData.nama}</p>
+          </div>
       </div>
 
       {/* ========== HALAMAN 3: SURAT PERNYATAAN PEMILIK ORGEN ========== */}
@@ -866,6 +924,10 @@ function TemplateKeramaian({ formData }) {
         <div style={{ marginTop: "60px" }}>
           <p style={{ textAlign: "center", marginBottom: "5px" }}>Mengetahui</p>
           <p style={{ textAlign: "center", marginBottom: "80px" }}>Kepala Pekon Kandang Besi</p>
+          <div style={{ height: "60px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "100px", height: "50px", objectFit: "contain" }} />
+          </div>
+          <p style={{ textAlign: "center", fontWeight: "bold" }}>Mukhtar</p>
         </div>
       </div>
     </>
@@ -879,9 +941,9 @@ function TemplateSKU({ formData }) {
         <img src={LOGO_PATH} alt="Logo" style={{ width: "70px", height: "70px", marginRight: "15px", objectFit: "contain" }} />
         <div style={{ flex: 1, textAlign: "center" }}>
           <h1 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEMERINTAH KABUPATEN TANGGAMUS</h1>
-          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTAAGUNG BARAT</h2>
+          <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>KECAMATAN KOTA AGUNG BARAT</h2>
           <h2 style={{ fontSize: "14pt", fontWeight: "bold", textTransform: "uppercase", margin: "0", lineHeight: "1.2" }}>PEKON KANDANG BESI</h2>
-          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kotaagung Barat Kab. Tanggamus Kode Pos 35651</p>
+          <p style={{ fontSize: "10pt", margin: "3px 0 0 0", lineHeight: "1.3" }}>Jl. Ir. H. Juanda Km 07 Pekon Kandang Besi Kec. Kota Agung Barat Kab. Tanggamus Kode Pos 35651</p>
         </div>
       </div>
       <div style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -889,7 +951,7 @@ function TemplateSKU({ formData }) {
         <p style={{ fontSize: "12pt", margin: "6px 0 0 0" }}>Nomor : {formData.nomorSurat}</p>
       </div>
       <div style={{ marginBottom: "20px", fontSize: "12pt" }}>
-        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kotaagung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
+        <p style={{ textAlign: "justify", marginBottom: "14px", textIndent: "40px", lineHeight: "1.6" }}>Yang bertanda tangan dibawah ini, Kepala Pekon Kandang Besi Kec. Kota Agung Barat Kabupaten Tanggamus menerangkan dengan sebenarnya bahwa :</p>
         <table style={{ marginBottom: "16px", marginLeft: "0", width: "100%", borderSpacing: "0", fontSize: "12pt" }}>
           <tbody>
             <tr><td style={{ width: "180px", paddingBottom: "6px", verticalAlign: "top" }}>Nama</td><td style={{ width: "15px", paddingBottom: "6px" }}>:</td><td style={{ paddingBottom: "6px" }}>{formData.nama}</td></tr>
