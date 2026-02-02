@@ -68,24 +68,8 @@ export default function AdminTemplate() {
     try {
       console.log("🔄 Memulai generate PDF...");
       
-      // 1. Pastikan gambar TTD sudah load
-      const images = document.querySelectorAll('img');
-      await Promise.all(
-        Array.from(images).map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = reject;
-            setTimeout(reject, 5000); // timeout 5 detik
-          });
-        })
-      );
-      
-      console.log("✅ Semua gambar loaded");
-      
       const element = suratRef.current;
       
-      // 2. Tambah style untuk force visibility
       const style = document.createElement('style');
       style.id = 'pdf-layout-fix';
       style.textContent = `
@@ -93,121 +77,117 @@ export default function AdminTemplate() {
           position: relative !important;
           display: block !important;
           width: 210mm !important;
-          min-height: 297mm !important;
-          padding: 20mm !important;
+          min-height: auto !important;
+          /* ✅ HAPUS BARIS INI - biar pakai padding dari template */
+          /* padding: 20mm 15mm !important; */
+          margin: 0 !important;
           background: white !important;
           box-sizing: border-box !important;
           overflow: visible !important;
         }
         .page * {
+          position: static !important;
           color: #000000 !important;
+          background-color: transparent !important;
           font-family: 'Times New Roman', Times, serif !important;
-          visibility: visible !important;
-          opacity: 1 !important;
+          box-sizing: border-box !important;
         }
-        .page img {
-          display: block !important;
-          max-width: 100% !important;
+        .page table {
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+          table-layout: fixed !important;
         }
       `;
+      
       document.head.appendChild(style);
       
-      // 3. Tunggu DOM update
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const pages = element.querySelectorAll('.page');
-      console.log(`📄 Found ${pages.length} pages`);
+      console.log(`📄 Jumlah halaman ditemukan: ${pages.length}`);
       
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = 210;
-      const pdfHeight = 297;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
       for (let i = 0; i < pages.length; i++) {
-        console.log(`📸 Capturing page ${i + 1}/${pages.length}...`);
+        console.log(`🖼️ Memproses halaman ${i + 1}...`);
         
-        // 4. Clone page ke viewport untuk capture
-        const pageElement = pages[i];
+        const pageClone = pages[i].cloneNode(true);
+        pageClone.style.position = 'absolute';
+        pageClone.style.left = '-9999px';
+        pageClone.style.width = '210mm';
+        pageClone.style.minHeight = 'auto';
+        document.body.appendChild(pageClone);
         
-        // Scroll ke element biar visible
-        pageElement.scrollIntoView({ behavior: 'instant', block: 'start' });
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        // 5. Capture dengan settings optimal
-        const canvas = await html2canvas(pageElement, { 
-          scale: 2,
+        const canvas = await html2canvas(pageClone, { 
+          scale: 3,
           useCORS: true,
-          allowTaint: true, // ⬅️ PENTING untuk gambar
-          logging: true, // Debug
+          logging: false,
           backgroundColor: '#ffffff',
-          width: pageElement.scrollWidth,
-          height: pageElement.scrollHeight,
-          windowWidth: pageElement.scrollWidth,
-          windowHeight: pageElement.scrollHeight,
-          onclone: (clonedDoc) => {
-            // Force visibility di cloned document
-            const clonedPage = clonedDoc.querySelector('.page');
-            if (clonedPage) {
-              clonedPage.style.minHeight = '297mm';
-              clonedPage.style.height = 'auto';
-              clonedPage.style.display = 'block';
-            }
-          }
+          removeContainer: true,
+          allowTaint: false,
+          foreignObjectRendering: false,
+          imageTimeout: 0,
+          width: 794,
+          windowWidth: 794
         });
         
-        console.log(`✅ Page ${i + 1} captured: ${canvas.width}x${canvas.height}`);
+        document.body.removeChild(pageClone);
         
-        // 6. Convert ke image
-        const imgData = canvas.toDataURL("image/jpeg", 0.95); // JPEG lebih reliable
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const imgProps = pdf.getImageProperties(imgData);
+        
+        let imgWidth = pdfWidth;
+        let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
         if (i > 0) pdf.addPage();
         
-        // 7. Add image dengan aspect ratio yang benar
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        if (imgHeight > pdfHeight) {
+          console.log(`⚠️ Halaman ${i + 1} terlalu tinggi (${imgHeight}mm), scaling down ke ${pdfHeight}mm`);
+          const ratio = pdfHeight / imgHeight;
+          imgWidth = imgWidth * ratio;
+          imgHeight = pdfHeight;
+        }
         
-        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+        const xOffset = (pdfWidth - imgWidth) / 2;
+        pdf.addImage(imgData, "PNG", xOffset, 0, imgWidth, imgHeight, undefined, 'FAST');
         
-        console.log(`✅ Page ${i + 1} added to PDF`);
+        console.log(`✅ Halaman ${i + 1} selesai (${imgWidth.toFixed(2)}mm x ${imgHeight.toFixed(2)}mm)`);
       }
       
-      // 8. Cleanup
       const styleToRemove = document.getElementById('pdf-layout-fix');
       if (styleToRemove) document.head.removeChild(styleToRemove);
       
-      // 9. Save & Upload
       const timestamp = Date.now();
       const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
-      const pdfBlob = pdf.output("blob");
       
-      console.log(`📦 PDF size: ${(pdfBlob.size / 1024).toFixed(2)} KB`);
-
+      const pdfBlob = pdf.output("blob");
       const uploadData = new FormData();
       uploadData.append("pdf", pdfBlob, fileName);
       uploadData.append("status", "Selesai");
 
-      console.log("📤 Uploading to server...");
-      const response = await api.put(
-        `/api/admin/surat/${id_pengajuan}`, 
+      const response = await axios.put(
+        `/api/admin/surat/arsip/${id_pengajuan}`, 
         uploadData,
         { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       
-      if (response.status === 200) {
-        pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
-        alert("✅ Surat berhasil diterbitkan!");
-        navigate("/admin/pengajuan");
-      } else {
-        throw new Error("Upload gagal");
-      }
+      console.log("✅ Response dari server:", response.data);
+      pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
+      alert(`✅ Surat berhasil diterbitkan!\n\n📄 Total: ${pages.length} halaman\n🎉 Status diperbarui ke 'Selesai'\n📥 Warga sudah bisa download surat mereka`);
+      navigate("/admin/pengajuan");
       
     } catch (err) {
       console.error("❌ Error detail:", err);
-      
-      if (err.response?.status === 401) {
-        alert("Sesi habis, silakan login kembali");
-        navigate("/admin/login");
+      if (err.response) {
+        alert(`Gagal upload PDF: ${err.response.data.message || err.response.statusText}`);
+      } else if (err.request) {
+        alert("Server tidak merespons. Pastikan backend berjalan!");
       } else {
-        alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
+        alert(`Terjadi kesalahan: ${err.message}`);
       }
     } finally {
       setLoading(false);
