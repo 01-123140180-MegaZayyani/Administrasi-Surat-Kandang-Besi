@@ -67,9 +67,25 @@ export default function AdminTemplate() {
     setLoading(true);
     try {
       console.log("🔄 Memulai generate PDF...");
+      
+      // 1. Pastikan gambar TTD sudah load
+      const images = document.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            setTimeout(reject, 5000); // timeout 5 detik
+          });
+        })
+      );
+      
+      console.log("✅ Semua gambar loaded");
+      
       const element = suratRef.current;
       
-      // Style untuk memastikan semua konten visible
+      // 2. Tambah style untuk force visibility
       const style = document.createElement('style');
       style.id = 'pdf-layout-fix';
       style.textContent = `
@@ -78,87 +94,98 @@ export default function AdminTemplate() {
           display: block !important;
           width: 210mm !important;
           min-height: 297mm !important;
+          padding: 20mm !important;
           background: white !important;
           box-sizing: border-box !important;
           overflow: visible !important;
-          page-break-after: always !important;
         }
         .page * {
           color: #000000 !important;
           font-family: 'Times New Roman', Times, serif !important;
+          visibility: visible !important;
+          opacity: 1 !important;
         }
-        @media print {
-          .page { page-break-after: always; }
+        .page img {
+          display: block !important;
+          max-width: 100% !important;
         }
       `;
       document.head.appendChild(style);
       
-      // Tunggu render selesai
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 3. Tunggu DOM update
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Ambil semua halaman
       const pages = element.querySelectorAll('.page');
+      console.log(`📄 Found ${pages.length} pages`);
+      
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pdfWidth = 210;
+      const pdfHeight = 297;
       
       for (let i = 0; i < pages.length; i++) {
-        console.log(`📄 Processing page ${i + 1}/${pages.length}`);
+        console.log(`📸 Capturing page ${i + 1}/${pages.length}...`);
         
-        // Clone dan render di offscreen dengan full height
-        const pageClone = pages[i].cloneNode(true);
-        pageClone.style.position = 'absolute';
-        pageClone.style.left = '-9999px';
-        pageClone.style.top = '0';
-        pageClone.style.width = '210mm';
-        pageClone.style.minHeight = '297mm'; // ⬅️ PENTING: Full A4 height
-        pageClone.style.display = 'block';
-        pageClone.style.overflow = 'visible';
+        // 4. Clone page ke viewport untuk capture
+        const pageElement = pages[i];
         
-        document.body.appendChild(pageClone);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Scroll ke element biar visible
+        pageElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Capture dengan ukuran penuh
-        const canvas = await html2canvas(pageClone, { 
-          scale: 2, // Turunkan scale untuk performa
+        // 5. Capture dengan settings optimal
+        const canvas = await html2canvas(pageElement, { 
+          scale: 2,
           useCORS: true,
-          logging: false,
+          allowTaint: true, // ⬅️ PENTING untuk gambar
+          logging: true, // Debug
           backgroundColor: '#ffffff',
-          width: 794, // A4 width di pixels (210mm)
-          height: 1123, // ⬅️ A4 height di pixels (297mm)
-          windowWidth: 794,
-          windowHeight: 1123,
-          scrollY: 0,
-          scrollX: 0,
-          y: 0,
-          x: 0
+          width: pageElement.scrollWidth,
+          height: pageElement.scrollHeight,
+          windowWidth: pageElement.scrollWidth,
+          windowHeight: pageElement.scrollHeight,
+          onclone: (clonedDoc) => {
+            // Force visibility di cloned document
+            const clonedPage = clonedDoc.querySelector('.page');
+            if (clonedPage) {
+              clonedPage.style.minHeight = '297mm';
+              clonedPage.style.height = 'auto';
+              clonedPage.style.display = 'block';
+            }
+          }
         });
         
-        document.body.removeChild(pageClone);
+        console.log(`✅ Page ${i + 1} captured: ${canvas.width}x${canvas.height}`);
         
-        // Convert canvas ke PDF
-        const imgData = canvas.toDataURL("image/png", 1.0);
+        // 6. Convert ke image
+        const imgData = canvas.toDataURL("image/jpeg", 0.95); // JPEG lebih reliable
         
         if (i > 0) pdf.addPage();
         
-        // Fit to A4 tanpa crop
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+        // 7. Add image dengan aspect ratio yang benar
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+        
+        console.log(`✅ Page ${i + 1} added to PDF`);
       }
       
-      // Cleanup
+      // 8. Cleanup
       const styleToRemove = document.getElementById('pdf-layout-fix');
       if (styleToRemove) document.head.removeChild(styleToRemove);
       
-      // Upload ke server
+      // 9. Save & Upload
       const timestamp = Date.now();
       const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
       const pdfBlob = pdf.output("blob");
+      
+      console.log(`📦 PDF size: ${(pdfBlob.size / 1024).toFixed(2)} KB`);
 
       const uploadData = new FormData();
       uploadData.append("pdf", pdfBlob, fileName);
       uploadData.append("status", "Selesai");
 
-      console.log("📤 Uploading PDF...");
+      console.log("📤 Uploading to server...");
       const response = await api.put(
         `/api/admin/surat/${id_pengajuan}`, 
         uploadData,
@@ -178,7 +205,7 @@ export default function AdminTemplate() {
       
       if (err.response?.status === 401) {
         alert("Sesi habis, silakan login kembali");
-        navigate("/admin/login"); // ⬅️ Ganti jadi /admin/login
+        navigate("/admin/login");
       } else {
         alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
       }
