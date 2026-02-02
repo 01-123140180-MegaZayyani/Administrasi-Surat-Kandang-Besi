@@ -69,7 +69,6 @@ export default function AdminTemplate() {
       console.log("🔄 Memulai generate PDF...");
       const element = suratRef.current;
       
-      // Style untuk memastikan semua konten visible
       const style = document.createElement('style');
       style.id = 'pdf-layout-fix';
       style.textContent = `
@@ -77,79 +76,53 @@ export default function AdminTemplate() {
           position: relative !important;
           display: block !important;
           width: 210mm !important;
-          min-height: 297mm !important;
           background: white !important;
           box-sizing: border-box !important;
           overflow: visible !important;
-          page-break-after: always !important;
         }
         .page * {
           color: #000000 !important;
           font-family: 'Times New Roman', Times, serif !important;
         }
-        @media print {
-          .page { page-break-after: always; }
-        }
       `;
       document.head.appendChild(style);
       
-      // Tunggu render selesai
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Ambil semua halaman
       const pages = element.querySelectorAll('.page');
+      
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       for (let i = 0; i < pages.length; i++) {
-        console.log(`📄 Processing page ${i + 1}/${pages.length}`);
-        
-        // Clone dan render di offscreen dengan full height
         const pageClone = pages[i].cloneNode(true);
         pageClone.style.position = 'absolute';
         pageClone.style.left = '-9999px';
-        pageClone.style.top = '0';
         pageClone.style.width = '210mm';
-        pageClone.style.minHeight = '297mm'; // ⬅️ PENTING: Full A4 height
-        pageClone.style.display = 'block';
-        pageClone.style.overflow = 'visible';
-        
         document.body.appendChild(pageClone);
-        await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Capture dengan ukuran penuh
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         const canvas = await html2canvas(pageClone, { 
-          scale: 2, // Turunkan scale untuk performa
+          scale: 3,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
-          width: 794, // A4 width di pixels (210mm)
-          height: 1123, // ⬅️ A4 height di pixels (297mm)
-          windowWidth: 794,
-          windowHeight: 1123,
-          scrollY: 0,
-          scrollX: 0,
-          y: 0,
-          x: 0
+          width: 794,
         });
         
         document.body.removeChild(pageClone);
-        
-        // Convert canvas ke PDF
         const imgData = canvas.toDataURL("image/png", 1.0);
+        const imgProps = pdf.getImageProperties(imgData);
+        let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
         if (i > 0) pdf.addPage();
-        
-        // Fit to A4 tanpa crop
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight, undefined, 'FAST');
       }
       
-      // Cleanup
       const styleToRemove = document.getElementById('pdf-layout-fix');
       if (styleToRemove) document.head.removeChild(styleToRemove);
       
-      // Upload ke server
       const timestamp = Date.now();
       const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
       const pdfBlob = pdf.output("blob");
@@ -158,7 +131,7 @@ export default function AdminTemplate() {
       uploadData.append("pdf", pdfBlob, fileName);
       uploadData.append("status", "Selesai");
 
-      console.log("📤 Uploading PDF...");
+      // 2. Menggunakan api.put (Base URL otomatis dari utils/api)
       const response = await api.put(
         `/api/admin/surat/${id_pengajuan}`, 
         uploadData,
@@ -174,17 +147,20 @@ export default function AdminTemplate() {
       }
       
     } catch (err) {
-      console.error("❌ Error detail:", err);
-      
-      if (err.response?.status === 401) {
-        alert("Sesi habis, silakan login kembali");
-        navigate("/admin/login"); // ⬅️ Ganti jadi /admin/login
-      } else {
-        alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
+        console.error("❌ Error detail:", err);
+        
+        // Jangan navigate kalau error!
+        if (err.response?.status === 401) {
+          // Kalau 401, baru logout
+          alert("Sesi habis, silakan login kembali");
+          navigate("/login");
+        } else {
+          // Error lain, tetap di halaman
+          alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
   };
 
   const renderSidebarEditor = () => {
@@ -1444,59 +1420,32 @@ function TemplateSKTM({ formData }) {
         </div>
       </div>
 
-        {/* BAGIAN TANDA TANGAN - BERSEBERANGAN */}
-        <div style={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          marginTop: "40px",
-          paddingLeft: "40px",
-          paddingRight: "40px"
-        }}>
-          
-          {/* KIRI - CAMAT */}
-          <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
-            <p style={{ margin: "0 0 3px 0" }}>Mengetahui</p>
-            <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kotaagung Barat</p>
-            
-            {/* KOSONG - TANPA TTD */}
-            <div style={{ height: "70px" }}></div>
-            
-            <p style={{ margin: "0", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
-              {formData.nama_camat || "(....................................)"}
-            </p>
-            <p style={{ margin: "3px 0 0 0", fontSize: "11pt" }}>
-              NIP. {formData.nip_camat || "...................................."}
-            </p>
-          </div>
-
-          {/* KANAN - KEPALA PEKON */}
-          <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
-            <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
-            
-            {/* TTD KEPALA PEKON */}
-            <div style={{ textAlign: "center", marginBottom: "10px" }}>
-              <img 
-                src={TTD_PEKON_PATH} 
-                alt="TTD" 
-                style={{ 
-                  width: "120px", 
-                  height: "60px", 
-                  objectFit: "contain", 
-                  margin: "0 auto" 
-                }} 
-              />
-            </div>
-            
-            <p style={{ 
-              margin: "0", 
-              fontSize: "12pt", 
-              fontWeight: "bold", 
-              textDecoration: "underline", 
-              textUnderlineOffset: "2px" 
-            }}>
-              Mukhtar
-            </p>
-          </div>
+    <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
+  <p style={{ margin: "0 0 3px 0" }}>Mengetahui</p>
+  <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kotaagung Barat</p>
+  
+  {/* KOSONG - TANPA TTD */}
+  <div style={{ height: "70px" }}></div>
+  
+  <p style={{ margin: "0", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
+    {formData.nama_camat || "(....................................)"}
+  </p>
+  <p style={{ margin: "3px 0 0 0", fontSize: "11pt" }}>
+    NIP. {formData.nip_camat || "...................................."}
+  </p>
+ 
+        <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
+  <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
+  
+  {/* TTD KEPALA PEKON */}
+  <div style={{ textAlign: "center", marginBottom: "10px" }}>
+    <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "120px", height: "60px", objectFit: "contain", margin: "0 auto" }} />
+  </div>
+  
+  <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
+    {formData.penandatangan}
+  </p>
+        </div>
       </div>
     </div>
   );
