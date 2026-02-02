@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+// 1. Menggunakan instance api kustom
 import api from '../../utils/api'; 
 import logoTanggamus from '../../assets/Kabupaten Tanggamus.png';
 import ttdPekon from '../../assets/Tanda Tangan.png'; 
@@ -15,7 +16,6 @@ export default function AdminTemplate() {
   const navigate = useNavigate();
   const suratRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const { id_pengajuan, warga, jenis_surat } = location.state || {};
   const type = jenis_surat?.toLowerCase() || "";
@@ -53,63 +53,22 @@ export default function AdminTemplate() {
     tahun_berdiri: warga?.tahun_berdiri || "",
     alamat_usaha: warga?.alamat_usaha || "",
     tempat_dibuat: "Kandang Besi",
-    penandatangan: "MUKHTAR",
+    penandatangan: type === "keramaian" ? "MUKHTAR" : "FATHURRAHIM",
     jabatan_penandatangan: type === "keramaian" ? "" : type === "domisili" ? "" : "A.n Kasi Pelayanan",
     nama_camat: "",
-    nip_camat: "",
-    nama_kasih_pelayanan: warga?.nama_kasih_pelayanan || ""
+    nip_camat: ""
   });
-
-  // ✅ PRE-LOAD SEMUA GAMBAR
-  useEffect(() => {
-    const loadImages = async () => {
-      const imagePromises = [LOGO_PATH, TTD_PEKON_PATH].map(src => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            console.log(`✅ Image loaded: ${src}`);
-            resolve();
-          };
-          img.onerror = () => {
-            console.error(`❌ Failed to load: ${src}`);
-            reject(); // Jangan stop flow, reject saja log error
-            resolve(); // Tetap resolve agar Promise.all lanjut
-          };
-          img.src = src;
-        });
-      });
-
-      try {
-        await Promise.all(imagePromises);
-        console.log("✅ All images pre-loaded successfully");
-      } catch (err) {
-        console.error("⚠️ Some images failed to load, continuing anyway...");
-      } finally {
-        setImagesLoaded(true);
-      }
-    };
-
-    loadImages();
-  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const generatePDF = async () => {
-    if (!imagesLoaded) {
-      alert("⏳ Tunggu sebentar, aset gambar sedang dimuat...");
-      return;
-    }
-
     setLoading(true);
     try {
       console.log("🔄 Memulai generate PDF...");
-      
       const element = suratRef.current;
-      if (!element) throw new Error("Element surat tidak ditemukan");
-
-      // ✅ Style Fix
+      
       const style = document.createElement('style');
       style.id = 'pdf-layout-fix';
       style.textContent = `
@@ -117,9 +76,6 @@ export default function AdminTemplate() {
           position: relative !important;
           display: block !important;
           width: 210mm !important;
-          min-height: 297mm !important;
-          padding: 15mm 20mm !important;
-          margin: 0 auto !important;
           background: white !important;
           box-sizing: border-box !important;
           overflow: visible !important;
@@ -127,101 +83,74 @@ export default function AdminTemplate() {
         .page * {
           color: #000000 !important;
           font-family: 'Times New Roman', Times, serif !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-        .page img {
-          display: inline-block !important;
-          max-width: 100% !important;
-          height: auto !important;
         }
       `;
       document.head.appendChild(style);
       
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const pages = element.querySelectorAll('.page');
       
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = 210;
-      const pdfHeight = 297;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
       for (let i = 0; i < pages.length; i++) {
-        console.log(`📸 Capturing halaman ${i + 1}...`);
+        const pageClone = pages[i].cloneNode(true);
+        pageClone.style.position = 'absolute';
+        pageClone.style.left = '-9999px';
+        pageClone.style.width = '210mm';
+        document.body.appendChild(pageClone);
         
-        const pageElement = pages[i];
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Scroll dan Capture
-        window.scrollTo(0, 0); 
-        
-        const canvas = await html2canvas(pageElement, { 
-          scale: 2, // Scale cukup 2 untuk keseimbangan size/quality
+        const canvas = await html2canvas(pageClone, { 
+          scale: 3,
           useCORS: true,
-          allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
           width: 794,
-          height: 1123,
-          windowWidth: 794,
-          windowHeight: 1123
         });
         
-        const imgData = canvas.toDataURL("image/jpeg", 0.9);
+        document.body.removeChild(pageClone);
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        const imgProps = pdf.getImageProperties(imgData);
+        let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
         if (i > 0) pdf.addPage();
-        
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        if (imgHeight > pdfHeight) {
-          const scale = pdfHeight / imgHeight;
-          pdf.addImage(imgData, "JPEG", 0, 0, imgWidth * scale, pdfHeight, undefined, 'FAST');
-        } else {
-          pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-        }
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight, undefined, 'FAST');
       }
       
-      if (style.parentNode) document.head.removeChild(style);
+      const styleToRemove = document.getElementById('pdf-layout-fix');
+      if (styleToRemove) document.head.removeChild(styleToRemove);
       
-      // ✅ Generate Blob
       const timestamp = Date.now();
       const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
       const pdfBlob = pdf.output("blob");
-      
-      console.log(`📦 PDF Ready: ${(pdfBlob.size / 1024).toFixed(2)} KB`);
 
-      // ✅ FORM DATA SETUP (BAGIAN KRUSIAL)
       const uploadData = new FormData();
-      // 👇 PERUBAHAN UTAMA: Ganti "pdf" jadi "file" agar dibaca Multer backend
-      uploadData.append("file", pdfBlob, fileName); 
+      uploadData.append("pdf", pdfBlob, fileName);
       uploadData.append("status", "Selesai");
 
-      console.log("📤 Mengirim ke server...");
-      
-      // ✅ API CALL
-      // Jangan set Content-Type manual untuk FormData, biarkan browser yang handle boundary
+      // 2. Menggunakan api.put (Base URL otomatis dari utils/api)
       const response = await api.put(
         `/api/admin/surat/${id_pengajuan}`, 
         uploadData,
-        { timeout: 60000 } // Timeout diperpanjang
+        { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       
-      if (response.status === 200) {
-        // Download lokal juga sebagai backup
-        pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
-        
-        alert("✅ Surat berhasil diterbitkan dan tersimpan di database!");
-        navigate("/admin/pengajuan");
-      }
+      console.log("✅ Response dari server:", response.data);
+      pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
+      alert(`✅ Surat berhasil diterbitkan!`);
+      navigate("/admin/dashboard");
       
     } catch (err) {
-      console.error("❌ Error generate/upload:", err);
-      const errMsg = err.response?.data?.message || err.message;
-      alert(`Gagal memproses surat: ${errMsg}`);
+      console.error("❌ Error detail:", err);
+      alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
+
   const renderSidebarEditor = () => {
     if (type === "domisili") {
       return (
@@ -266,156 +195,307 @@ export default function AdminTemplate() {
             <input name="nomorSurat" value={formData.nomorSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Tanggal Surat</label>
+
             <input name="tglSurat" value={formData.tglSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="border-t pt-4 mt-2">
+
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Data Pemohon</h3>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
+
               <input name="nama" value={formData.nama} onChange={handleInputChange} className="border p-2 rounded-lg text-sm bg-slate-50" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Peringkat Desil</label>
+
               <input name="peringkat_desil" value={formData.peringkat_desil} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
           </div>
+
           <div className="border-t pt-4 mt-2">
+
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Penandatangan</h3>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Tempat Dibuat</label>
+
               <input name="tempat_dibuat" value={formData.tempat_dibuat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Camat</label>
+
               <input name="nama_camat" value={formData.nama_camat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">NIP Camat</label>
+
               <input name="nip_camat" value={formData.nip_camat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Penandatangan (Kades)</label>
+
               <input name="penandatangan" value={formData.penandatangan} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
           </div>
+
         </>
+
       );
+
     } else if (type === "keramaian") {
+
       return (
+
         <>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Nomor Surat</label>
+
             <input name="nomorSurat" value={formData.nomorSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Tanggal Surat</label>
+
             <input name="tglSurat" value={formData.tglSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="grid grid-cols-2 gap-3">
+
             <div className="flex flex-col gap-1">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Hari</label>
+
               <input name="hari" value={formData.hari} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Tgl Acara</label>
+
               <input name="tanggal_kegiatan" value={formData.tanggal_kegiatan} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Waktu</label>
+
             <input name="waktu" value={formData.waktu} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Jenis Acara</label>
+
             <input name="acara" value={formData.acara} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Hiburan</label>
+
             <input name="hiburan" value={formData.hiburan} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Tempat Kegiatan</label>
+
             <textarea name="tempat_kegiatan" value={formData.tempat_kegiatan} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" rows="3" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Jumlah Tamu (± orang)</label>
+
             <input name="jumlah_tamu" value={formData.jumlah_tamu} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="border-t pt-4 mt-2">
+
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Data Saksi</h3>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Saksi 1</label>
+
               <input name="saksi1_nama" value={formData.saksi1_nama} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Saksi 2</label>
+
               <input name="saksi2_nama" value={formData.saksi2_nama} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Camat</label>
+
               <input name="nama_camat" value={formData.nama_camat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">NIP Camat</label>
+
               <input name="nip_camat" value={formData.nip_camat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Danramil</label>
+
               <input name="nama_danramil" value={formData.nama_danramil} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">NIP Danramil</label>
+
               <input name="nip_danramil" value={formData.nip_danramil} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Penandatangan (Kades)</label>
+
               <input name="penandatangan" value={formData.penandatangan} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
           </div>
+
         </>
+
       );
+
     } else if (type === "sku") {
+
       return (
+
         <>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Nomor Surat</label>
+
             <input name="nomorSurat" value={formData.nomorSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+
           </div>
+
           <div className="flex flex-col gap-1">
+
             <label className="text-[10px] font-bold text-slate-400 uppercase">Tanggal Surat</label>
+
             <input name="tglSurat" value={formData.tglSurat} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
           </div>
+
           <div className="border-t pt-4 mt-2">
+
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Data Pemohon</h3>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
+
               <input name="nama" value={formData.nama} onChange={handleInputChange} className="border p-2 rounded-lg text-sm bg-slate-50" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">NIK</label>
+
               <input name="nik" value={formData.nik} onChange={handleInputChange} className="border p-2 rounded-lg text-sm bg-slate-50" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Tempat, Tanggal Lahir</label>
+
               <input name="ttl" value={formData.ttl} onChange={handleInputChange} className="border p-2 rounded-lg text-sm bg-slate-50" />
+
             </div>
+
           </div>
+
           <div className="border-t pt-4 mt-2">
+
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Data Usaha</h3>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Nama Usaha</label>
+
               <input name="nama_usaha" value={formData.nama_usaha} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Tahun Berdiri</label>
+
               <input name="tahun_berdiri" value={formData.tahun_berdiri} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" />
+
             </div>
+
             <div className="flex flex-col gap-1 mb-3">
+
               <label className="text-[10px] font-bold text-slate-400 uppercase">Alamat Usaha</label>
+
               <textarea name="alamat_usaha" value={formData.alamat_usaha} onChange={handleInputChange} className="border p-2 rounded-lg text-sm" rows="3" />
+
             </div>
+
           </div>
+
           <div className="border-t pt-4 mt-2">
             <h3 className="text-[10px] font-bold text-slate-600 mb-3 uppercase">Penandatangan</h3>
             <div className="flex flex-col gap-1 mb-3">
@@ -438,7 +518,9 @@ export default function AdminTemplate() {
         </>
       );
     }
+
     return null;
+
   };
 
   const renderTemplateSurat = () => {
@@ -446,7 +528,7 @@ export default function AdminTemplate() {
     if (type === "sku") return <TemplateSKU formData={formData} />;
     if (type === "domisili") return <TemplateDomisili formData={formData} />;
     if (type === "sktm") return <TemplateSKTM formData={formData} />;
-    return <div className="bg-white p-20 text-center"><h2 className="text-2xl font-bold text-red-600">Template untuk {type?.toUpperCase()} belum tersedia</h2></div>;
+    return <div className="bg-white p-20 text-center"><h2 className="text-2xl font-bold text-red-600">Template belum tersedia</h2></div>;
   };
 
   return (
@@ -458,12 +540,14 @@ export default function AdminTemplate() {
         <h2 className="text-sm font-black text-slate-800 border-b pb-2 mb-6 uppercase tracking-widest">
           Editor Surat {type?.toUpperCase()}
         </h2>
-        <div className="space-y-5">{renderSidebarEditor()}</div>
+        <div className="space-y-5">
+           {/* Masukkan input fields di sini berdasarkan type surat */}
+           {renderSidebarEditor()}
+        </div>
         <button onClick={generatePDF} disabled={loading} className="w-full mt-10 bg-blue-900 text-white py-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-lg disabled:opacity-50">
           {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
           {loading ? "SEDANG MEMPROSES..." : "TERBITKAN & KIRIM KE WARGA"}
         </button>
-        {loading && <p className="text-[9px] text-center text-slate-400 mt-2 animate-pulse">Mohon tunggu, sedang generate PDF...</p>}
       </div>
       <div className="flex-1 h-full overflow-y-auto p-10 flex flex-col items-center bg-slate-100">
         <div ref={suratRef}>{renderTemplateSurat()}</div>
