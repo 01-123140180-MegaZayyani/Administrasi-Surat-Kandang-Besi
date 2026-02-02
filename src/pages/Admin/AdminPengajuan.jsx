@@ -144,17 +144,51 @@ export default function AdminPengajuan() {
                     
                     if (berkas && typeof berkas === 'object' && Object.keys(berkas).length > 0) {
                       return Object.entries(berkas).map(([key, file]) => (
-                        <a 
+                        <div 
                           key={key} 
-                          href={file}
-                          download={`${key}_${detailTerpilih.nama_warga}.${file.split('.').pop()}`} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-blue-500 hover:bg-blue-50 transition-all"
+                          className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-blue-500 transition-all"
                         >
-                          <span className="text-[10px] font-black uppercase text-slate-600 group-hover:text-blue-700">{key.replace(/_/g, ' ')}</span>
-                          <ExternalLink size={14} className="text-slate-400 group-hover:text-blue-500"/>
-                        </a>
+                          <span className="text-[10px] font-black uppercase text-slate-600 group-hover:text-blue-700">
+                            {key.replace(/_/g, ' ')}
+                          </span>
+                          
+                          <div className="flex gap-2">
+                            {/* Tombol Lihat */}
+                            <a 
+                              href={file} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="p-2 bg-blue-50 hover:bg-blue-500 text-blue-600 hover:text-white rounded-xl transition-all group/btn"
+                              title="Lihat file"
+                            >
+                              <ExternalLink size={14} />
+                            </a>
+                            
+                            {/* Tombol Download */}
+                            <a 
+                              href={file} 
+                              download={`${key}_${detailTerpilih.nama_warga}.${file.split('.').pop()}`}
+                              className="p-2 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white rounded-xl transition-all group/btn"
+                              title="Download file"
+                            >
+                              <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                width="14" 
+                                height="14" 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                              >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                            </a>
+                          </div>
+                        </div> 
                       ));
                     } else {
                       return <p className="text-xs text-slate-400 italic font-medium">Tidak ada lampiran berkas.</p>;
