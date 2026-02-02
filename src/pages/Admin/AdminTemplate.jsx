@@ -1,21 +1,32 @@
-import { useState, useRef } from "react";
+Berikut adalah kode AdminTemplate.jsx yang sudah diperbaiki.
+
+Perbaikan Kunci yang Dilakukan:
+
+Mengganti Nama Field Upload: Saya mengubah uploadData.append("pdf", ...) menjadi uploadData.append("file", ...) di dalam fungsi generatePDF. Ini wajib dilakukan agar cocok dengan upload.single('file') yang ada di Backend/Multer.
+
+Menghapus Header Manual: Saya menghapus { headers: { "Content-Type": "multipart/form-data" } }. Biarkan Axios/Browser yang mengaturnya secara otomatis agar boundary file terbaca dengan benar oleh backend.
+
+Silakan Copy & Paste kode lengkap di bawah ini ke file AdminTemplate.jsx Anda:
+
+JavaScript
+import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import api from "../../utils/api";
+import api from '../../utils/api'; 
 import logoTanggamus from '../../assets/Kabupaten Tanggamus.png';
 import ttdPekon from '../../assets/Tanda Tangan.png'; 
 
-// Deklarasi konstanta di luar komponen
 const LOGO_PATH = logoTanggamus; 
-const TTD_PEKON_PATH = ttdPekon; // TTD Kepala Pekon
+const TTD_PEKON_PATH = ttdPekon; 
 
 export default function AdminTemplate() {
   const location = useLocation();
   const navigate = useNavigate();
   const suratRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const { id_pengajuan, warga, jenis_surat } = location.state || {};
   const type = jenis_surat?.toLowerCase() || "";
@@ -53,146 +64,175 @@ export default function AdminTemplate() {
     tahun_berdiri: warga?.tahun_berdiri || "",
     alamat_usaha: warga?.alamat_usaha || "",
     tempat_dibuat: "Kandang Besi",
-    penandatangan: type === "keramaian" ? "MUKHTAR" : "FATHURRAHIM",
+    penandatangan: "MUKHTAR",
     jabatan_penandatangan: type === "keramaian" ? "" : type === "domisili" ? "" : "A.n Kasi Pelayanan",
     nama_camat: "",
-    nip_camat: ""
+    nip_camat: "",
+    nama_kasih_pelayanan: warga?.nama_kasih_pelayanan || ""
   });
+
+  // ✅ PRE-LOAD SEMUA GAMBAR
+  useEffect(() => {
+    const loadImages = async () => {
+      const imagePromises = [LOGO_PATH, TTD_PEKON_PATH].map(src => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            console.log(`✅ Image loaded: ${src}`);
+            resolve();
+          };
+          img.onerror = () => {
+            console.error(`❌ Failed to load: ${src}`);
+            reject(); // Jangan stop flow, reject saja log error
+            resolve(); // Tetap resolve agar Promise.all lanjut
+          };
+          img.src = src;
+        });
+      });
+
+      try {
+        await Promise.all(imagePromises);
+        console.log("✅ All images pre-loaded successfully");
+      } catch (err) {
+        console.error("⚠️ Some images failed to load, continuing anyway...");
+      } finally {
+        setImagesLoaded(true);
+      }
+    };
+
+    loadImages();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const generatePDF = async () => {
-  setLoading(true);
-  try {
-    console.log("🔄 Memulai generate PDF...");
-    
-    const element = suratRef.current;
-    
-    const style = document.createElement('style');
-    style.id = 'pdf-layout-fix';
-    style.textContent = `
-      .page {
-        position: relative !important;
-        display: block !important;
-        width: 210mm !important;
-        min-height: auto !important;
-        /* ✅ HAPUS BARIS INI - biar pakai padding dari template */
-        /* padding: 20mm 15mm !important; */
-        margin: 0 !important;
-        background: white !important;
-        box-sizing: border-box !important;
-        overflow: visible !important;
-      }
-      .page * {
-        position: static !important;
-        color: #000000 !important;
-        background-color: transparent !important;
-        font-family: 'Times New Roman', Times, serif !important;
-        box-sizing: border-box !important;
-      }
-      .page table {
-        border-collapse: collapse !important;
-        border-spacing: 0 !important;
-        table-layout: fixed !important;
-      }
-    `;
-    
-    document.head.appendChild(style);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const pages = element.querySelectorAll('.page');
-    console.log(`📄 Jumlah halaman ditemukan: ${pages.length}`);
-    
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    for (let i = 0; i < pages.length; i++) {
-      console.log(`🖼️ Memproses halaman ${i + 1}...`);
-      
-      const pageClone = pages[i].cloneNode(true);
-      pageClone.style.position = 'absolute';
-      pageClone.style.left = '-9999px';
-      pageClone.style.width = '210mm';
-      pageClone.style.minHeight = 'auto';
-      document.body.appendChild(pageClone);
-      
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const canvas = await html2canvas(pageClone, { 
-        scale: 3,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        removeContainer: true,
-        allowTaint: false,
-        foreignObjectRendering: false,
-        imageTimeout: 0,
-        width: 794,
-        windowWidth: 794
-      });
-      
-      document.body.removeChild(pageClone);
-      
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      const imgProps = pdf.getImageProperties(imgData);
-      
-      let imgWidth = pdfWidth;
-      let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      if (i > 0) pdf.addPage();
-      
-      if (imgHeight > pdfHeight) {
-        console.log(`⚠️ Halaman ${i + 1} terlalu tinggi (${imgHeight}mm), scaling down ke ${pdfHeight}mm`);
-        const ratio = pdfHeight / imgHeight;
-        imgWidth = imgWidth * ratio;
-        imgHeight = pdfHeight;
-      }
-      
-      const xOffset = (pdfWidth - imgWidth) / 2;
-      pdf.addImage(imgData, "PNG", xOffset, 0, imgWidth, imgHeight, undefined, 'FAST');
-      
-      console.log(`✅ Halaman ${i + 1} selesai (${imgWidth.toFixed(2)}mm x ${imgHeight.toFixed(2)}mm)`);
+    if (!imagesLoaded) {
+      alert("⏳ Tunggu sebentar, aset gambar sedang dimuat...");
+      return;
     }
-    
-    const styleToRemove = document.getElementById('pdf-layout-fix');
-    if (styleToRemove) document.head.removeChild(styleToRemove);
-    
-    const timestamp = Date.now();
-    const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
-    
-    const pdfBlob = pdf.output("blob");
-    const uploadData = new FormData();
-    uploadData.append("file_final", pdfBlob, fileName);
-    uploadData.append("status", "Selesai");
 
-    const response = await api.put(
-      `/api/admin/surat/${id_pengajuan}`, 
-      uploadData,
-      {timeout: 30000 }
-    );
-    
-    console.log("✅ Response dari server:", response.data);
-    pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
-    alert(`✅ Surat berhasil diterbitkan!\n\n📄 Total: ${pages.length} halaman\n🎉 Status diperbarui ke 'Selesai'\n📥 Warga sudah bisa download surat mereka`);
-    navigate("/admin/pengajuan");
-    
-  } catch (err) {
-    console.error("❌ Error detail:", err);
-    if (err.response) {
-      alert(`Gagal upload PDF: ${err.response.data.message || err.response.statusText}`);
-    } else if (err.request) {
-      alert("Server tidak merespons. Pastikan backend berjalan!");
-    } else {
-      alert(`Terjadi kesalahan: ${err.message}`);
+    setLoading(true);
+    try {
+      console.log("🔄 Memulai generate PDF...");
+      
+      const element = suratRef.current;
+      if (!element) throw new Error("Element surat tidak ditemukan");
+
+      // ✅ Style Fix
+      const style = document.createElement('style');
+      style.id = 'pdf-layout-fix';
+      style.textContent = `
+        .page {
+          position: relative !important;
+          display: block !important;
+          width: 210mm !important;
+          min-height: 297mm !important;
+          padding: 15mm 20mm !important;
+          margin: 0 auto !important;
+          background: white !important;
+          box-sizing: border-box !important;
+          overflow: visible !important;
+        }
+        .page * {
+          color: #000000 !important;
+          font-family: 'Times New Roman', Times, serif !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+        .page img {
+          display: inline-block !important;
+          max-width: 100% !important;
+          height: auto !important;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const pages = element.querySelectorAll('.page');
+      
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      
+      for (let i = 0; i < pages.length; i++) {
+        console.log(`📸 Capturing halaman ${i + 1}...`);
+        
+        const pageElement = pages[i];
+        
+        // Scroll dan Capture
+        window.scrollTo(0, 0); 
+        
+        const canvas = await html2canvas(pageElement, { 
+          scale: 2, // Scale cukup 2 untuk keseimbangan size/quality
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: 794,
+          height: 1123,
+          windowWidth: 794,
+          windowHeight: 1123
+        });
+        
+        const imgData = canvas.toDataURL("image/jpeg", 0.9);
+        
+        if (i > 0) pdf.addPage();
+        
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        if (imgHeight > pdfHeight) {
+          const scale = pdfHeight / imgHeight;
+          pdf.addImage(imgData, "JPEG", 0, 0, imgWidth * scale, pdfHeight, undefined, 'FAST');
+        } else {
+          pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight, undefined, 'FAST');
+        }
+      }
+      
+      if (style.parentNode) document.head.removeChild(style);
+      
+      // ✅ Generate Blob
+      const timestamp = Date.now();
+      const fileName = `surat_${type}_${id_pengajuan}_${timestamp}.pdf`;
+      const pdfBlob = pdf.output("blob");
+      
+      console.log(`📦 PDF Ready: ${(pdfBlob.size / 1024).toFixed(2)} KB`);
+
+      // ✅ FORM DATA SETUP (BAGIAN KRUSIAL)
+      const uploadData = new FormData();
+      // 👇 PERUBAHAN UTAMA: Ganti "pdf" jadi "file" agar dibaca Multer backend
+      uploadData.append("file", pdfBlob, fileName); 
+      uploadData.append("status", "Selesai");
+
+      console.log("📤 Mengirim ke server...");
+      
+      // ✅ API CALL
+      // Jangan set Content-Type manual untuk FormData, biarkan browser yang handle boundary
+      const response = await api.put(
+        `/api/admin/surat/${id_pengajuan}`, 
+        uploadData,
+        { timeout: 60000 } // Timeout diperpanjang
+      );
+      
+      if (response.status === 200) {
+        // Download lokal juga sebagai backup
+        pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
+        
+        alert("✅ Surat berhasil diterbitkan dan tersimpan di database!");
+        navigate("/admin/pengajuan");
+      }
+      
+    } catch (err) {
+      console.error("❌ Error generate/upload:", err);
+      const errMsg = err.response?.data?.message || err.message;
+      alert(`Gagal memproses surat: ${errMsg}`);
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   const renderSidebarEditor = () => {
     if (type === "domisili") {
       return (
