@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-// 1. Mengganti axios dengan api instance
-import api from '../../utils/api'; 
-import { FileText, Download, AlertCircle, RefreshCw, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import api from '../../utils/api'; // Pastikan path ini benar (mundur 2x)
+import { FileText, Download, AlertCircle, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar"; 
 import Footer from "../../components/Footer"; 
 
@@ -9,13 +9,15 @@ export default function StatusSurat() {
   const [daftarSurat, setDaftarSurat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const user = JSON.parse(localStorage.getItem("profil") || "{}");
+  const navigate = useNavigate();
 
-  // Menggunakan useCallback agar fungsi bisa di-reuse dengan aman di useEffect
-  const fetchStatusSurat = useCallback(async () => {
+  // 1. Ambil data user dengan proteksi (Gunakan key 'user_profile' agar sinkron dengan Login)
+  const user = JSON.parse(localStorage.getItem("user_profile") || "{}");
+
+  const fetchStatusSurat = async () => {
+    // Jika tidak ada NIK, jangan paksa fetch, arahkan ke login atau beri pesan
     if (!user.nik) {
-      setError("Data profil tidak ditemukan. Silakan login kembali.");
+      setError("Sesi Anda berakhir. Silakan login kembali.");
       setLoading(false);
       return;
     }
@@ -24,205 +26,117 @@ export default function StatusSurat() {
     setError(null);
     
     try {
-      // 2. Menggunakan instance 'api'. 
-      // Mengasumsikan baseUrl sudah diset di utils/api.
-      // Kita tambahkan query param ?nik_pengaju agar filter dilakukan di sisi server (lebih efisien)
-      const response = await api.get(`/pengajuan?nik_pengaju=${user.nik}`);
+      // Pastikan endpoint ini sesuai dengan yang ada di server.js/suratRoutes
+      const response = await api.get("/api/surat"); 
       
-      // Jika backend Anda belum mendukung filter query param, 
-      // gunakan filter manual di bawah ini (opsional):
-      const dataMilikSaya = response.data.filter(item => 
-        String(item.nik_pengaju).trim() === String(user.nik).trim()
+      // Filter data agar hanya menampilkan milik user yang sedang login
+      const milikSaya = response.data.filter(item => 
+        String(item.nik).trim() === String(user.nik).trim()
       );
       
-      setDaftarSurat(dataMilikSaya);
+      setDaftarSurat(milikSaya);
     } catch (err) {
-      console.error("❌ Error mengambil status:", err);
-      setError(err.response?.data?.message || "Gagal mengambil data dari server.");
+      console.error("❌ Gagal ambil data:", err);
+      setError("Gagal memuat data surat. Pastikan koneksi internet stabil.");
     } finally {
       setLoading(false);
     }
-  }, [user.nik]);
+  };
 
   useEffect(() => {
     fetchStatusSurat();
-  }, [fetchStatusSurat]);
-
-  // Helper UI
-  const getStatusBadge = (status) => {
-    const badges = {
-      'Selesai': 'bg-emerald-100 text-emerald-600',
-      'Proses': 'bg-blue-100 text-blue-600',
-      'Ditolak': 'bg-red-100 text-red-600',
-      'Pending': 'bg-amber-100 text-amber-600'
-    };
-    return badges[status] || 'bg-slate-100 text-slate-600';
-  };
-
-  const getStatusText = (status) => {
-    const texts = {
-      'Selesai': 'Selesai',
-      'Proses': 'Sedang Diproses',
-      'Ditolak': 'Ditolak',
-      'Pending': 'Menunggu Antrean'
-    };
-    return texts[status] || status;
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <Navbar />
-      <main className="flex-grow max-w-5xl w-full mx-auto px-6 py-12 text-left">
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-3xl font-black text-[#1E3A8A] uppercase tracking-tight">
-            Status Layanan Saya
-          </h1>
-          <button 
-            onClick={fetchStatusSurat}
-            disabled={loading}
-            className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 transition-all disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
-        </div>
-        
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 flex items-start gap-3">
-            <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
-            <div>
-              <h3 className="font-bold text-red-700 mb-1">Terjadi Kesalahan</h3>
-              <p className="text-sm text-red-600">{error}</p>
-              <button 
-                onClick={fetchStatusSurat}
-                className="mt-3 text-xs font-bold text-red-700 underline hover:no-underline"
-              >
-                Coba Lagi
-              </button>
-            </div>
+      
+      <main className="flex-grow max-w-5xl w-full mx-auto px-6 py-12">
+        <h1 className="text-3xl font-black text-[#1E3A8A] mb-10 text-left uppercase tracking-tight">
+          Status Layanan
+        </h1>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <RefreshCw className="animate-spin text-blue-500 mb-4" size={40} />
+            <p className="text-slate-500 font-medium">Memuat data pengajuan...</p>
           </div>
-        )}
-        
-        {/* Loading State */}
-        {loading && !error && (
-          <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-            <p className="font-bold text-slate-400">Memuat status surat...</p>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-100 p-8 rounded-3xl text-center">
+            <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
+            <p className="text-red-700 font-bold mb-4">{error}</p>
+            <button onClick={fetchStatusSurat} className="bg-red-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-lg">
+              Coba Lagi
+            </button>
           </div>
-        )}
-        
-        {/* Data State */}
-        {!loading && !error && (
+        ) : (
           <div className="grid gap-4">
             {daftarSurat.length > 0 ? (
               daftarSurat.map((surat) => (
-                <div 
-                  key={surat.id} 
-                  className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="bg-blue-50 p-4 rounded-2xl text-blue-900">
-                        <FileText size={24} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-slate-800 uppercase text-sm">
-                          {surat.jenis_surat}
-                        </h3>
-                        <p className="text-xs text-slate-400 mt-1">
-                          Diajukan: {new Date(surat.tanggal_request || surat.created_at || Date.now()).toLocaleDateString('id-ID')}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${getStatusBadge(surat.status)}`}>
-                            {surat.status}
-                          </span>
-                        </div>
-
-                        {/* CATATAN PENOLAKAN */}
-                        {surat.status === "Ditolak" && surat.catatan_penolakan && (
-                          <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
-                            <div className="flex items-start gap-2">
-                              <XCircle className="text-red-500 flex-shrink-0 mt-0.5" size={16} />
-                              <div>
-                                <p className="text-xs font-bold text-red-700 uppercase mb-1">Alasan Penolakan:</p>
-                                <p className="text-sm text-red-600 leading-relaxed">{surat.catatan_penolakan}</p>
-                                <p className="text-xs text-red-500 italic mt-2">
-                                  💡 Silakan perbaiki dan ajukan kembali
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                <div key={surat.id} className="bg-white rounded-[24px] p-6 shadow-sm flex justify-between items-center border border-slate-100 hover:shadow-md transition-all">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-900">
+                      <FileText size={24} />
                     </div>
-                    
-                    <div className="text-right ml-4">
-                      {surat.status === "Selesai" && surat.file_final ? (
-                        <a 
-                          href={`$/api/uploads/${surat.file_final}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-900 transition-all"
-                        >
-                          <Download size={14} /> Download PDF
-                        </a>
-                      ) : surat.status === "Selesai" ? (
-                        <div className="text-center">
-                          <span className="text-[10px] font-bold text-slate-400 block mb-1">
-                            Surat Sudah Selesai
-                          </span>
-                          <span className="text-[9px] text-slate-400 italic">
-                            Ambil di Kantor Desa
-                          </span>
-                        </div>
-                      ) : surat.status === "Ditolak" ? (
-                        <div className="text-center">
-                          <span className="text-[10px] font-bold text-red-500 block mb-1">
-                            ✗ Ditolak
-                          </span>
-                          <span className="text-[9px] text-slate-400 italic">
-                            Lihat alasan di bawah
-                          </span>
-                        </div>
-                      ) : (
-                        <span className={`text-[10px] font-bold uppercase tracking-widest block ${
-                          surat.status === 'Proses' ? 'text-blue-500 animate-pulse' : 'text-amber-500'
-                        }`}>
-                          ⏳ {getStatusText(surat.status)}
-                        </span>
-                      )}
+                    <div>
+                      <h3 className="font-bold text-slate-800 uppercase text-sm tracking-wide">
+                        {surat.jenisSurat || surat.jenis_surat}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                         <span className={`w-2 h-2 rounded-full ${surat.status === 'Selesai' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                         <p className={`text-[10px] font-black uppercase tracking-widest ${surat.status === 'Selesai' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                           {surat.status}
+                         </p>
+                      </div>
                     </div>
                   </div>
+                  
+                  {surat.status === "Selesai" && (
+                    <button 
+                      onClick={() => {
+                        // Pastikan data_final ada dan berbentuk objek/string JSON
+                        if (!surat.data) return alert("Dokumen belum siap.");
+                        navigate("/cetak-surat-warga", { state: { dataSurat: surat } });
+                      }}
+                      className="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <Download size={14} /> Cetak
+                    </button>
+                  )}
                 </div>
               ))
             ) : (
-              <div className="text-center py-20 bg-white rounded-3xl border border-slate-100">
+              <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 shadow-sm">
                 <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText size={32} className="text-slate-300" />
                 </div>
-                <h3 className="font-bold text-slate-700 mb-2">Belum Ada Pengajuan</h3>
-                <p className="text-slate-400 text-sm">
-                  Anda belum mengajukan surat apapun.
+                <h3 className="font-bold text-slate-700 mb-2 uppercase text-sm">Belum Ada Pengajuan</h3>
+                <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                  Anda belum memiliki riwayat pengajuan surat di sistem ini.
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* Info Card */}
+        {/* Info Card - Hanya muncul jika data ada */}
         {!loading && !error && daftarSurat.length > 0 && (
-          <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-5">
-            <h4 className="font-bold text-blue-900 text-xs uppercase mb-2">Informasi</h4>
-            <ul className="text-xs text-blue-700 space-y-1">
-              <li>• Status <strong>Pending</strong>: Menunggu verifikasi admin</li>
-              <li>• Status <strong>Proses</strong>: Sedang dikerjakan oleh admin</li>
-              <li>• Status <strong>Selesai</strong>: Surat sudah siap diambil/diunduh</li>
-              <li>• Status <strong>Ditolak</strong>: Ada masalah dengan pengajuan Anda, silakan baca alasan penolakan dan ajukan ulang</li>
-            </ul>
+          <div className="mt-10 bg-blue-50/50 border border-blue-100 rounded-[30px] p-8 text-left">
+            <h4 className="font-black text-[#1E3A8A] text-xs uppercase mb-4 tracking-widest">Alur Status Surat</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 mt-1"></div>
+                  <p className="text-xs text-slate-600"><strong>Proses:</strong> Berkas sedang diverifikasi atau dalam antrean cetak desa.</p>
+               </div>
+               <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1"></div>
+                  <p className="text-xs text-slate-600"><strong>Selesai:</strong> Surat sudah divalidasi dan dapat Anda unduh/cetak secara mandiri.</p>
+               </div>
+            </div>
           </div>
         )}
       </main>
+
       <Footer />
     </div>
   );
