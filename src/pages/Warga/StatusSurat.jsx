@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import api from '../../utils/api';
-import { FileText, Download, RefreshCw, AlertCircle, XCircle } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+// 1. Mengganti axios dengan api instance
+import api from '../../utils/api'; 
+import { FileText, Download, AlertCircle, RefreshCw, XCircle } from "lucide-react";
 import Navbar from "../../components/Navbar"; 
 import Footer from "../../components/Footer"; 
 
@@ -8,38 +9,46 @@ export default function StatusSurat() {
   const [daftarSurat, setDaftarSurat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const user = JSON.parse(localStorage.getItem("profil") || "{}");
 
-  const fetchStatusSurat = async () => {
+  // Menggunakan useCallback agar fungsi bisa di-reuse dengan aman di useEffect
+  const fetchStatusSurat = useCallback(async () => {
+    if (!user.nik) {
+      setError("Data profil tidak ditemukan. Silakan login kembali.");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
     try {
-      console.log("🔍 Fetching status surat...");
+      // 2. Menggunakan instance 'api'. 
+      // Mengasumsikan baseUrl sudah diset di utils/api.
+      // Kita tambahkan query param ?nik_pengaju agar filter dilakukan di sisi server (lebih efisien)
+      const response = await api.get(`/pengajuan?nik_pengaju=${user.nik}`);
       
-      // ✅ Backend sudah filter berdasarkan userId dari token
-      const response = await api.get("/api/surat");
-      console.log("📦 Data dari server:", response.data);
+      // Jika backend Anda belum mendukung filter query param, 
+      // gunakan filter manual di bawah ini (opsional):
+      const dataMilikSaya = response.data.filter(item => 
+        String(item.nik_pengaju).trim() === String(user.nik).trim()
+      );
       
-      setDaftarSurat(response.data);
+      setDaftarSurat(dataMilikSaya);
     } catch (err) {
       console.error("❌ Error mengambil status:", err);
-      
-      if (err.response) {
-        setError(`Server error: ${err.response.status} - ${err.response.data?.error || 'Unknown error'}`);
-      } else if (err.request) {
-        setError("Server tidak merespons. Pastikan backend berjalan!");
-      } else {
-        setError(err.message || "Terjadi kesalahan");
-      }
+      setError(err.response?.data?.message || "Gagal mengambil data dari server.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.nik]);
 
   useEffect(() => {
     fetchStatusSurat();
-  }, []);
+  }, [fetchStatusSurat]);
 
+  // Helper UI
   const getStatusBadge = (status) => {
     const badges = {
       'Selesai': 'bg-emerald-100 text-emerald-600',
@@ -63,7 +72,6 @@ export default function StatusSurat() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <Navbar />
-      
       <main className="flex-grow max-w-5xl w-full mx-auto px-6 py-12 text-left">
         <div className="flex justify-between items-center mb-10">
           <h1 className="text-3xl font-black text-[#1E3A8A] uppercase tracking-tight">
@@ -79,6 +87,7 @@ export default function StatusSurat() {
           </button>
         </div>
         
+        {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 flex items-start gap-3">
             <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
@@ -95,6 +104,7 @@ export default function StatusSurat() {
           </div>
         )}
         
+        {/* Loading State */}
         {loading && !error && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
@@ -102,6 +112,7 @@ export default function StatusSurat() {
           </div>
         )}
         
+        {/* Data State */}
         {!loading && !error && (
           <div className="grid gap-4">
             {daftarSurat.length > 0 ? (
@@ -120,7 +131,7 @@ export default function StatusSurat() {
                           {surat.jenis_surat}
                         </h3>
                         <p className="text-xs text-slate-400 mt-1">
-                          Diajukan: {new Date(surat.tanggal_request || surat.created_at).toLocaleDateString('id-ID')}
+                          Diajukan: {new Date(surat.tanggal_request || surat.created_at || Date.now()).toLocaleDateString('id-ID')}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${getStatusBadge(surat.status)}`}>
@@ -128,6 +139,7 @@ export default function StatusSurat() {
                           </span>
                         </div>
 
+                        {/* CATATAN PENOLAKAN */}
                         {surat.status === "Ditolak" && surat.catatan_penolakan && (
                           <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
                             <div className="flex items-start gap-2">
@@ -148,7 +160,7 @@ export default function StatusSurat() {
                     <div className="text-right ml-4">
                       {surat.status === "Selesai" && surat.file_final ? (
                         <a 
-                          href={`/api/uploads/${surat.file_final}`} 
+                          href={`$/api/uploads/${surat.file_final}`} 
                           target="_blank" 
                           rel="noreferrer"
                           className="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-900 transition-all"
@@ -157,13 +169,21 @@ export default function StatusSurat() {
                         </a>
                       ) : surat.status === "Selesai" ? (
                         <div className="text-center">
-                          <span className="text-[10px] font-bold text-slate-400 block mb-1">Surat Sudah Selesai</span>
-                          <span className="text-[9px] text-slate-400 italic">Ambil di Kantor Desa</span>
+                          <span className="text-[10px] font-bold text-slate-400 block mb-1">
+                            Surat Sudah Selesai
+                          </span>
+                          <span className="text-[9px] text-slate-400 italic">
+                            Ambil di Kantor Desa
+                          </span>
                         </div>
                       ) : surat.status === "Ditolak" ? (
                         <div className="text-center">
-                          <span className="text-[10px] font-bold text-red-500 block mb-1">✗ Ditolak</span>
-                          <span className="text-[9px] text-slate-400 italic">Lihat alasan di bawah</span>
+                          <span className="text-[10px] font-bold text-red-500 block mb-1">
+                            ✗ Ditolak
+                          </span>
+                          <span className="text-[9px] text-slate-400 italic">
+                            Lihat alasan di bawah
+                          </span>
                         </div>
                       ) : (
                         <span className={`text-[10px] font-bold uppercase tracking-widest block ${
@@ -182,12 +202,15 @@ export default function StatusSurat() {
                   <FileText size={32} className="text-slate-300" />
                 </div>
                 <h3 className="font-bold text-slate-700 mb-2">Belum Ada Pengajuan</h3>
-                <p className="text-slate-400 text-sm">Anda belum mengajukan surat apapun.</p>
+                <p className="text-slate-400 text-sm">
+                  Anda belum mengajukan surat apapun.
+                </p>
               </div>
             )}
           </div>
         )}
 
+        {/* Info Card */}
         {!loading && !error && daftarSurat.length > 0 && (
           <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-5">
             <h4 className="font-bold text-blue-900 text-xs uppercase mb-2">Informasi</h4>
@@ -195,12 +218,11 @@ export default function StatusSurat() {
               <li>• Status <strong>Pending</strong>: Menunggu verifikasi admin</li>
               <li>• Status <strong>Proses</strong>: Sedang dikerjakan oleh admin</li>
               <li>• Status <strong>Selesai</strong>: Surat sudah siap diambil/diunduh</li>
-              <li>• Status <strong>Ditolak</strong>: Ada masalah dengan pengajuan Anda</li>
+              <li>• Status <strong>Ditolak</strong>: Ada masalah dengan pengajuan Anda, silakan baca alasan penolakan dan ajukan ulang</li>
             </ul>
           </div>
         )}
       </main>
-      
       <Footer />
     </div>
   );
