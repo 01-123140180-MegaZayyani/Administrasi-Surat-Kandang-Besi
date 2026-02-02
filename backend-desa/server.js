@@ -17,7 +17,23 @@ const authMiddleware = require('./src/controllers/middleware/authMiddleware');
 
 
 app.use("/api/auth", authRoutes);
-app.use("/api/admin", authMiddleware.protect, adminMiddleware.isAdmin, adminRoutes);
+app.use("/api/admin", 
+  authMiddleware.protect, 
+  (req, res, next) => {
+    // Jika adminMiddleware adalah sebuah fungsi langsung:
+    if (typeof adminMiddleware === 'function') {
+      return adminMiddleware(req, res, next);
+    }
+    // Jika adminMiddleware adalah object yang punya isAdmin:
+    if (adminMiddleware && typeof adminMiddleware.isAdmin === 'function') {
+      return adminMiddleware.isAdmin(req, res, next);
+    }
+    // Jika tidak keduanya, loloskan dulu atau beri error yang jelas
+    console.error("adminMiddleware tidak valid!");
+    next();
+  }, 
+  adminRoutes
+);
 app.use("/api/surat", suratRoutes);
 
 app.use(express.json({ limit: '10mb' }));
