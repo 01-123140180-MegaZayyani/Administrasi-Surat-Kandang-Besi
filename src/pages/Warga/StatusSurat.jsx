@@ -13,6 +13,7 @@ export default function StatusSurat() {
 
   // 1. Ambil data user dengan proteksi (Gunakan key 'user_profile' agar sinkron dengan Login)
   const user = JSON.parse(localStorage.getItem("user_profile") || "{}");
+  
 
   const fetchStatusSurat = async () => {
     // Jika tidak ada NIK, jangan paksa fetch, arahkan ke login atau beri pesan
@@ -28,12 +29,21 @@ export default function StatusSurat() {
     try {
       // Pastikan endpoint ini sesuai dengan yang ada di server.js/suratRoutes
       const response = await api.get("/api/surat"); 
+
+      
+      console.log("Data dari server:", response.data); 
+      console.log("NIK User login:", user.nik);
       
       // Filter data agar hanya menampilkan milik user yang sedang login
       const milikSaya = response.data.filter(item => 
         String(item.nik).trim() === String(user.nik).trim()
       );
       
+      router.put('/pengajuan/arsip/:id', (req, res) => {
+        const { id } = req.params;
+        const { status } = req.body;
+        // Logika update status ke "Selesai" di database
+      });
       setDaftarSurat(milikSaya);
     } catch (err) {
       console.error("❌ Gagal ambil data:", err);
