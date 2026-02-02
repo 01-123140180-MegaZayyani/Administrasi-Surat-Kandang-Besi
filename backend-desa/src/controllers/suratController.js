@@ -11,7 +11,7 @@ const transformSuratData = (surat) => {
     nik_pengaju: surat.user?.nik || "-",
     status: surat.status,
     data_form: typeof surat.data === 'string' ? surat.data : JSON.stringify(surat.data || {}),
-    file_final: surat.fileSuratSelesai || null, // Pastikan ini sesuai kolom DB (fileSuratSelesai atau filePdf)
+    file_final: surat.fileSuratSelesai || null,
     tanggal_request: surat.createdAt,
     created_at: surat.createdAt,
     catatan_penolakan: surat.catatanAdmin || null,
@@ -27,30 +27,24 @@ const transformSuratData = (surat) => {
 exports.createSurat = async (req, res) => {
   try {
     const userId = req.user.id;
-    // Ambil jenis_surat dari body agar tidak undefined
     const { jenis_surat, jenisSurat, ...data_form } = req.body; 
     
-    // Prioritaskan jenis_surat (snake_case) dari frontend, fallback ke jenisSurat
     const tipeSurat = jenis_surat || jenisSurat || "Pengajuan Lainnya";
 
-    // Handle upload file dari Supabase
-    let berkasUrls = {}; // ✅ FIX: Gunakan nama variabel jamak yang konsisten
+    let berkasUrls = {};
     
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
-          // Nama file unik: timestamp_namafile
           const fileName = `${Date.now()}_${file.originalname.replace(/\s/g, '_')}`;
           
-          // Upload Buffer ke Supabase Storage (Bucket 'berkas-desa')
           const { data, error } = await supabase.storage
-            .from('surat_desa') // ✅ Pastikan nama bucket sesuai di Supabase
+            .from('surat_desa')
             .upload(`pengajuan/${fileName}`, file.buffer, {
               contentType: file.mimetype
             });
 
           if (error) throw error;
 
-          // Dapatkan Public URL
           const { data: publicData } = supabase.storage
             .from('surat_desa')
             .getPublicUrl(`pengajuan/${fileName}`);
@@ -59,17 +53,14 @@ exports.createSurat = async (req, res) => {
         }
       }
 
-    // Parsing data_form dari string JSON kembali ke object
     let parsedDataForm = {};
     try {
         parsedDataForm = typeof data_form === 'string' ? JSON.parse(data_form) : data_form;
-        // Jika data_form masih terbungkus di properti 'data_form' (edge case formdata)
         if (parsedDataForm.data_form) parsedDataForm = JSON.parse(parsedDataForm.data_form);
     } catch (e) {
         parsedDataForm = data_form; 
     }
 
-    // Gabungkan data text form dengan URL berkas dari Supabase
     const finalData = { 
         ...parsedDataForm, 
         berkas: berkasUrls 
@@ -81,11 +72,23 @@ exports.createSurat = async (req, res) => {
         jenisSurat: tipeSurat,
         noTiket: `TKT-${Date.now()}`,
         data: finalData,
-        status: "Proses" // Langsung status Proses agar admin notice
+        status: "Pending"
+      },
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            nik: true,
+            no_telp: true
+          }
+        }
       }
     });
 
-    res.status(201).json({ success: true, data: newSurat });
+    res.status(201).json({ 
+      success: true, 
+      data: transformSuratData(newSurat) 
+    });
   } catch (error) {
     console.error("❌ Error createSurat:", error);
     res.status(500).json({ success: false, error: error.message });
@@ -146,43 +149,97 @@ exports.getAllSurat = async (req, res) => {
   }
 };
 
-// 4. Update Status Surat (Dropdown di Dashboard Admin)
+// 4. Update Status Surat (Dropdown di Dashboard Admin) + Upload PDF dari AdminTemplate
 exports.updateStatusSurat = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { status, catatan_penolakan } = req.body; // Frontend kirim 'catatan_penolakan'
+  try {
+    const { id } = req.params;
+    const { status, catatan_penolakan } = req.body;
 
-      // ✅ FIX: Mapping ke nama kolom database yang benar (catatanAdmin)
-      const updateData = { status: status };
+    console.log("📝 Update Status Request:", { 
+      id, 
+      status, 
+      hasFile: !!req.file,
+      fileName: req.file?.originalname 
+    });
+
+    const updateData = {};
+    
+    // ✅ KASUS 1: Admin upload PDF dari AdminTemplate
+    if (req.file) {
+      console.log("📤 Uploading PDF to Supabase...");
       
-      if (status === "Ditolak") {
-        updateData.catatanAdmin = catatan_penolakan;
-      } else {
-        // Jika status bukan ditolak, hapus catatan lama (opsional)
-        updateData.catatanAdmin = null;
+      const fileName = `SURAT_${id}_${Date.now()}.pdf`;
+      
+      // Upload PDF ke Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('surat_desa')
+        .upload(`surat-selesai/${fileName}`, req.file.buffer, {
+          contentType: 'application/pdf',
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error("❌ Supabase upload error:", error);
+        throw new Error(`Upload gagal: ${error.message}`);
       }
 
-      const updatedSurat = await prisma.surat.update({
-        where: { id: id }, // ID string (UUID)
-        data: updateData,
-        include: {
-          user: {
-            select: {
-              nama_lengkap: true,
-              nik: true,
-              no_telp: true
-            }
+      // Dapatkan Public URL
+      const { data: publicData } = supabase.storage
+        .from('surat_desa')
+        .getPublicUrl(`surat-selesai/${fileName}`);
+      
+      updateData.fileSuratSelesai = publicData.publicUrl;
+      updateData.status = "Selesai"; // Otomatis set status Selesai jika ada PDF
+      updateData.catatanAdmin = null; // Hapus catatan penolakan jika ada
+      
+      console.log("✅ PDF uploaded successfully:", publicData.publicUrl);
+    } 
+    // ✅ KASUS 2: Admin update status manual (tanpa PDF)
+    else if (status) {
+      updateData.status = status;
+      
+      // Jika ditolak, simpan catatan
+      if (status === "Ditolak" && catatan_penolakan) {
+        updateData.catatanAdmin = catatan_penolakan;
+      } else {
+        updateData.catatanAdmin = null;
+      }
+    }
+
+    // Update database
+    const updatedSurat = await prisma.surat.update({
+      where: { id: id },
+      data: updateData,
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            nik: true,
+            no_telp: true
           }
         }
-      });
+      }
+    });
 
-      res.json({ 
-        success: true, 
-        data: transformSuratData(updatedSurat) 
-      });
+    console.log("✅ Surat updated successfully:", {
+      id: updatedSurat.id,
+      status: updatedSurat.status,
+      hasFile: !!updatedSurat.fileSuratSelesai
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Status berhasil diupdate",
+      data: transformSuratData(updatedSurat) 
+    });
   } catch (error) {
     console.error("❌ Error updateStatusSurat:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      message: `Gagal update status: ${error.message}`
+    });
   }
 };
 
@@ -228,51 +285,7 @@ exports.getSuratById = async (req, res) => {
   }
 };
 
-
 // 7. Placeholder Download
 exports.downloadSuratSelesai = async (req, res) => {
   res.json({ message: "File PDF di-generate di Frontend" });
-};
-
-// 8. Fungsi Arsip Surat (Admin mengunggah PDF yang sudah jadi)
-exports.archiveSurat = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    
-    let fileUrl = null;
-
-    // ✅ FIX: Logic Upload ke Supabase untuk Arsip (PDF Generate dari Admin)
-    if (req.files && req.files.length > 0) {
-        const file = req.files[0]; // Ambil file pertama (PDF)
-        const fileName = `ARSIP_${Date.now()}_${id}.pdf`;
-
-        const { data, error } = await supabase.storage
-            .from('surat_desa') // Pastikan bucket benar
-            .upload(`arsip/${fileName}`, file.buffer, {
-                contentType: 'application/pdf'
-            });
-
-        if (error) throw error;
-
-        const { data: publicData } = supabase.storage
-            .from('surat_desa')
-            .getPublicUrl(`arsip/${fileName}`);
-        
-        fileUrl = publicData.publicUrl;
-    }
-
-    const updated = await prisma.surat.update({
-      where: { id: id }, // ✅ FIX: Jangan pakai parseInt jika ID UUID
-      data: {
-        status: status || "Selesai",
-        fileSuratSelesai: fileUrl // Pastikan nama kolom DB benar (fileSuratSelesai / filePdf)
-      }
-    });
-
-    res.json({ success: true, data: updated });
-  } catch (error) {
-    console.error("❌ Error archiveSurat:", error);
-    res.status(500).json({ error: error.message });
-  }
 };

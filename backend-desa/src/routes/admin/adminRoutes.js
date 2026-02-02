@@ -12,10 +12,14 @@ router.use(adminMiddleware);
 
 // ✅ Rute Admin - Sesuai kebutuhan Frontend
 router.get('/surat', suratController.getAllSurat); // GET semua surat
-router.put('/surat/:id', suratController.updateStatusSurat); // UPDATE status (mendukung catatan_penolakan)
-router.put('/surat/:id/status', suratController.updateStatusSurat); // Backward compatibility
+
+// ✅ UPDATE dengan FILE UPLOAD (untuk Admin Template kirim PDF)
+router.put('/surat/:id', 
+  upload.single('pdf'),  // Accept file dengan field name 'pdf'
+  suratController.updateStatusSurat
+);
+
+router.put('/surat/:id/status', suratController.updateStatusSurat); // Backward compatibility tanpa file
 router.delete('/surat/:id', suratController.deleteSurat); // DELETE surat
-// Route untuk upload PDF hasil generate (Arsip)
-router.put('/surat/arsip/:id', upload.any(), suratController.archiveSurat);
 
 module.exports = router;
