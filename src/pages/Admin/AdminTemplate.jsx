@@ -1,14 +1,3 @@
-Berikut adalah kode AdminTemplate.jsx yang sudah diperbaiki.
-
-Perbaikan Kunci yang Dilakukan:
-
-Mengganti Nama Field Upload: Saya mengubah uploadData.append("pdf", ...) menjadi uploadData.append("file", ...) di dalam fungsi generatePDF. Ini wajib dilakukan agar cocok dengan upload.single('file') yang ada di Backend/Multer.
-
-Menghapus Header Manual: Saya menghapus { headers: { "Content-Type": "multipart/form-data" } }. Biarkan Axios/Browser yang mengaturnya secara otomatis agar boundary file terbaca dengan benar oleh backend.
-
-Silakan Copy & Paste kode lengkap di bawah ini ke file AdminTemplate.jsx Anda:
-
-JavaScript
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
