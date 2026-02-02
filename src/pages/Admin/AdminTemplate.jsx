@@ -138,17 +138,29 @@ export default function AdminTemplate() {
         { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
       
-      console.log("✅ Response dari server:", response.data);
-      pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
-      alert(`✅ Surat berhasil diterbitkan!`);
-      navigate("/admin/dashboard");
+      if (response.status === 200) {
+        pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
+        alert("✅ Surat berhasil diterbitkan!");
+        navigate("/admin/pengajuan");
+      } else {
+        throw new Error("Upload gagal");
+      }
       
     } catch (err) {
-      console.error("❌ Error detail:", err);
-      alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
+        console.error("❌ Error detail:", err);
+        
+        // Jangan navigate kalau error!
+        if (err.response?.status === 401) {
+          // Kalau 401, baru logout
+          alert("Sesi habis, silakan login kembali");
+          navigate("/login");
+        } else {
+          // Error lain, tetap di halaman
+          alert(err.response?.data?.message || `Terjadi kesalahan: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
+      }
   };
 
   const renderSidebarEditor = () => {
