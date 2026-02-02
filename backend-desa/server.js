@@ -16,8 +16,8 @@ const adminMiddleware = require('./src/controllers/middleware/adminMiddleware');
 const authMiddleware = require('./src/controllers/middleware/authMiddleware');
 
 
-app.use("/api/auth", authRoutes, authMiddleware);
-app.use("/api/admin", authMiddleware, adminRoutes, adminMiddleware);
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", authMiddleware.protect, adminMiddleware.isAdmin, adminRoutes);
 app.use("/api/surat", suratRoutes);
 
 app.use(express.json({ limit: '10mb' }));
