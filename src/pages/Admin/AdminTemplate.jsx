@@ -170,7 +170,7 @@ export default function AdminTemplate() {
     uploadData.append("status", "Selesai");
 
     const response = await api.put(
-      `/api/admin/arsip/${id_pengajuan}`, 
+      `/api/admin/surat/${id_pengajuan}`, 
       uploadData,
       {timeout: 30000 }
     );
