@@ -12,13 +12,12 @@ app.use(express.json());
 const authRoutes = require("./src/routes/auth/authRoutes");
 const suratRoutes = require("./src/routes/suratRoutes");
 const adminRoutes = require("./src/routes/admin/adminRoutes");
-const ProtectedRoute = require("./src/routes/ProtectedRoute");
 const adminMiddleware = require('./src/controllers/middleware/adminMiddleware');
 const authMiddleware = require('./src/controllers/middleware/authMiddleware');
 
 
 app.use("/api/auth", authRoutes, authMiddleware);
-app.use("/api/admin", ProtectedRoute(authMiddleware, adminRoutes, adminMiddleware));
+app.use("/api/admin", authMiddleware, adminRoutes, adminMiddleware);
 app.use("/api/surat", suratRoutes);
 
 app.use(express.json({ limit: '10mb' }));
