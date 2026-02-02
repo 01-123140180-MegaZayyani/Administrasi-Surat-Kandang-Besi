@@ -12,7 +12,7 @@ import BuatSurat from "./pages/Warga/BuatSurat";
 import Profil from "./pages/Warga/Profil"; 
 import FormulirSurat from "./pages/Warga/FormulirSurat";
 import StatusSurat from "./pages/Warga/StatusSurat";
-import CetakSuratWarga from "./pages/Warga/CetakSuratWarga"; // <--- TAMBAHKAN INI
+import CetakSuratWarga from "./pages/Warga/CetakSuratWarga";
 
 // --- IMPORT HALAMAN ADMIN ---
 import LoginAdmin from "./pages/Admin/LoginAdmin"; 
@@ -35,25 +35,20 @@ function App() {
         <Route path="/status" element={<StatusSurat />} />
         <Route path="/formulir-surat" element={<FormulirSurat />} />
         <Route path="/profil" element={<Profil />} />
-        <Route path="/cetak-surat-warga" element={<CetakSuratWarga />} /> {/* <--- TAMBAHKAN INI */}
+        <Route path="/cetak-surat-warga" element={<CetakSuratWarga />} />
 
-        {/* 3. RUTE LOGIN ADMIN */}
+        {/* 3. RUTE LOGIN ADMIN (tanpa layout) */}
         <Route path="/admin/login" element={<LoginAdmin />} />
-        
-        <Route path="/admin/dashboard" element={
-          localStorage.getItem('token') 
-            ? <AdminDashboard /> 
-            : <Navigate to="/admin/login" replace />
-        } />
-        
-        <Route path="/admin/pengajuan" element={
-          localStorage.getItem('token') 
-            ? <AdminPengajuan /> 
-            : <Navigate to="/admin/login" replace />
-        } />
 
-        {/* 4. RUTE DASHBOARD ADMIN (Menggunakan Layout) */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* 4. RUTE ADMIN (Menggunakan AdminLayout - ada Header) */}
+        <Route 
+          path="/admin" 
+          element={
+            localStorage.getItem('token') 
+              ? <AdminLayout /> 
+              : <Navigate to="/admin/login" replace />
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="pengajuan" element={<AdminPengajuan />} />
