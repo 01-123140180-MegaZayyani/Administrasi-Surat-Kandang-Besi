@@ -133,7 +133,7 @@ export default function AdminTemplate() {
 
       // 2. Menggunakan api.put (Base URL otomatis dari utils/api)
       const response = await api.put(
-        `/pengajuan/arsip/${id_pengajuan}`, 
+        `/api/admin/surat/${id_pengajuan}`, 
         uploadData,
         { headers: { "Content-Type": "multipart/form-data" }, timeout: 30000 }
       );
@@ -141,7 +141,7 @@ export default function AdminTemplate() {
       console.log("✅ Response dari server:", response.data);
       pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
       alert(`✅ Surat berhasil diterbitkan!`);
-      navigate("/admin/pengajuan");
+      navigate("/admin/surat");
       
     } catch (err) {
       console.error("❌ Error detail:", err);
