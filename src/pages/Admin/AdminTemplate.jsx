@@ -1420,32 +1420,59 @@ function TemplateSKTM({ formData }) {
         </div>
       </div>
 
-    <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
-  <p style={{ margin: "0 0 3px 0" }}>Mengetahui</p>
-  <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kotaagung Barat</p>
-  
-  {/* KOSONG - TANPA TTD */}
-  <div style={{ height: "70px" }}></div>
-  
-  <p style={{ margin: "0", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
-    {formData.nama_camat || "(....................................)"}
-  </p>
-  <p style={{ margin: "3px 0 0 0", fontSize: "11pt" }}>
-    NIP. {formData.nip_camat || "...................................."}
-  </p>
- 
-        <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
-  <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
-  
-  {/* TTD KEPALA PEKON */}
-  <div style={{ textAlign: "center", marginBottom: "10px" }}>
-    <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "120px", height: "60px", objectFit: "contain", margin: "0 auto" }} />
-  </div>
-  
-  <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
-    {formData.penandatangan}
-  </p>
-        </div>
+        {/* BAGIAN TANDA TANGAN - BERSEBERANGAN */}
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          marginTop: "40px",
+          paddingLeft: "40px",
+          paddingRight: "40px"
+        }}>
+          
+          {/* KIRI - CAMAT */}
+          <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
+            <p style={{ margin: "0 0 3px 0" }}>Mengetahui</p>
+            <p style={{ margin: "0 0 10px 0" }}>Camat Kecamatan Kotaagung Barat</p>
+            
+            {/* KOSONG - TANPA TTD */}
+            <div style={{ height: "70px" }}></div>
+            
+            <p style={{ margin: "0", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>
+              {formData.nama_camat || "(....................................)"}
+            </p>
+            <p style={{ margin: "3px 0 0 0", fontSize: "11pt" }}>
+              NIP. {formData.nip_camat || "...................................."}
+            </p>
+          </div>
+
+          {/* KANAN - KEPALA PEKON */}
+          <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
+            <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
+            
+            {/* TTD KEPALA PEKON */}
+            <div style={{ textAlign: "center", marginBottom: "10px" }}>
+              <img 
+                src={TTD_PEKON_PATH} 
+                alt="TTD" 
+                style={{ 
+                  width: "120px", 
+                  height: "60px", 
+                  objectFit: "contain", 
+                  margin: "0 auto" 
+                }} 
+              />
+            </div>
+            
+            <p style={{ 
+              margin: "0", 
+              fontSize: "12pt", 
+              fontWeight: "bold", 
+              textDecoration: "underline", 
+              textUnderlineOffset: "2px" 
+            }}>
+              Mukhtar
+            </p>
+          </div>
       </div>
     </div>
   );
