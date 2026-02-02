@@ -141,7 +141,7 @@ export default function AdminTemplate() {
       console.log("✅ Response dari server:", response.data);
       pdf.save(`Surat_${type.toUpperCase()}_${formData.nama}.pdf`);
       alert(`✅ Surat berhasil diterbitkan!`);
-      navigate("/admin/surat");
+      navigate("/admin/dashboard");
       
     } catch (err) {
       console.error("❌ Error detail:", err);

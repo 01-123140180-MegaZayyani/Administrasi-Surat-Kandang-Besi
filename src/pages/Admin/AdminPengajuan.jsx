@@ -146,7 +146,8 @@ export default function AdminPengajuan() {
                       return Object.entries(berkas).map(([key, file]) => (
                         <a 
                           key={key} 
-                          href={file} 
+                          href={file}
+                          download={`${key}_${detailTerpilih.nama_warga}.${file.split('.').pop()}`} 
                           target="_blank" 
                           rel="noreferrer" 
                           className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group hover:border-blue-500 hover:bg-blue-50 transition-all"
