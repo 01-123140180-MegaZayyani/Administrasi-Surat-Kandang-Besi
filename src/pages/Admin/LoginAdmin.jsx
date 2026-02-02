@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Lock, User } from "lucide-react";
 
 export default function LoginAdmin() {
-  const [username, setUsername] = useState("");
+  const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -12,7 +12,7 @@ export default function LoginAdmin() {
     e.preventDefault();
     try {
       const res = await api.post("https://backend-administrasi-surat-kandang-two.vercel.app/api/admin/login", {
-        username,
+        nik,
         password,
       });
       
@@ -25,7 +25,7 @@ export default function LoginAdmin() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("Username atau Password salah! Hanya staf yang bisa masuk.");
+      alert("nik atau Password salah! Hanya staf yang bisa masuk.");
     }
   };
 
@@ -42,15 +42,15 @@ export default function LoginAdmin() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Username Staf</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">nik Staf</label>
             <div className="relative">
               <User className="absolute left-4 top-3.5 text-slate-400" size={18} />
               <input
                 type="text"
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
-                placeholder="Masukkan username..."
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Masukkan nik..."
+                value={nik}
+                onChange={(e) => setnik(e.target.value)}
                 required
               />
             </div>
