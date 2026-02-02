@@ -164,13 +164,13 @@ export default function AdminTemplate() {
         
         // ✅ Scroll ke element
         pageElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Naikkan dari 500ms ke 1000ms
         
         // ✅ Capture dengan settings optimal
         const canvas = await html2canvas(pageElement, { 
-          scale: 2,
+          scale: 3, // Naikkan dari 2 ke 3 untuk kualitas lebih baik
           useCORS: true,
-          allowTaint: true,
+          allowTaint: false, // Ubah ke false untuk CORS yang proper
           logging: true,
           backgroundColor: '#ffffff',
           width: 794, // 210mm in pixels
@@ -179,6 +179,8 @@ export default function AdminTemplate() {
           windowHeight: 1123,
           scrollY: -window.scrollY,
           scrollX: -window.scrollX,
+          imageTimeout: 15000, // Tambahkan timeout untuk gambar
+          foreignObjectRendering: false, // Matikan untuk kompabilitas lebih baik
           onclone: (clonedDoc) => {
             const clonedPage = clonedDoc.querySelector('.page');
             if (clonedPage) {
@@ -575,8 +577,8 @@ function TemplateDomisili({ formData }) {
       <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
         <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
           <p style={{ margin: "0 0 10px 0" }}>{formData.jabatan_penandatangan || "Kepala Pekon Kandang Besi"}</p>
-          <div style={{ textAlign: "center", marginBottom: "10px" }}>
-            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "120px", height: "60px", objectFit: "contain", margin: "0 auto", display: "block" }} />
+          <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <img src={ttdPekon} alt="TTD" style={{ width: "130px", height: "70px", objectFit: "contain", display: "block" }} />
           </div>
           <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>{formData.penandatangan}</p>
         </div>
@@ -638,10 +640,10 @@ function TemplateSKTM({ formData }) {
         </div>
         <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
           <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
-          <div style={{ textAlign: "center", marginBottom: "10px" }}>
-            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "120px", height: "60px", objectFit: "contain", margin: "0 auto", display: "block" }} />
+          <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <img src={ttdPekon} alt="TTD" style={{ width: "130px", height: "70px", objectFit: "contain", display: "block" }} />
           </div>
-          <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>Mukhtar</p>
+          <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>{formData.penandatangan}</p>
         </div>
       </div>
     </div>
@@ -719,8 +721,10 @@ function TemplateKeramaian({ formData }) {
             <p style={{ fontSize: "10pt", margin: "2px 0 0 0" }}>NIP. {formData.nip_danramil || "..........................."}</p>
           </div>
           <div style={{ width: "30%", textAlign: "center" }}>
-            <p style={{ margin: "0 0 60px 0" }}>Kepala Pekon Kandang Besi</p>
-            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "100px", height: "50px", objectFit: "contain", margin: "0 auto 5px", display: "block" }} />
+            <p style={{ margin: "0 0 10px 0" }}>Kepala Pekon Kandang Besi</p>
+            <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
+              <img src={ttdPekon} alt="TTD" style={{ width: "120px", height: "70px", objectFit: "contain", display: "block" }} />
+            </div>
             <p style={{ fontWeight: "bold", textDecoration: "underline", margin: "0" }}>{formData.penandatangan}</p>
           </div>
         </div>
@@ -780,8 +784,8 @@ function TemplateSKU({ formData }) {
         <div style={{ textAlign: "center", width: "230px", fontSize: "12pt" }}>
           <p style={{ margin: "0 0 10px 0" }}>{formData.jabatan_penandatangan || "Kepala Pekon Kandang Besi"}</p>
           {formData.nama_kasih_pelayanan && <p style={{ margin: "0 0 10px 0", fontSize: "11pt" }}>{formData.nama_kasih_pelayanan}</p>}
-          <div style={{ textAlign: "center", marginBottom: "10px" }}>
-            <img src={TTD_PEKON_PATH} alt="TTD" style={{ width: "120px", height: "60px", objectFit: "contain", margin: "0 auto", display: "block" }} />
+          <div style={{ height: "80px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+            <img src={ttdPekon} alt="TTD" style={{ width: "130px", height: "70px", objectFit: "contain", display: "block" }} />
           </div>
           <p style={{ margin: "0", fontSize: "12pt", fontWeight: "bold", textDecoration: "underline", textUnderlineOffset: "2px" }}>{formData.penandatangan}</p>
         </div>
