@@ -104,13 +104,15 @@ export default function AdminTemplate() {
         await new Promise(resolve => setTimeout(resolve, 300));
         
         const canvas = await html2canvas(pageClone, { 
-          scale: 3,
+          scale: 2,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
-          width: 794,
-          windowHeight: pageClone.scrollHeight,
-          height: pageClone.scrollHeight  
+          windowHeight: pageClone.scrollHeight + 100,
+          scrollY: -window.scrollY,
+          scrollX: -window.scrollX,
+          width: pageClone.scrollWidth,
+          height: pageClone.scrollHeight + 100
         });
         
         document.body.removeChild(pageClone);
