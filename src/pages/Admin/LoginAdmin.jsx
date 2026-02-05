@@ -1,8 +1,7 @@
 import { useState } from "react";
 import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Lock, User } from "lucide-react";
-import { ShieldCheck, Lock, User, Eye, EyeOff } from "lucide-react";
+import { ShieldCheck, Lock, User, Eye, EyeOff} from "lucide-react";
 
 export default function LoginAdmin() {
   const [nik, setNik] = useState("");
