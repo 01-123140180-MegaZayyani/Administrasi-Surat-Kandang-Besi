@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ShieldCheck, Lock, User, Eye, EyeOff } from "lucide-react";
 import api from '../../utils/api';
 
 export default function Register() {
@@ -14,6 +15,8 @@ export default function Register() {
 
   const [nikStatus, setNikStatus] = useState({ message: "", color: "" });
   const [isNikValid, setIsNikValid] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // 1. FUNGSI VALIDASI LOGIKA NIK (Struktur KTP)
   const validateNikLogic = (nik) => {
@@ -123,6 +126,17 @@ export default function Register() {
             <input required type="password" placeholder="Masukkan kata sandi" 
               className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               onChange={(e) => setFormData({...formData, password: e.target.value})} />
+            <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? (
+                  <Eye size={20} />
+                ) : (
+                  <EyeOff size={20} />
+                )}
+              </button>
           </div>
 
           <div>
@@ -130,6 +144,17 @@ export default function Register() {
             <input required type="password" placeholder="Masukkan ulang kata sandi" 
               className="w-full mt-2 bg-white border border-slate-200 rounded-xl px-4 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} />
+            <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? (
+                  <Eye size={20} />
+                ) : (
+                  <EyeOff size={20} />
+                )}
+              </button>
           </div>
 
           <button type="submit" className="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-bold uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-blue-100">

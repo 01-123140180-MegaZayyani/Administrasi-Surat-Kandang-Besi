@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import api from '../../utils/api';
 
 export default function Login() {
@@ -7,6 +8,8 @@ export default function Login() {
   const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -67,6 +70,17 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
             />
+            <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? (
+                  <Eye size={20} />
+                ) : (
+                  <EyeOff size={20} />
+                )}
+              </button>
           </div>
 
           <button 

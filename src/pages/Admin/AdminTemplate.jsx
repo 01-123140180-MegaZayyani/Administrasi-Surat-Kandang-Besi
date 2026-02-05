@@ -109,6 +109,8 @@ export default function AdminTemplate() {
           logging: false,
           backgroundColor: '#ffffff',
           width: 794,
+          windowHeight: pageClone.scrollHeight,
+          height: pageClone.scrollHeight  
         });
         
         document.body.removeChild(pageClone);

@@ -2,10 +2,12 @@ import { useState } from "react";
 import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Lock, User } from "lucide-react";
+import { ShieldCheck, Lock, User, Eye, EyeOff } from "lucide-react";
 
 export default function LoginAdmin() {
   const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -68,6 +70,17 @@ export default function LoginAdmin() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? (
+                  <Eye size={18} />
+                ) : (
+                  <EyeOff size={18} />
+                )}
+              </button>
             </div>
           </div>
 
