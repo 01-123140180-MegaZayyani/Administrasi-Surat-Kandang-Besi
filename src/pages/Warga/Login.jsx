@@ -10,7 +10,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -62,25 +61,27 @@ export default function Login() {
 
           <div>
             <label className="text-xs font-bold text-[#1E3A8A] uppercase">Kata Sandi</label>
-            <input 
-              required 
-              type="password" 
-              placeholder="Masukkan kata sandi" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
-            />
-            <button
+            <div className="relative mt-2">
+              <input 
+                required 
+                type={showPassword ? "text" : "password"}
+                placeholder="Masukkan kata sandi" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-12 py-4 text-sm outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              />
+              <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#1E3A8A] transition-colors focus:outline-none"
               >
                 {showPassword ? (
-                  <Eye size={20} />
+                  <Eye size={20} className="text-slate-600" />
                 ) : (
-                  <EyeOff size={20} />
+                  <EyeOff size={20} className="text-slate-400" />
                 )}
               </button>
+            </div>
           </div>
 
           <button 

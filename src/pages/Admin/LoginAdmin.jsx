@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Lock, User, Eye, EyeOff} from "lucide-react";
+import { ShieldCheck, Lock, User, Eye, EyeOff } from "lucide-react";
 
 export default function LoginAdmin() {
   const [nik, setNik] = useState("");
@@ -26,7 +26,7 @@ export default function LoginAdmin() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("nik atau Password salah! Hanya staf yang bisa masuk.");
+      alert("NIK atau Password salah! Hanya staf yang bisa masuk.");
     }
   };
 
@@ -43,15 +43,15 @@ export default function LoginAdmin() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">nik Staf</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">NIK Staf</label>
             <div className="relative">
               <User className="absolute left-4 top-3.5 text-slate-400" size={18} />
               <input
                 type="text"
                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
-                placeholder="Masukkan nik..."
+                placeholder="Masukkan NIK..."
                 value={nik}
-                onChange={(e) => setnik(e.target.value)}
+                onChange={(e) => setNik(e.target.value)}
                 required
               />
             </div>
@@ -60,10 +60,10 @@ export default function LoginAdmin() {
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Kata Sandi</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-3.5 text-slate-400" size={18} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input
-                type="password"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
+                type={showPassword ? "text" : "password"}
+                className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-700"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -72,12 +72,12 @@ export default function LoginAdmin() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
               >
                 {showPassword ? (
-                  <Eye size={18} />
+                  <Eye size={18} className="text-slate-600" />
                 ) : (
-                  <EyeOff size={18} />
+                  <EyeOff size={18} className="text-slate-400" />
                 )}
               </button>
             </div>
